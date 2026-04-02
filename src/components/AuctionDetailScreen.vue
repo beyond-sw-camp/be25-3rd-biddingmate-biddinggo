@@ -42,6 +42,34 @@ const bidHistoryRows = [
   amount: '***원',
   date: '20xx/xx/xx xx:xx:xx.xx',
 }))
+const sellerProfile = {
+  avatar: 'https://www.figma.com/api/mcp/asset/1a84177d-d7c8-4353-8a50-20c14d87fbe5',
+  badge: 'https://www.figma.com/api/mcp/asset/81111f1e-47ca-4819-bcc5-08161ec6a90c',
+  rating: '4.8',
+  reviewCount: 100,
+  joinedAt: '2022. 03. 15',
+  stats: [
+    { label: '총 판매 건수', value: '1,000' },
+    { label: '판매 취소', value: '3' },
+    { label: '반품', value: '0' },
+    { label: '응답률', value: '98%' },
+  ],
+  reviews: [
+    {
+      author: 'Kim_D***',
+      date: '2023. 11. 24',
+      rating: 5,
+      content:
+        '포장이 정말 꼼꼼하게 잘 되어 왔습니다. 배송도 생각보다 훨씬 빠르고 물건 상태도 설명하신 것보다 더 좋네요. 믿고 거래할 수 있는 판매자입니다.',
+    },
+    {
+      author: 'Lee_H***',
+      date: '2023. 11. 20',
+      rating: 4,
+      content: '답변이 아주 빠르셔서 궁금한 점을 바로 해결할 수 있었습니다. 좋은 경매 감사합니다!',
+    },
+  ],
+}
 
 function parseAmount(value) {
   return Number(String(value).replace(/[^\d]/g, '')) || 0
@@ -54,6 +82,7 @@ function formatAmount(value) {
 const minimumBidAmount = computed(() => parseAmount(props.item.price) + parseAmount(props.item.bidUnit))
 const buyNowAmount = computed(() => parseAmount(props.item.buyNowPrice))
 
+const isSellerModalOpen = ref(false)
 const isBidModalOpen = ref(false)
 const isBidHistoryDrawerOpen = ref(false)
 const isReportModalOpen = ref(false)
@@ -68,6 +97,14 @@ const inquiryForm = ref({
   title: '',
   content: '',
 })
+
+function openSellerModal() {
+  isSellerModalOpen.value = true
+}
+
+function closeSellerModal() {
+  isSellerModalOpen.value = false
+}
 
 function syncBidAmount(value = minimumBidAmount.value) {
   bidAmount.value = formatAmount(value)
@@ -158,7 +195,9 @@ function submitInquiry() {
           <div class="seller-meta">
             <div class="seller-avatar"></div>
             <div class="seller-info">
-              <span class="seller-name">{{ item.seller }}</span>
+              <button type="button" class="seller-name-button" @click="openSellerModal">
+                {{ item.seller }}
+              </button>
               <span class="seller-grade">{{ item.sellerGrade }}</span>
             </div>
           </div>
@@ -258,6 +297,80 @@ function submitInquiry() {
           </div>
         </div>
       </div>
+    </div>
+
+    <div v-if="isSellerModalOpen" class="detail-inquiry-overlay" @click.self="closeSellerModal">
+      <section class="detail-seller-modal">
+        <div class="detail-seller-modal-header">
+          <button type="button" class="detail-inquiry-close" @click="closeSellerModal">×</button>
+        </div>
+
+        <div class="detail-seller-profile">
+          <img :src="sellerProfile.avatar" :alt="item.seller" class="detail-seller-avatar" />
+          <div class="detail-seller-copy">
+            <div class="detail-seller-name-row">
+              <img :src="sellerProfile.badge" alt="" class="detail-seller-badge" />
+              <strong>{{ item.seller }}</strong>
+            </div>
+
+            <div class="detail-seller-meta-row">
+              <div class="detail-seller-rating">
+                <span
+                  v-for="starIndex in 5"
+                  :key="`seller-star-${starIndex}`"
+                  class="detail-seller-star"
+                >
+                  {{ starIndex <= Math.round(Number(sellerProfile.rating)) ? '★' : '☆' }}
+                </span>
+                <span class="detail-seller-rating-value">{{ sellerProfile.rating }}</span>
+                <span class="detail-seller-review-count">(리뷰 {{ sellerProfile.reviewCount }})</span>
+              </div>
+
+              <div class="detail-seller-joined">가입일: {{ sellerProfile.joinedAt }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-seller-stats">
+          <article
+            v-for="stat in sellerProfile.stats"
+            :key="stat.label"
+            class="detail-seller-stat-card"
+          >
+            <span>{{ stat.label }}</span>
+            <strong>{{ stat.value }}</strong>
+          </article>
+        </div>
+
+        <div class="detail-seller-reviews">
+          <h3>구매자 리뷰 ({{ sellerProfile.reviewCount }})</h3>
+
+          <article
+            v-for="review in sellerProfile.reviews"
+            :key="`${review.author}-${review.date}`"
+            class="detail-seller-review"
+          >
+            <div class="detail-seller-review-top">
+              <div>
+                <strong>{{ review.author }}</strong>
+                <span>{{ review.date }}</span>
+              </div>
+              <div class="detail-seller-review-stars">
+                <span
+                  v-for="starIndex in 5"
+                  :key="`${review.author}-star-${starIndex}`"
+                  class="detail-seller-star"
+                >
+                  {{ starIndex <= review.rating ? '★' : '☆' }}
+                </span>
+              </div>
+            </div>
+
+            <img :src="props.assets.listWatchImage" :alt="item.title" class="detail-seller-review-image" />
+            <p>{{ review.content }}</p>
+          </article>
+        </div>
+      </section>
     </div>
 
     <div

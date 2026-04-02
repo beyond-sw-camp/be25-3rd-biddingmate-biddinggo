@@ -27,28 +27,31 @@ export const assets = {
 }
 
 export const navigationItems = [
-  { label: '홈', icon: assets.homeIcon, key: 'home' },
-  { label: '카테고리', icon: assets.categoryIcon, key: 'list' },
-  { label: '경매 등록', icon: assets.registerIcon, key: 'register' },
-  { label: '검수', icon: assets.inspectionIcon, key: 'inspection' },
+  { label: '홈', icon: assets.homeIcon, key: 'home', route: '/' },
+  { label: '카테고리', icon: assets.categoryIcon, key: 'list', route: '/auctions' },
+  { label: '경매 등록', icon: assets.registerIcon, key: 'register', route: '/register' },
+  { label: '검수', icon: assets.inspectionIcon, key: 'inspection', route: '/inspection' },
 ]
 
 export const mypageNavigationItems = [
-  { label: '대시보드', icon: assets.mypageDashboardIcon, key: 'mypage-dashboard', route: 'mypage' },
-  { label: '입찰 내역', icon: assets.mypageBidIcon, key: 'mypage-bids', route: 'mypage' },
-  { label: '관심 경매', icon: assets.mypageHeartIcon, key: 'mypage-hearts', route: 'mypage' },
-  { label: '구매 내역', icon: assets.mypageBuyIcon, key: 'mypage-buys', route: 'mypage' },
-  { label: '판매 내역', icon: assets.mypageSellIcon, key: 'mypage-sells', route: 'mypage' },
-  { label: '경매 관리', icon: assets.mypageSellIcon, key: 'mypage-auctions', route: 'mypage' },
-  { label: '프로필 관리', icon: assets.mypageProfileIcon, key: 'mypage-profile', route: 'mypage' },
-  { label: '주소록 관리', icon: assets.mypageAddressIcon, key: 'mypage-address', route: 'mypage' },
-  { label: '포인트 관리', icon: assets.mypagePointIcon, key: 'mypage-points', route: 'mypage' },
-  { label: '구매/판매 문의 내역', icon: assets.mypageInquiryIcon, key: 'mypage-qa', route: 'mypage' },
-  { label: '1:1 문의 내역', icon: assets.mypageOneToOneIcon, key: 'mypage-support', route: 'mypage' },
+  { label: '대시보드', icon: assets.mypageDashboardIcon, key: 'mypage-dashboard', route: '/mypage' },
+  { label: '입찰 내역', icon: assets.mypageBidIcon, key: 'mypage-bids', route: '/mypage' },
+  { label: '관심 경매', icon: assets.mypageHeartIcon, key: 'mypage-hearts', route: '/mypage' },
+  { label: '구매 내역', icon: assets.mypageBuyIcon, key: 'mypage-buys', route: '/mypage' },
+  { label: '판매 내역', icon: assets.mypageSellIcon, key: 'mypage-sells', route: '/mypage' },
+  { label: '경매 관리', icon: assets.mypageSellIcon, key: 'mypage-auctions', route: '/mypage' },
+  { label: '프로필 관리', icon: assets.mypageProfileIcon, key: 'mypage-profile', route: '/mypage' },
+  { label: '주소록 관리', icon: assets.mypageAddressIcon, key: 'mypage-address', route: '/mypage' },
+  { label: '포인트 관리', icon: assets.mypagePointIcon, key: 'mypage-points', route: '/mypage' },
+  { label: '구매/판매 문의 내역', icon: assets.mypageInquiryIcon, key: 'mypage-qa', route: '/mypage' },
+  { label: '1:1 문의 내역', icon: assets.mypageOneToOneIcon, key: 'mypage-support', route: '/mypage' },
 ]
+
+let itemSequence = 1
 
 function buildItem(overrides = {}) {
   return {
+    id: overrides.id ?? `auction-${itemSequence++}`,
     title: '롤렉스 시계',
     brand: '브랜드',
     price: '8,000,000',
@@ -198,3 +201,9 @@ export const mypagePurchaseItems = [
     date: '2026.03.03',
   },
 ]
+
+export const allAuctionItems = [...bestItems, ...listItems, ...inspectionItems]
+
+export function findAuctionItemById(id) {
+  return allAuctionItems.find((item) => item.id === id) ?? null
+}
