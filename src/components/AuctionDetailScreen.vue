@@ -1,5 +1,7 @@
 <script setup>
-defineProps({
+import { ref } from 'vue'
+
+const props = defineProps({
   assets: {
     type: Object,
     required: true,
@@ -11,15 +13,60 @@ defineProps({
 })
 
 defineEmits(['back'])
+
+const reportTypes = [
+  '위조품 / 가짜 상품',
+  '허위 / 과장 정보',
+  '부적절한 콘텐츠',
+  '중복 등록',
+  '도난물 의심',
+  '기타',
+]
+
+const isReportModalOpen = ref(false)
+const reportForm = ref({
+  type: '기타',
+  detail: '',
+})
+const isInquiryModalOpen = ref(false)
+const inquiryForm = ref({
+  isPrivate: true,
+  title: '',
+  content: '',
+})
+
+function openReportModal() {
+  isReportModalOpen.value = true
+}
+
+function closeReportModal() {
+  isReportModalOpen.value = false
+}
+
+function submitReport() {
+  isReportModalOpen.value = false
+}
+
+function openInquiryModal() {
+  isInquiryModalOpen.value = true
+}
+
+function closeInquiryModal() {
+  isInquiryModalOpen.value = false
+}
+
+function submitInquiry() {
+  isInquiryModalOpen.value = false
+}
 </script>
 
 <template>
   <section class="detail-screen">
     <div class="detail-title-row">
       <div class="detail-breadcrumb">{{ item.brand }} |</div>
-      <div class="detail-chip">
-        <span>span</span>
-      </div>
+      <button type="button" class="detail-chip detail-report-trigger" @click="openReportModal">
+        신고하기
+      </button>
     </div>
 
     <div class="detail-grid">
@@ -46,7 +93,7 @@ defineEmits(['back'])
               <span class="seller-grade">{{ item.sellerGrade }}</span>
             </div>
           </div>
-          <button type="button" class="seller-button">문의 하기</button>
+          <button type="button" class="seller-button" @click="openInquiryModal">문의 하기</button>
         </div>
 
         <div class="detail-description-card">
@@ -141,6 +188,102 @@ defineEmits(['back'])
 
         <button type="button" class="back-to-list" @click="$emit('back')">목록으로</button>
       </div>
+    </div>
+
+    <div v-if="isReportModalOpen" class="detail-inquiry-overlay" @click.self="closeReportModal">
+      <section class="detail-report-modal">
+        <div class="detail-inquiry-header">
+          <h3>신고하기</h3>
+          <button type="button" class="detail-inquiry-close" @click="closeReportModal">×</button>
+        </div>
+
+        <div class="detail-inquiry-summary">
+          <img :src="props.assets.listWatchImage" :alt="item.title" class="detail-inquiry-thumb" />
+          <div class="detail-inquiry-summary-copy">
+            <strong>{{ item.title }}</strong>
+            <span>현재 입찰가</span>
+            <em>{{ item.price }}원</em>
+          </div>
+        </div>
+
+        <div class="detail-report-fields">
+          <div class="detail-report-field">
+            <span>신고 유형 <em>*</em></span>
+            <div class="detail-report-options">
+              <button
+                v-for="type in reportTypes"
+                :key="type"
+                type="button"
+                class="detail-report-option"
+                :class="{ 'is-selected': reportForm.type === type }"
+                @click="reportForm.type = type"
+              >
+                <span class="detail-report-radio" />
+                <span>{{ type }}</span>
+              </button>
+            </div>
+          </div>
+
+          <label class="detail-report-field">
+            <span>신고 내용 <em>*</em></span>
+            <textarea
+              v-model="reportForm.detail"
+              class="detail-report-textarea"
+              placeholder="신고 사유에 대한 구체적인 내용을 작성해주세요."
+            />
+          </label>
+        </div>
+
+        <button type="button" class="detail-report-submit" @click="submitReport">
+          신고하기
+        </button>
+      </section>
+    </div>
+
+    <div v-if="isInquiryModalOpen" class="detail-inquiry-overlay" @click.self="closeInquiryModal">
+      <section class="detail-inquiry-modal">
+        <div class="detail-inquiry-header">
+          <h3>문의하기</h3>
+          <button type="button" class="detail-inquiry-close" @click="closeInquiryModal">×</button>
+        </div>
+
+        <div class="detail-inquiry-summary">
+          <img :src="props.assets.listWatchImage" :alt="item.title" class="detail-inquiry-thumb" />
+          <div class="detail-inquiry-summary-copy">
+            <strong>{{ item.title }}</strong>
+            <span>현재 입찰가</span>
+            <em>{{ item.price }}원</em>
+          </div>
+        </div>
+
+        <label class="detail-inquiry-secret">
+          <input v-model="inquiryForm.isPrivate" type="checkbox" />
+          <span>비밀글</span>
+        </label>
+
+        <div class="detail-inquiry-fields">
+          <label class="detail-inquiry-field">
+            <span>문의 제목 <em>*</em></span>
+            <input
+              v-model="inquiryForm.title"
+              type="text"
+              placeholder="제목을 입력해 주세요."
+            />
+          </label>
+
+          <label class="detail-inquiry-field">
+            <span>문의 내용 <em>*</em></span>
+            <textarea
+              v-model="inquiryForm.content"
+              placeholder="문의 내용을 상세히 작성해주세요."
+            />
+          </label>
+        </div>
+
+        <button type="button" class="detail-inquiry-submit" @click="submitInquiry">
+          문의하기
+        </button>
+      </section>
     </div>
   </section>
 </template>

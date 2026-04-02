@@ -11,6 +11,19 @@ export const assets = {
   listSearchIcon: 'https://www.figma.com/api/mcp/asset/b4053bac-f43a-41c8-9cec-70b678bc5248',
   sortChevronIcon: 'https://www.figma.com/api/mcp/asset/4df20e91-7e32-47a7-8ea9-3c8deaf9a724',
   listWatchImage: 'https://www.figma.com/api/mcp/asset/e8c9af76-2653-419a-8da5-b7a65a36822d',
+  mypageAvatar: 'https://www.figma.com/api/mcp/asset/21f4d4a4-0d13-4186-b9f8-40a9d874c50e',
+  mypageBadge: 'https://www.figma.com/api/mcp/asset/6f341c54-0e36-4d5a-a893-0a1f78729967',
+  mypageProductImage: 'https://www.figma.com/api/mcp/asset/44924696-d661-434c-8b1f-c248e5201a84',
+  mypageDashboardIcon: 'https://www.figma.com/api/mcp/asset/887eca34-d802-4708-99ec-92945a1ba784',
+  mypageBidIcon: 'https://www.figma.com/api/mcp/asset/f3201d74-9473-482c-a76f-fd0b9c2bd915',
+  mypageHeartIcon: 'https://www.figma.com/api/mcp/asset/fe553cbd-b56a-4797-897a-2ba1fed296ba',
+  mypageBuyIcon: 'https://www.figma.com/api/mcp/asset/2e8c075b-2dfd-4e70-8205-7daaf7fddfc4',
+  mypageSellIcon: 'https://www.figma.com/api/mcp/asset/849e3f38-d4ae-4cd6-a8ed-0e3b5f0dc3a6',
+  mypageProfileIcon: 'https://www.figma.com/api/mcp/asset/bb9a67de-0694-4cdc-bc74-4b08ff97335a',
+  mypageAddressIcon: 'https://www.figma.com/api/mcp/asset/290690e0-e933-452d-b9ce-042e6f313e7e',
+  mypagePointIcon: 'https://www.figma.com/api/mcp/asset/5baeb94b-90df-4325-9145-cbb201e1300c',
+  mypageInquiryIcon: 'https://www.figma.com/api/mcp/asset/b1dd571d-44b7-473b-b0e5-441778c65ba9',
+  mypageOneToOneIcon: 'https://www.figma.com/api/mcp/asset/a1d7ee56-d641-48f2-ac43-e94e3f9cd34c',
 }
 
 export const navigationItems = [
@@ -18,6 +31,20 @@ export const navigationItems = [
   { label: '카테고리', icon: assets.categoryIcon, key: 'list' },
   { label: '경매 등록', icon: assets.registerIcon, key: 'register' },
   { label: '검수', icon: assets.inspectionIcon, key: 'inspection' },
+]
+
+export const mypageNavigationItems = [
+  { label: '대시보드', icon: assets.mypageDashboardIcon, key: 'mypage-dashboard', route: 'mypage' },
+  { label: '입찰 내역', icon: assets.mypageBidIcon, key: 'mypage-bids', route: 'mypage' },
+  { label: '관심 경매', icon: assets.mypageHeartIcon, key: 'mypage-hearts', route: 'mypage' },
+  { label: '구매 내역', icon: assets.mypageBuyIcon, key: 'mypage-buys', route: 'mypage' },
+  { label: '판매 내역', icon: assets.mypageSellIcon, key: 'mypage-sells', route: 'mypage' },
+  { label: '경매 관리', icon: assets.mypageSellIcon, key: 'mypage-auctions', route: 'mypage' },
+  { label: '프로필 관리', icon: assets.mypageProfileIcon, key: 'mypage-profile', route: 'mypage' },
+  { label: '주소록 관리', icon: assets.mypageAddressIcon, key: 'mypage-address', route: 'mypage' },
+  { label: '포인트 관리', icon: assets.mypagePointIcon, key: 'mypage-points', route: 'mypage' },
+  { label: '구매/판매 문의 내역', icon: assets.mypageInquiryIcon, key: 'mypage-qa', route: 'mypage' },
+  { label: '1:1 문의 내역', icon: assets.mypageOneToOneIcon, key: 'mypage-support', route: 'mypage' },
 ]
 
 function buildItem(overrides = {}) {
@@ -129,4 +156,45 @@ export const inspectionItems = [
   buildItem({ title: '에르메스 켈리', brand: '에르메스', status: '경매 진행 중', inspectionGrade: 'A+', inspectionDate: '2024 / 03 / 11' }),
   buildItem({ title: '롤렉스 시계', brand: '롤렉스', status: '검수 대기', inspectionGrade: 'A+', inspectionDate: '2024 / 03 / 27' }),
   buildItem({ title: '루이비통 알마', brand: '루이비통', status: '검수 반려', inspectionGrade: 'B+', inspectionDate: '2024 / 03 / 12' }),
+]
+
+export const mypageProfile = {
+  seller: '셀러111',
+  points: '1,850,000 P',
+}
+
+export const mypageBidItems = [
+  {
+    title: '갤럭시 S23 Ultra',
+    status: '경매 진행 중',
+    time: '7분',
+    currentPrice: '₩950,000',
+    myBidPrice: '₩950,000',
+    date: '2026.03.03',
+  },
+  {
+    title: '갤럭시 S23 Ultra',
+    status: '경매 진행 중',
+    time: '7분',
+    currentPrice: '₩950,000',
+    myBidPrice: '₩950,000',
+    date: '2026.03.03',
+  },
+]
+
+export const mypagePurchaseItems = [
+  {
+    title: '갤럭시 S23 Ultra',
+    status: '거래완료',
+    buyer: '김철수',
+    price: '₩950,000',
+    date: '2026.03.03',
+  },
+  {
+    title: '갤럭시 S23 Ultra',
+    status: '발송 대기',
+    buyer: '김철수',
+    price: '₩950,000',
+    date: '2026.03.03',
+  },
 ]

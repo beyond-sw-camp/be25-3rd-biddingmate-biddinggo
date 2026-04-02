@@ -8,13 +8,17 @@ defineProps({
     type: String,
     required: true,
   },
+  currentNavKey: {
+    type: String,
+    default: '',
+  },
   navigationItems: {
     type: Array,
     required: true,
   },
 })
 
-defineEmits(['navigate'])
+defineEmits(['navigate', 'open-mypage'])
 </script>
 
 <template>
@@ -31,8 +35,8 @@ defineEmits(['navigate'])
           :key="item.label"
           type="button"
           class="nav-item"
-          :class="{ 'is-active': currentScreen === item.key }"
-          @click="$emit('navigate', item.key)"
+          :class="{ 'is-active': currentNavKey === item.key || (!currentNavKey && currentScreen === item.key) }"
+          @click="$emit('navigate', item.route ?? item.key)"
         >
           <img :src="item.icon" :alt="item.label" class="nav-icon" />
           <span>{{ item.label }}</span>
@@ -48,7 +52,7 @@ defineEmits(['navigate'])
         </div>
 
         <div class="top-links">
-          <button type="button">마이페이지</button>
+          <button type="button" @click="$emit('open-mypage')">마이페이지</button>
           <button type="button">알림</button>
           <button type="button">로그인/회원가입</button>
         </div>
