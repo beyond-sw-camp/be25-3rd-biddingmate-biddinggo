@@ -114,13 +114,19 @@ export const registerOptions = [
 ]
 
 export const inspectionSummary = [
-  { label: '검수 대기', value: '12', tone: 'review' },
-  { label: '검수 완료', value: '28', tone: 'complete' },
-  { label: '등록 가능', value: '7', tone: 'ready' },
+  { label: '총 검수 완료', value: '1,284', tone: 'total' },
+  { label: '검수 대기', value: '42', tone: 'review' },
+  { label: '검수 승인', value: '15', tone: 'approve' },
+  { label: '경매 진행 중', value: '1,227', tone: 'auction' },
 ]
 
 export const inspectionItems = [
-  buildItem({ title: '검수 완료 시계', highlight: true, time: '등록 대기' }),
-  buildItem({ title: '검수 완료 가방', time: '검수 완료' }),
-  buildItem({ title: '검수 완료 스니커즈', time: '검수 완료' }),
+  buildItem({ title: '롤렉스 시계', brand: '롤렉스', status: '검수 통과', inspectionGrade: 'A+', inspectionDate: '2024 / 03 / 15' }),
+  buildItem({ title: '롤렉스 데이토나', brand: '롤렉스', status: '검수 통과', inspectionGrade: 'A', inspectionDate: '2024 / 03 / 18' }),
+  buildItem({ title: '오메가 씨마스터', brand: '오메가', status: '검수 통과', inspectionGrade: 'A+', inspectionDate: '2024 / 03 / 20' }),
+  buildItem({ title: '까르띠에 탱크', brand: '까르띠에', status: '검수 통과', inspectionGrade: 'A', inspectionDate: '2024 / 03 / 22' }),
+  buildItem({ title: '롤렉스 시계', brand: '롤렉스', status: '검수 대기', inspectionGrade: 'A+', inspectionDate: '2024 / 03 / 25' }),
+  buildItem({ title: '에르메스 켈리', brand: '에르메스', status: '경매 진행 중', inspectionGrade: 'A+', inspectionDate: '2024 / 03 / 11' }),
+  buildItem({ title: '롤렉스 시계', brand: '롤렉스', status: '검수 대기', inspectionGrade: 'A+', inspectionDate: '2024 / 03 / 27' }),
+  buildItem({ title: '루이비통 알마', brand: '루이비통', status: '검수 반려', inspectionGrade: 'B+', inspectionDate: '2024 / 03 / 12' }),
 ]

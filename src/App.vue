@@ -14,16 +14,22 @@ import {
   inspectionSummary,
   listItems,
   navigationItems,
-  registerOptions,
 } from './data/marketplaceData'
 
 const currentScreen = ref('home')
 const selectedItem = ref(null)
+const registerEntryMode = ref('select')
 
 function openScreen(screen) {
   if (screen === 'home' || screen === 'list' || screen === 'register' || screen === 'inspection') {
+    registerEntryMode.value = screen === 'register' ? 'select' : registerEntryMode.value
     currentScreen.value = screen
   }
+}
+
+function openRegister(mode = 'select') {
+  registerEntryMode.value = mode
+  currentScreen.value = 'register'
 }
 
 function openDetail(item) {
@@ -64,7 +70,7 @@ function openDetail(item) {
 
     <RegisterScreen
       v-else-if="currentScreen === 'register'"
-      :options="registerOptions"
+      :initial-mode="registerEntryMode"
     />
 
     <InspectionScreen
@@ -72,6 +78,7 @@ function openDetail(item) {
       :assets="assets"
       :items="inspectionItems"
       :summary="inspectionSummary"
+      @open-register="openRegister"
     />
   </AppShell>
 </template>
