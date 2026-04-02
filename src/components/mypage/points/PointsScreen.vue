@@ -6,10 +6,10 @@
 
     <section class="hero-card hero-card--left">
       <p>보유 포인트</p>
-      <strong>1,850,000 P</strong>
+      <strong>{{ formatAmount(currentPoints) }}</strong>
       <div class="button-row">
-        <button class="primary-button" type="button">충전하기</button>
-        <button class="secondary-button" type="button">환급하기</button>
+        <button class="primary-button" type="button" @click="openChargeModal">충전하기</button>
+        <button class="secondary-button" type="button" @click="openWithdrawModal">인출하기</button>
       </div>
     </section>
 
@@ -18,7 +18,7 @@
         <h2>포인트 내역</h2>
       </div>
       <div class="stack-list">
-        <article v-for="entry in pointHistory" :key="entry.title + entry.date" class="point-row">
+        <article v-for="entry in history" :key="entry.title + entry.date" class="point-row">
           <div class="point-row__left">
             <span class="point-icon" :class="entry.tone">{{ entry.tone === 'minus' ? '-' : '+' }}</span>
             <div>
@@ -30,10 +30,52 @@
         </article>
       </div>
     </section>
+
+    <PointActionModal
+      :open="Boolean(modalMode)"
+      :mode="modalMode"
+      :title="modalTitle"
+      :current-points="currentPoints"
+      :amount="amount"
+      :presets="presets"
+      :selected-preset="selectedPreset"
+      :expected-points="expectedPoints"
+      :expected-label="expectedLabel"
+      :amount-label="amountLabel"
+      :action-label="actionLabel"
+      :virtual-account="virtualAccount"
+      @close="closeModal"
+      @preset="setPreset"
+      @submit="submitModal"
+      @confirm="confirmVirtualAccount"
+    />
   </MyPageLayout>
 </template>
 
 <script setup>
 import MyPageLayout from '../../MyPageLayout.vue'
-import { pointHistory } from '../../../data/mypage'
+import PointActionModal from './PointActionModal.vue'
+import { usePointModal } from '../../../composables/usePointModal'
+
+const {
+  actionLabel,
+  amount,
+  amountLabel,
+  closeModal,
+  confirmVirtualAccount,
+  currentPoints,
+  expectedLabel,
+  expectedPoints,
+  formatAmount,
+  history,
+  modalMode,
+  modalTitle,
+  openChargeModal,
+  openWithdrawModal,
+  presets,
+  selectedPreset,
+  setPreset,
+  submitModal,
+  virtualAccount,
+} = usePointModal()
 </script>

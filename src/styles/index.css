@@ -941,6 +941,30 @@ select {
   padding: 24px;
 }
 
+.inquiry-card__toggle {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.inquiry-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.inquiry-card__chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
 .inquiry-card__body {
   display: flex;
   flex-direction: column;
@@ -1207,6 +1231,158 @@ select {
   display: flex;
   justify-content: flex-end;
   margin-top: 15px;
+}
+
+.point-modal {
+  width: min(450px, 100%);
+  padding: 30px;
+}
+
+.point-modal .base-modal__chrome {
+  margin-bottom: 16px;
+}
+
+.point-modal .base-modal__label {
+  min-height: 24px;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.point-action-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.point-balance-card,
+.point-summary-row,
+.point-account-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.point-balance-card {
+  border-radius: 10px;
+  background: var(--surface-soft);
+  padding: 16px;
+}
+
+.point-balance-card span,
+.point-summary-row span,
+.point-account-row dt {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.point-balance-card strong {
+  color: var(--primary);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.point-balance-card--amount strong {
+  color: var(--text);
+}
+
+.point-quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.point-quick-actions__chip {
+  padding-inline: 0;
+  text-align: center;
+}
+
+.point-summary-row {
+  padding: 8px 4px 0;
+}
+
+.point-summary-row strong {
+  color: var(--primary);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.point-action-modal__submit {
+  width: 100%;
+  margin-top: 14px;
+}
+
+.point-account-banner {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  border-radius: 10px;
+  background: #f3f6fe;
+  padding: 16px;
+}
+
+.point-account-banner__icon {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 700;
+  border: 2px solid currentColor;
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.point-account-banner strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--primary);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.point-account-banner p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.point-account-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+}
+
+.point-account-row {
+  margin: 0;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.point-account-row dd {
+  margin: 0;
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.point-account-row--amount dd {
+  color: var(--primary);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.point-account-row--deadline dd {
+  color: #bc1d25;
 }
 
 .modal-scroll {

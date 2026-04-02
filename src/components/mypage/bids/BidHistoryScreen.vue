@@ -1,7 +1,7 @@
 ﻿<template>
   <MyPageLayout>
     <section class="page-header-block">
-      <h1>?낆같 ?댁뿭</h1>
+      <h1>입찰 내역</h1>
     </section>
 
     <div class="stack-list">
