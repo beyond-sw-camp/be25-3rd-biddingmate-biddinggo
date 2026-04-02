@@ -9,7 +9,6 @@
         v-for="item in salesHistoryItems"
         :key="item.date + item.status"
         :item="item"
-        :muted="item.status === '발송 대기'"
         clickable
         @select="openModal"
       />

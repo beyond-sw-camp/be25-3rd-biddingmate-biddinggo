@@ -7,7 +7,7 @@
     <SurfaceCard as="section" class="hero-card hero-card--left">
       <p>보유 포인트</p>
       <strong>{{ formatAmount(currentPoints) }}</strong>
-      <div class="button-row">
+      <div class="button-row point-actions">
         <button class="primary-button" type="button" @click="openChargeModal">충전하기</button>
         <button class="secondary-button" type="button" @click="openWithdrawModal">인출하기</button>
       </div>

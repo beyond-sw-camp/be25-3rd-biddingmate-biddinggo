@@ -6,7 +6,7 @@
     @click="handleClick"
   >
     <div class="status-row-card__main">
-      <span class="status-pill" :class="{ muted: muted }">{{ item.status }}</span>
+      <StatusBadge :status="item.status" />
       <h3>{{ item.name }}</h3>
       <p v-if="item.person">{{ item.person }}</p>
     </div>
@@ -20,15 +20,12 @@
 
 <script setup>
 import SurfaceCard from '../../SurfaceCard.vue'
+import StatusBadge from './StatusBadge.vue'
 
 const props = defineProps({
   item: {
     type: Object,
     required: true,
-  },
-  muted: {
-    type: Boolean,
-    default: false,
   },
   clickable: {
     type: Boolean,

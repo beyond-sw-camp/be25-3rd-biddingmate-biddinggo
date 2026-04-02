@@ -8,20 +8,19 @@
       <img :src="item.image || watchImage" :alt="item.name" class="purchase-modal__image" />
 
       <div class="purchase-modal__summary">
-        <p class="purchase-modal__category">{{ item.category || '주얼리 > 시계 > 남성용 시계' }}</p>
-        <span class="status-pill" :class="statusClasses">{{ item.status }}</span>
+        <p class="purchase-modal__category">{{ item.category || '손목시계 > 세계 > 남성용 시계' }}</p>
+        <StatusBadge :status="item.status" />
         <h2>{{ item.name }}</h2>
-        <SurfaceCard as="div" class="purchase-price-box">
+        <div class="purchase-price-box">
           <p>낙찰가</p>
           <strong>{{ item.price }}</strong>
-        </SurfaceCard>
+        </div>
       </div>
 
       <div class="purchase-info-block">
         <h3>배송지 정보</h3>
-        <SurfaceCard
+        <div
           v-if="item.shippingAddress"
-          as="div"
           class="purchase-info-card"
           :class="{ 'purchase-info-card--alert': !item.shippingAddress.name }"
         >
@@ -34,30 +33,27 @@
             <strong>{{ item.shippingAddress.address1 }}</strong>
             <strong>{{ item.shippingAddress.address2 }}</strong>
           </template>
-          <p v-else>배송지 정보를 등록해 주세요</p>
-        </SurfaceCard>
+          <p v-else>배송지 정보를 등록해 주세요.</p>
+        </div>
 
-        <SurfaceCard v-else as="div" class="purchase-info-card purchase-info-card--alert">
-          <p>배송지 정보를 등록해 주세요</p>
-        </SurfaceCard>
+        <div v-else class="purchase-info-card purchase-info-card--alert">
+          <p>배송지 정보를 등록해 주세요.</p>
+        </div>
       </div>
 
       <div class="purchase-info-block">
         <h3>배송 정보</h3>
-        <SurfaceCard v-if="item.shippingInfo" as="div" class="purchase-info-card">
+        <div v-if="item.shippingInfo" class="purchase-info-card">
           <strong>{{ item.shippingInfo.courier }}</strong>
           <strong>{{ item.shippingInfo.trackingNumber }}</strong>
-        </SurfaceCard>
+        </div>
 
-        <SurfaceCard
+        <div
           v-else-if="variant === 'sale' && item.modalType === 'seller-needs-shipping-info'"
-          as="div"
           class="purchase-info-card purchase-info-card--alert"
         >
-          <p>배송 정보를 등록해 주세요</p>
-        </SurfaceCard>
-
-        <SurfaceCard v-else as="div" class="purchase-info-card purchase-info-card--empty" />
+          <p>배송 정보를 등록해 주세요.</p>
+        </div>
       </div>
     </div>
 
@@ -141,8 +137,7 @@
     </template>
 
     <div class="purchase-address-list">
-      <SurfaceCard
-        as="article"
+      <article
         v-for="address in addresses"
         :key="address.zip + address.address1"
         class="purchase-address-card"
@@ -155,7 +150,7 @@
         </div>
         <p>{{ address.address1 }}</p>
         <p>{{ address.address2 }}</p>
-      </SurfaceCard>
+      </article>
     </div>
 
     <div class="purchase-address-book__actions">
@@ -188,7 +183,7 @@
         <input
           :value="form.trackingNumber"
           type="text"
-          placeholder="송장 번호를 입력해 주세요"
+          placeholder="송장 번호를 입력해 주세요."
           @input="emitForm('trackingNumber', $event.target.value)"
         />
       </label>
@@ -203,7 +198,7 @@
 <script setup>
 import { computed } from 'vue'
 import BaseModal from '../../BaseModal.vue'
-import SurfaceCard from '../../SurfaceCard.vue'
+import StatusBadge from '../cards/StatusBadge.vue'
 import { modalAddressBook, watchImage } from '../../../data/mypage'
 import { courierOptions } from '../../../data/salesHistory'
 
@@ -249,23 +244,6 @@ const showActions = computed(() => {
   }
 
   return props.item.modalType === 'seller-needs-shipping-info'
-})
-
-const statusClasses = computed(() => {
-  if (props.variant === 'sale') {
-    return {
-      dark: props.item.status === '배송중',
-      muted:
-        props.item.status === '발송 대기' ||
-        props.item.status === '구매 확정' ||
-        props.item.status === '정산 완료',
-    }
-  }
-
-  return {
-    dark: props.item.status === '배송 완료',
-    muted: props.item.status !== '배송 완료' && props.item.status !== '발송 대기',
-  }
 })
 
 function emitForm(field, value) {

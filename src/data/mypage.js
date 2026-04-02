@@ -1,5 +1,5 @@
 export const navItems = [
-  { label: '홈', route: '/mypage' },
+  { label: '대시보드', route: '/mypage' },
   { label: '입찰 내역', route: '/mypage/bids' },
   { label: '관심 경매', route: '/mypage/wishlists' },
   { label: '구매 내역', route: '/mypage/purchases' },

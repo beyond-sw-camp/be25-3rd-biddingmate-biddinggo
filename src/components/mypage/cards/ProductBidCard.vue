@@ -3,7 +3,7 @@
     <img :src="item.image" :alt="item.name" class="history-card__thumb" />
     <div class="history-card__body">
       <div>
-        <span class="status-pill">{{ item.status }}</span>
+        <StatusBadge :status="item.status" />
         <h3>{{ item.name }}</h3>
         <div class="history-card__time">
           <v-icon icon="mdi-alarm" />
@@ -23,6 +23,7 @@
 
 <script setup>
 import SurfaceCard from '../../SurfaceCard.vue'
+import StatusBadge from './StatusBadge.vue'
 
 defineProps({
   item: {

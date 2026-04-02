@@ -2,13 +2,21 @@
   <SurfaceCard as="article" class="inquiry-card" :class="{ 'inquiry-card--expanded': isExpanded }">
     <button class="inquiry-card__head inquiry-card__toggle" type="button" @click="toggleExpanded">
       <div>
-        <span class="status-pill" :class="{ muted: inquiry.status.includes('대기') }">{{ inquiry.status }}</span>
+        <StatusBadge :status="inquiry.status" />
         <h3>{{ inquiry.title }}</h3>
         <p>{{ inquiry.date }}</p>
       </div>
 
       <div class="inquiry-card__actions">
-        <button v-if="inquiry.action" class="ghost-action" type="button" @click.stop>{{ inquiry.action }}</button>
+        <button
+          v-if="inquiry.action"
+          class="ghost-action"
+          :class="{ 'inquiry-card__text-action': inquiry.action === '상품 보러가기' }"
+          type="button"
+          @click.stop
+        >
+          {{ inquiry.action }}
+        </button>
         <v-icon class="inquiry-card__chevron" :icon="isExpanded ? 'mdi-chevron-up' : 'mdi-chevron-down'" />
       </div>
     </button>
@@ -37,6 +45,7 @@
 <script setup>
 import { ref } from 'vue'
 import SurfaceCard from '../../SurfaceCard.vue'
+import StatusBadge from './StatusBadge.vue'
 
 defineProps({
   inquiry: {
