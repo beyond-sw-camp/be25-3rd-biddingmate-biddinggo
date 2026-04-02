@@ -1,4 +1,6 @@
 <script setup>
+import SectionHeader from '../shared/SectionHeader.vue'
+
 defineProps({
   assets: {
     type: Object,
@@ -13,10 +15,11 @@ defineProps({
 
 <template>
   <section class="mypage-section">
-    <div class="mypage-section-header">
-      <h3>입찰 내역</h3>
-      <button type="button">View All</button>
-    </div>
+    <SectionHeader
+      title="입찰 내역"
+      action-label="View All"
+      wrapper-class="mypage-section-header"
+    />
 
     <div class="mypage-bid-list">
       <article

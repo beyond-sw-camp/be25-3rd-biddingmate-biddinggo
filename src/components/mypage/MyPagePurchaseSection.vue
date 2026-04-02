@@ -1,4 +1,6 @@
 <script setup>
+import SectionHeader from '../shared/SectionHeader.vue'
+
 defineProps({
   items: {
     type: Array,
@@ -13,10 +15,11 @@ defineProps({
 
 <template>
   <section class="mypage-section">
-    <div class="mypage-section-header">
-      <h3>진행 중 구매 현황</h3>
-      <button type="button">View All</button>
-    </div>
+    <SectionHeader
+      title="진행 중 구매 현황"
+      action-label="View All"
+      wrapper-class="mypage-section-header"
+    />
 
     <div class="mypage-purchase-list">
       <article

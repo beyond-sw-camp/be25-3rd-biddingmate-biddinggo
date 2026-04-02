@@ -1,4 +1,6 @@
 <script setup>
+import BaseModal from '../shared/BaseModal.vue'
+
 defineProps({
   form: {
     type: Object,
@@ -10,12 +12,17 @@ defineEmits(['close', 'submit'])
 </script>
 
 <template>
-  <div class="inspection-shipping-overlay" @click.self="$emit('close')">
-    <section class="inspection-shipping-modal">
+  <BaseModal
+    overlay-class="inspection-shipping-overlay"
+    panel-class="inspection-shipping-modal"
+    @close="$emit('close')"
+  >
+    <template #header>
       <div class="inspection-shipping-header">
         <h3>배송 정보 등록</h3>
         <button type="button" class="inspection-shipping-close" @click="$emit('close')">×</button>
       </div>
+    </template>
 
       <div class="inspection-shipping-form">
         <label class="inspection-shipping-field is-small">
@@ -43,6 +50,5 @@ defineEmits(['close', 'submit'])
       <button type="button" class="inspection-shipping-submit" @click="$emit('submit')">
         등록하기
       </button>
-    </section>
-  </div>
+  </BaseModal>
 </template>

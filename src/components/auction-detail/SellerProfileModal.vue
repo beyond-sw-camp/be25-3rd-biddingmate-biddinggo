@@ -1,4 +1,6 @@
 <script setup>
+import BaseModal from '../shared/BaseModal.vue'
+
 defineProps({
   assets: {
     type: Object,
@@ -18,11 +20,12 @@ defineEmits(['close'])
 </script>
 
 <template>
-  <div class="detail-inquiry-overlay" @click.self="$emit('close')">
-    <section class="detail-seller-modal">
+  <BaseModal panel-class="detail-seller-modal" @close="$emit('close')">
+    <template #header>
       <div class="detail-seller-modal-header">
         <button type="button" class="detail-inquiry-close" @click="$emit('close')">×</button>
       </div>
+    </template>
 
       <div class="detail-seller-profile">
         <img :src="sellerProfile.avatar" :alt="item.seller" class="detail-seller-avatar" />
@@ -89,6 +92,5 @@ defineEmits(['close'])
           <p>{{ review.content }}</p>
         </article>
       </div>
-    </section>
-  </div>
+  </BaseModal>
 </template>

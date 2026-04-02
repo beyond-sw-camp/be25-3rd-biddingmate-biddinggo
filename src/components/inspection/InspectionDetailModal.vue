@@ -1,4 +1,6 @@
 <script setup>
+import BaseModal from '../shared/BaseModal.vue'
+
 defineProps({
   assets: {
     type: Object,
@@ -22,13 +24,14 @@ defineEmits(['close', 'handle-action'])
 </script>
 
 <template>
-  <div class="inspection-status-overlay" @click.self="$emit('close')">
-    <section class="inspection-status-modal">
+  <BaseModal overlay-class="inspection-status-overlay" panel-class="inspection-status-modal" @close="$emit('close')">
+    <template #header>
       <button type="button" class="inspection-status-close" @click="$emit('close')">
         ×
       </button>
+    </template>
 
-      <div class="inspection-status-grid">
+    <div class="inspection-status-grid">
         <div class="inspection-status-image-card">
           <img :src="assets.listWatchImage" :alt="item.title" class="inspection-status-image" />
         </div>
@@ -84,6 +87,5 @@ defineEmits(['close', 'handle-action'])
           {{ detailActionLabel(item.status) }}
         </button>
       </div>
-    </section>
-  </div>
+  </BaseModal>
 </template>

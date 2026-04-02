@@ -1,4 +1,6 @@
 <script setup>
+import SectionHeader from '../shared/SectionHeader.vue'
+
 defineProps({
   item: {
     type: Object,
@@ -11,10 +13,14 @@ defineEmits(['view-all'])
 
 <template>
   <div class="history-panel">
-    <div class="history-header">
-      <div class="history-heading">입찰 기록</div>
-      <button type="button" class="history-view-all" @click="$emit('view-all')">View All</button>
-    </div>
+    <SectionHeader
+      action-class="history-view-all"
+      action-label="View All"
+      title="입찰 기록"
+      title-class="history-heading"
+      wrapper-class="history-header"
+      @action="$emit('view-all')"
+    />
     <div class="history-list">
       <div v-for="(row, index) in item.history" :key="`${row.bidder}-${index}`" class="history-row">
         <span>{{ row.bidder }}</span>

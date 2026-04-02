@@ -1,4 +1,6 @@
 <script setup>
+import BaseModal from '../shared/BaseModal.vue'
+
 defineProps({
   assets: {
     type: Object,
@@ -22,13 +24,7 @@ defineEmits(['close', 'submit'])
 </script>
 
 <template>
-  <div class="detail-inquiry-overlay" @click.self="$emit('close')">
-    <section class="detail-report-modal">
-      <div class="detail-inquiry-header">
-        <h3>신고하기</h3>
-        <button type="button" class="detail-inquiry-close" @click="$emit('close')">×</button>
-      </div>
-
+  <BaseModal panel-class="detail-report-modal" title="신고하기" @close="$emit('close')">
       <div class="detail-inquiry-summary">
         <img :src="assets.listWatchImage" :alt="item.title" class="detail-inquiry-thumb" />
         <div class="detail-inquiry-summary-copy">
@@ -69,6 +65,5 @@ defineEmits(['close', 'submit'])
       <button type="button" class="detail-report-submit" @click="$emit('submit')">
         신고하기
       </button>
-    </section>
-  </div>
+  </BaseModal>
 </template>
