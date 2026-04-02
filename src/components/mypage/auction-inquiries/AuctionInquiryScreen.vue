@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <MyPageLayout>
     <section class="page-header-block">
       <h1>구매 / 판매 문의 내역</h1>
@@ -13,7 +13,7 @@
     </section>
 
     <div class="stack-list">
-      <InquiryCard v-for="inquiry in tradeInquiries" :key="inquiry.title + inquiry.date" :inquiry="inquiry" />
+      <InquiryCard v-for="inquiry in auctionInquiries" :key="inquiry.title + inquiry.date" :inquiry="inquiry" />
     </div>
   </MyPageLayout>
 </template>
@@ -21,7 +21,5 @@
 <script setup>
 import MyPageLayout from '../../MyPageLayout.vue'
 import InquiryCard from '../cards/InquiryCard.vue'
-import { tradeInquiries } from '../../../data/mypage'
+import { auctionInquiries } from '../../../data/mypage'
 </script>
-
-

@@ -8,7 +8,7 @@ export const navItems = [
   { label: '프로필 관리', route: '/mypage/profile' },
   { label: '주소록 관리', route: '/mypage/addresses' },
   { label: '포인트 관리', route: '/mypage/points' },
-  { label: '구매/판매 문의 내역', route: '/mypage/trade-inquiries' },
+  { label: '구매/판매 문의 내역', route: '/mypage/auction-inquiries' },
   { label: '1:1 문의 내역', route: '/mypage/direct-inquiries' },
 ]
 
@@ -155,7 +155,7 @@ export const notifications = [
   { title: '경매 종료', body: '경매 [롤렉스 시계] 가 종료되었습니다.', time: '3일 전', image: laptopImage, unread: false },
 ]
 
-export const tradeInquiries = [
+export const auctionInquiries = [
   {
     status: '답변 완료',
     title: '옥션 등록 절차에 대해 문의드립니다.',
@@ -180,7 +180,7 @@ export const tradeInquiries = [
   { status: '답변 대기', title: '포인트 환급 관련 문의', date: '2026.02.26 09:20', expanded: false, action: '상품 보러가기' },
 ]
 
-export const supportInquiries = [
+export const directInquiries = [
   {
     status: '답변 완료',
     title: '분쟁 해결',

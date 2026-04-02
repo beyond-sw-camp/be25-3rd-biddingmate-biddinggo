@@ -7,8 +7,8 @@ import PointsView from '../views/PointsView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import PurchaseHistoryView from '../views/PurchaseHistoryView.vue'
 import SalesHistoryView from '../views/SalesHistoryView.vue'
-import SupportInquiryView from '../views/SupportInquiryView.vue'
-import TradeInquiryView from '../views/TradeInquiryView.vue'
+import AuctionInquiryView from '../views/AuctionInquiryView.vue'
+import DirectInquiryView from '../views/DirectInquiryView.vue'
 import WishlistView from '../views/WishlistView.vue'
 
 const routes = [
@@ -22,8 +22,9 @@ const routes = [
   { path: '/mypage/auctions', name: 'auctions', component: AuctionManagementView },
   { path: '/mypage/addresses', name: 'addresses', component: AddressBookView },
   { path: '/mypage/points', name: 'points', component: PointsView },
-  { path: '/mypage/trade-inquiries', name: 'trade-inquiries', component: TradeInquiryView },
-  { path: '/mypage/direct-inquiries', name: 'support-inquiries', component: SupportInquiryView },
+  { path: '/mypage/trade-inquiries', redirect: '/mypage/auction-inquiries' },
+  { path: '/mypage/auction-inquiries', name: 'auction-inquiries', component: AuctionInquiryView },
+  { path: '/mypage/direct-inquiries', name: 'direct-inquiries', component: DirectInquiryView },
 ]
 
 const router = createRouter({
