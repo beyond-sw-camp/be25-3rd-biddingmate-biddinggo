@@ -78,6 +78,11 @@
   background: var(--bg);
 }
 
+html {
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -180,7 +185,7 @@ select {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 20px 110px;
+  padding: 20px 350px;
 }
 
 .search-box {
@@ -192,6 +197,10 @@ select {
   border-radius: 16px;
   padding: 14px 20px;
   color: var(--muted);
+}
+
+.search-box__icon {
+  font-size: 20px;
 }
 
 .search-box input {
@@ -218,8 +227,14 @@ select {
   cursor: pointer;
 }
 
+.topbar-link-button--icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .page-area {
-  padding: 30px 110px 48px;
+  padding: 30px 350px 48px;
 }
 
 .page-header-block h1,
@@ -239,9 +254,9 @@ select {
 .status-row-card,
 .point-row,
 .inquiry-card__head,
-.hero-user,
-.profile-hero,
-.profile-hero__meta,
+.user-summary__identity,
+.profile-summary,
+.profile-summary__meta,
 .button-row,
 .product-grid-card__meta,
 .bank-row__inputs,
@@ -260,6 +275,7 @@ select {
 .notification-list,
 .form-panel,
 .hero-card,
+.user-summary-card,
 .filter-chips,
 .grid-list,
 .form-grid,
@@ -272,19 +288,12 @@ select {
 .page-header-block,
 .section-block,
 .hero-card,
+.user-summary-card,
 .panel-card {
   margin-bottom: 30px;
 }
 
-.hero-card,
-.panel-card,
-.history-card,
-.status-row-card,
-.point-row,
-.inquiry-card,
-.address-card,
-.stat-card,
-.product-grid-card {
+.surface-card {
   background: var(--surface);
   border-radius: 16px;
   box-shadow: var(--shadow-lg);
@@ -294,14 +303,15 @@ select {
   padding: 32px 40px;
 }
 
-.hero-card--center {
+.user-summary-card {
   min-height: 180px;
   display: grid;
   place-items: center;
+  padding: 32px 40px;
 }
 
 .hero-card--left p,
-.hero-points p {
+.user-summary__points p {
   margin: 0 0 10px;
   color: var(--muted);
   font-size: 14px;
@@ -309,7 +319,7 @@ select {
 }
 
 .hero-card--left strong,
-.hero-points strong {
+.user-summary__points strong {
   display: block;
   color: var(--primary);
   font-size: 32px;
@@ -318,7 +328,7 @@ select {
   letter-spacing: -0.03em;
 }
 
-.hero-user {
+.user-summary__identity {
   gap: 12px;
   margin-bottom: 14px;
 }
@@ -396,6 +406,12 @@ select {
   font-weight: 400;
 }
 
+.history-card__time {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .history-card__pricebox {
   text-align: right;
   margin-left: auto;
@@ -427,7 +443,17 @@ select {
 }
 
 .status-row-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 168px;
   padding: 24px 40px;
+}
+
+.status-row-card__main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .status-row-card--interactive {
@@ -441,8 +467,22 @@ select {
 }
 
 .status-row-card__side {
+  display: flex;
   flex-direction: column;
   align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.winner-deal-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.bid-history-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
 }
 
 .status-pill {
@@ -550,7 +590,10 @@ select {
   border-radius: 999px;
   border: 0;
   background: rgba(255, 255, 255, 0.92);
-  font-size: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
 }
 
 .product-grid-card__content {
@@ -646,17 +689,17 @@ select {
   border: 1px solid var(--border);
 }
 
-.profile-hero {
+.profile-summary {
   justify-content: flex-start;
   gap: 40px;
   align-items: center;
 }
 
-.profile-hero__avatar {
+.profile-summary__avatar {
   position: relative;
 }
 
-.profile-hero__avatar button {
+.profile-summary__avatar button {
   position: absolute;
   right: 2px;
   bottom: 6px;
@@ -668,13 +711,13 @@ select {
   color: #fff;
 }
 
-.profile-hero__name {
+.profile-summary__name {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.profile-hero__name strong {
+.profile-summary__name strong {
   font-size: 32px;
   font-weight: 800;
   letter-spacing: -0.03em;
@@ -691,7 +734,7 @@ select {
   font-weight: 700;
 }
 
-.profile-hero__meta {
+.profile-summary__meta {
   justify-content: flex-start;
   gap: 22px;
   margin-top: 8px;
@@ -780,11 +823,14 @@ select {
 }
 
 .base-modal__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 0;
   background: transparent;
   padding: 0;
-  font-size: 30px;
-  line-height: 1;
+  width: 32px;
+  height: 32px;
   cursor: pointer;
   color: var(--text);
 }
@@ -792,6 +838,7 @@ select {
 .base-modal__body {
   max-height: calc(100vh - 156px);
   overflow-y: auto;
+  scrollbar-gutter: stable;
   padding-right: 8px;
   margin-right: -8px;
 }
@@ -1325,15 +1372,10 @@ select {
 }
 
 .point-account-banner__icon {
-  display: grid;
-  place-items: center;
   width: 20px;
   height: 20px;
   color: var(--primary);
-  font-size: 12px;
-  font-weight: 700;
-  border: 2px solid currentColor;
-  border-radius: 4px;
+  font-size: 20px;
   flex-shrink: 0;
   margin-top: 2px;
 }
@@ -1388,6 +1430,7 @@ select {
 .modal-scroll {
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
+  scrollbar-gutter: stable;
 }
 
 .modal-scroll::-webkit-scrollbar {
@@ -1521,6 +1564,10 @@ select {
     padding-right: 40px;
   }
 
+  .winner-deal-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .grid-list,
   .stats-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1568,13 +1615,15 @@ select {
 
   .stats-grid,
   .grid-list,
-  .form-grid {
+  .form-grid,
+  .winner-deal-list,
+  .bid-history-list {
     grid-template-columns: 1fr;
   }
 
   .page-header-inline,
   .filter-bar,
-  .profile-hero,
+  .profile-summary,
   .button-row {
     flex-direction: column;
     align-items: stretch;

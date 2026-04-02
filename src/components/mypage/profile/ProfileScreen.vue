@@ -4,18 +4,18 @@
       <h1>프로필 관리</h1>
     </section>
 
-    <section class="panel-card form-panel">
-      <div class="profile-hero">
-        <div class="profile-hero__avatar">
+    <SurfaceCard as="section" class="panel-card form-panel">
+      <div class="profile-summary">
+        <div class="profile-summary__avatar">
           <img :src="overviewUser.avatar" :alt="overviewUser.name" class="avatar" />
           <button type="button">+</button>
         </div>
         <div>
-          <div class="profile-hero__name">
+          <div class="profile-summary__name">
             <span class="rank-badge">G</span>
             <strong>{{ overviewUser.name }}</strong>
           </div>
-          <div class="profile-hero__meta">
+          <div class="profile-summary__meta">
             <span>사용자 평점 {{ overviewUser.rating }} ({{ overviewUser.reviews }})</span>
             <span>가입일: {{ overviewUser.joinedAt }}</span>
           </div>
@@ -53,11 +53,12 @@
       <div class="form-actions">
         <button class="primary-button" type="button">수정</button>
       </div>
-    </section>
+    </SurfaceCard>
   </MyPageLayout>
 </template>
 
 <script setup>
-import MyPageLayout from '../../MyPageLayout.vue'
+import SurfaceCard from '../../SurfaceCard.vue'
+import MyPageLayout from '../../layout/MyPageLayout.vue'
 import { overviewUser } from '../../../data/mypage'
 </script>

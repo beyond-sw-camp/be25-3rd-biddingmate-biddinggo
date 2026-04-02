@@ -4,7 +4,7 @@
       <h1>판매 내역</h1>
     </section>
 
-    <div class="stack-list">
+    <div class="winner-deal-list">
       <StatusRowCard
         v-for="item in salesHistoryItems"
         :key="item.date + item.status"
@@ -15,8 +15,9 @@
       />
     </div>
 
-    <SalesDetailModal
+    <WinnerDealDetailModal
       v-if="selectedItem"
+      variant="sale"
       :item="selectedItem"
       :mode="modalMode"
       :form="shippingForm"
@@ -29,9 +30,9 @@
 </template>
 
 <script setup>
-import MyPageLayout from '../../MyPageLayout.vue'
+import MyPageLayout from '../../layout/MyPageLayout.vue'
 import StatusRowCard from '../cards/StatusRowCard.vue'
-import SalesDetailModal from './SalesDetailModal.vue'
+import WinnerDealDetailModal from '../winner-deals/WinnerDealDetailModal.vue'
 import { useSalesModal } from '../../../composables/useSalesModal'
 import { salesHistoryItems } from '../../../data/salesHistory'
 

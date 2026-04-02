@@ -6,13 +6,13 @@
     </section>
 
     <section class="stats-grid">
-      <article v-for="card in auctionSummary" :key="card.label" class="stat-card">
+      <SurfaceCard as="article" v-for="card in auctionSummary" :key="card.label" class="stat-card">
         <span class="stat-card__icon"></span>
         <div>
           <p>{{ card.label }}</p>
           <strong>{{ card.value }}</strong>
         </div>
-      </article>
+      </SurfaceCard>
     </section>
 
     <section class="filter-bar">
@@ -23,7 +23,7 @@
         <button class="chip" type="button">유찰</button>
       </div>
       <div class="search-box compact">
-        <span>검색</span>
+        <v-icon class="search-box__icon" icon="mdi-magnify" />
         <input type="text" placeholder="상품명 또는 브랜드 검색" />
       </div>
     </section>
@@ -35,7 +35,8 @@
 </template>
 
 <script setup>
-import MyPageLayout from '../../MyPageLayout.vue'
+import SurfaceCard from '../../SurfaceCard.vue'
+import MyPageLayout from '../../layout/MyPageLayout.vue'
 import ProductGridCard from '../cards/ProductGridCard.vue'
 import { auctionItems, auctionSummary } from '../../../data/mypage'
 </script>

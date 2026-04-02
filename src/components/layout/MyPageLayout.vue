@@ -23,12 +23,15 @@
     <div class="content-shell">
       <header class="topbar">
         <div class="search-box">
-          <span>⌕</span>
+          <v-icon class="search-box__icon" icon="mdi-magnify" />
           <input type="text" placeholder="어떤 경매를 찾으시나요?" />
         </div>
+
         <div class="topbar-links">
           <RouterLink to="/mypage">마이페이지</RouterLink>
-          <button class="topbar-link-button" type="button" @click="isNotificationOpen = true">알림</button>
+          <button class="topbar-link-button topbar-link-button--icon" type="button" @click="isNotificationOpen = true">
+            <span>알림</span>
+          </button>
           <a href="/">로그인/회원가입</a>
         </div>
       </header>
@@ -45,8 +48,8 @@
 <script setup>
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import { navItems } from '../data/mypage'
-import NotificationModal from './NotificationModal.vue'
+import { navItems } from '../../data/mypage'
+import NotificationModal from '../NotificationModal.vue'
 
 const isNotificationOpen = ref(false)
 </script>

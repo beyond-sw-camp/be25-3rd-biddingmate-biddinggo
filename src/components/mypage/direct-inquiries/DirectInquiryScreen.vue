@@ -19,15 +19,15 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue'
-import MyPageLayout from '../../MyPageLayout.vue'
+import { ref } from 'vue'
+import MyPageLayout from '../../layout/MyPageLayout.vue'
 import InquiryCard from '../cards/InquiryCard.vue'
 import DirectInquiryModal from './DirectInquiryModal.vue'
 import { directInquiries } from '../../../data/mypage'
 
 const inquiries = ref([...directInquiries])
 const isModalOpen = ref(false)
-const draftInquiry = reactive({
+const draftInquiry = ref({
   type: '기타',
   content: '',
 })
@@ -41,18 +41,20 @@ function closeModal() {
 }
 
 function resetDraft() {
-  draftInquiry.type = '기타'
-  draftInquiry.content = ''
+  draftInquiry.value = {
+    type: '기타',
+    content: '',
+  }
 }
 
 function submitInquiry() {
-  if (!draftInquiry.content.trim()) return
+  if (!draftInquiry.value.content.trim()) return
 
   inquiries.value.unshift({
     status: '답변 대기',
-    title: draftInquiry.type,
+    title: draftInquiry.value.type,
     date: '2026.04.02 16:30',
-    question: draftInquiry.content.trim(),
+    question: draftInquiry.value.content.trim(),
   })
 
   closeModal()

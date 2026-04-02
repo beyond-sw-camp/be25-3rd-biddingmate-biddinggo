@@ -1,11 +1,14 @@
 <template>
-  <article class="history-card">
+  <SurfaceCard as="article" class="history-card">
     <img :src="item.image" :alt="item.name" class="history-card__thumb" />
     <div class="history-card__body">
       <div>
         <span class="status-pill">{{ item.status }}</span>
         <h3>{{ item.name }}</h3>
-        <p class="history-card__meta">{{ item.time }}</p>
+        <div class="history-card__time">
+          <v-icon icon="mdi-alarm" />
+          <p class="history-card__meta">{{ item.time }}</p>
+        </div>
       </div>
       <div class="history-card__pricebox">
         <p>현재가</p>
@@ -15,10 +18,12 @@
         <span>{{ item.date }}</span>
       </div>
     </div>
-  </article>
+  </SurfaceCard>
 </template>
 
 <script setup>
+import SurfaceCard from '../../SurfaceCard.vue'
+
 defineProps({
   item: {
     type: Object,

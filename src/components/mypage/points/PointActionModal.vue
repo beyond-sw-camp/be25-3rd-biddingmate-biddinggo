@@ -7,7 +7,7 @@
   >
     <div v-if="mode === 'virtual-account'" class="point-action-modal point-action-modal--account">
       <section class="point-account-banner">
-        <div class="point-account-banner__icon">▭</div>
+        <v-icon class="point-account-banner__icon" icon="mdi-credit-card-outline" />
         <div>
           <strong>가상계좌 발급 완료</strong>
           <p>아래 계좌로 입금하시면 자동으로 충전됩니다</p>

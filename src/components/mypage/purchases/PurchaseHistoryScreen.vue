@@ -4,7 +4,7 @@
       <h1>구매 내역</h1>
     </section>
 
-    <div class="stack-list">
+    <div class="winner-deal-list">
       <StatusRowCard
         v-for="item in purchaseStatusItems"
         :key="item.date + item.status"
@@ -15,8 +15,9 @@
       />
     </div>
 
-    <PurchaseDetailModal
+    <WinnerDealDetailModal
       v-if="selectedItem"
+      variant="purchase"
       :item="selectedItem"
       :mode="modalMode"
       :form="shippingForm"
@@ -31,9 +32,9 @@
 </template>
 
 <script setup>
-import MyPageLayout from '../../MyPageLayout.vue'
+import MyPageLayout from '../../layout/MyPageLayout.vue'
 import StatusRowCard from '../cards/StatusRowCard.vue'
-import PurchaseDetailModal from './PurchaseDetailModal.vue'
+import WinnerDealDetailModal from '../winner-deals/WinnerDealDetailModal.vue'
 import { usePurchaseModal } from '../../../composables/usePurchaseModal'
 import { purchaseStatusItems } from '../../../data/mypage'
 

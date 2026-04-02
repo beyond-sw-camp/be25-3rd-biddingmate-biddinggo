@@ -6,7 +6,7 @@
 
     <section class="filter-bar">
       <div class="search-box compact">
-        <span>검색</span>
+        <v-icon class="search-box__icon" icon="mdi-magnify" />
         <input type="text" placeholder="상품명 또는 브랜드 검색" />
       </div>
       <button class="sort-button" type="button">최신순</button>
@@ -19,7 +19,7 @@
 </template>
 
 <script setup>
-import MyPageLayout from '../../MyPageLayout.vue'
+import MyPageLayout from '../../layout/MyPageLayout.vue'
 import ProductGridCard from '../cards/ProductGridCard.vue'
 import { favoriteItems } from '../../../data/mypage'
 </script>

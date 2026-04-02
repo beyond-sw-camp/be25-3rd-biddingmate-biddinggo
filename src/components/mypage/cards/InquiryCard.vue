@@ -1,5 +1,5 @@
 <template>
-  <article class="inquiry-card" :class="{ 'inquiry-card--expanded': isExpanded }">
+  <SurfaceCard as="article" class="inquiry-card" :class="{ 'inquiry-card--expanded': isExpanded }">
     <button class="inquiry-card__head inquiry-card__toggle" type="button" @click="toggleExpanded">
       <div>
         <span class="status-pill" :class="{ muted: inquiry.status.includes('대기') }">{{ inquiry.status }}</span>
@@ -9,7 +9,7 @@
 
       <div class="inquiry-card__actions">
         <button v-if="inquiry.action" class="ghost-action" type="button" @click.stop>{{ inquiry.action }}</button>
-        <span class="inquiry-card__chevron">{{ isExpanded ? '∧' : '∨' }}</span>
+        <v-icon class="inquiry-card__chevron" :icon="isExpanded ? 'mdi-chevron-up' : 'mdi-chevron-down'" />
       </div>
     </button>
 
@@ -31,11 +31,12 @@
         <button class="primary-button light" type="button">{{ inquiry.pendingAction }}</button>
       </div>
     </div>
-  </article>
+  </SurfaceCard>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import SurfaceCard from '../../SurfaceCard.vue'
 
 defineProps({
   inquiry: {

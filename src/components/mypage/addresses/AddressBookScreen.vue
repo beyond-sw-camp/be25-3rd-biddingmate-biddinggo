@@ -6,7 +6,7 @@
     </section>
 
     <div class="stack-list">
-      <article v-for="address in addresses" :key="address.zip + address.primary" class="address-card">
+      <SurfaceCard as="article" v-for="address in addresses" :key="address.zip + address.primary" class="address-card">
         <div>
           <div class="address-card__top">
             <strong>{{ address.zip }}</strong>
@@ -18,12 +18,13 @@
           <button v-if="!address.primary" class="secondary-button" type="button">기본 배송지로 설정</button>
           <button class="ghost-button" type="button">삭제</button>
         </div>
-      </article>
+      </SurfaceCard>
     </div>
   </MyPageLayout>
 </template>
 
 <script setup>
-import MyPageLayout from '../../MyPageLayout.vue'
+import SurfaceCard from '../../SurfaceCard.vue'
+import MyPageLayout from '../../layout/MyPageLayout.vue'
 import { addresses } from '../../../data/mypage'
 </script>

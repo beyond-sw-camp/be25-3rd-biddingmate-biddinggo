@@ -4,7 +4,9 @@
       <div class="base-modal__chrome">
         <p class="base-modal__label">{{ headerLabel || '\u00A0' }}</p>
         <slot name="action">
-          <button class="base-modal__close" type="button" @click="emit('close')">&times;</button>
+          <button class="base-modal__close" type="button" @click="emit('close')">
+            <v-icon icon="mdi-close" />
+          </button>
         </slot>
       </div>
 

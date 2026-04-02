@@ -19,7 +19,7 @@
 </template>
 
 <script setup>
-import MyPageLayout from '../../MyPageLayout.vue'
+import MyPageLayout from '../../layout/MyPageLayout.vue'
 import InquiryCard from '../cards/InquiryCard.vue'
 import { auctionInquiries } from '../../../data/mypage'
 </script>

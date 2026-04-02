@@ -4,21 +4,21 @@
       <h1>포인트 관리</h1>
     </section>
 
-    <section class="hero-card hero-card--left">
+    <SurfaceCard as="section" class="hero-card hero-card--left">
       <p>보유 포인트</p>
       <strong>{{ formatAmount(currentPoints) }}</strong>
       <div class="button-row">
         <button class="primary-button" type="button" @click="openChargeModal">충전하기</button>
         <button class="secondary-button" type="button" @click="openWithdrawModal">인출하기</button>
       </div>
-    </section>
+    </SurfaceCard>
 
     <section class="section-block">
       <div class="section-heading">
         <h2>포인트 내역</h2>
       </div>
       <div class="stack-list">
-        <article v-for="entry in history" :key="entry.title + entry.date" class="point-row">
+        <SurfaceCard as="article" v-for="entry in history" :key="entry.title + entry.date" class="point-row">
           <div class="point-row__left">
             <span class="point-icon" :class="entry.tone">{{ entry.tone === 'minus' ? '-' : '+' }}</span>
             <div>
@@ -27,7 +27,7 @@
             </div>
           </div>
           <strong :class="entry.tone">{{ entry.amount }}</strong>
-        </article>
+        </SurfaceCard>
       </div>
     </section>
 
@@ -53,7 +53,8 @@
 </template>
 
 <script setup>
-import MyPageLayout from '../../MyPageLayout.vue'
+import SurfaceCard from '../../SurfaceCard.vue'
+import MyPageLayout from '../../layout/MyPageLayout.vue'
 import PointActionModal from './PointActionModal.vue'
 import { usePointModal } from '../../../composables/usePointModal'
 
