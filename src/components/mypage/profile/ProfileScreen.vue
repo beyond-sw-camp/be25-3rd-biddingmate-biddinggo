@@ -8,7 +8,7 @@
       <div class="profile-hero">
         <div class="profile-hero__avatar">
           <img :src="overviewUser.avatar" :alt="overviewUser.name" class="avatar" />
-          <button type="button">✎</button>
+          <button type="button">+</button>
         </div>
         <div>
           <div class="profile-hero__name">
@@ -16,7 +16,7 @@
             <strong>{{ overviewUser.name }}</strong>
           </div>
           <div class="profile-hero__meta">
-            <span>★★★★★ {{ overviewUser.rating }} ({{ overviewUser.reviews }})</span>
+            <span>사용자 평점 {{ overviewUser.rating }} ({{ overviewUser.reviews }})</span>
             <span>가입일: {{ overviewUser.joinedAt }}</span>
           </div>
         </div>
@@ -25,11 +25,11 @@
       <div class="form-grid">
         <label>
           <span>이름</span>
-          <input value="김셀러" type="text" />
+          <input value="김다정" type="text" />
         </label>
         <label>
           <span>닉네임</span>
-          <input value="셀러111" type="text" />
+          <input value="다정11" type="text" />
         </label>
         <label>
           <span>이메일</span>
@@ -58,6 +58,6 @@
 </template>
 
 <script setup>
-import MyPageLayout from '../components/MyPageLayout.vue'
-import { overviewUser } from '../data/mypage'
+import MyPageLayout from '../../MyPageLayout.vue'
+import { overviewUser } from '../../../data/mypage'
 </script>

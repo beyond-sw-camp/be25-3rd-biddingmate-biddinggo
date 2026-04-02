@@ -6,8 +6,8 @@
 
     <section class="filter-bar">
       <div class="search-box compact">
-        <span>⌕</span>
-        <input type="text" placeholder="상품명, 브랜드 검색" />
+        <span>검색</span>
+        <input type="text" placeholder="상품명 또는 브랜드 검색" />
       </div>
       <button class="sort-button" type="button">최신순</button>
     </section>
@@ -19,7 +19,7 @@
 </template>
 
 <script setup>
-import MyPageLayout from '../components/MyPageLayout.vue'
-import ProductGridCard from '../components/ProductGridCard.vue'
-import { favoriteItems } from '../data/mypage'
+import MyPageLayout from '../../MyPageLayout.vue'
+import ProductGridCard from '../cards/ProductGridCard.vue'
+import { favoriteItems } from '../../../data/mypage'
 </script>

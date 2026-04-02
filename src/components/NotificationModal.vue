@@ -1,34 +1,32 @@
 <template>
-  <div v-if="open" class="modal-backdrop" @click="$emit('close')">
-    <section class="notification-modal" @click.stop>
-      <div class="notification-modal__head">
-        <h1>알림</h1>
-        <button class="notification-modal__close" type="button" @click="$emit('close')">×</button>
-      </div>
-
-      <div class="notification-modal__scroll modal-scroll">
-        <div class="notification-list">
-          <article
-            v-for="notification in notifications"
-            :key="notification.title"
-            class="notification-card"
-            :class="{ unread: notification.unread }"
-          >
-            <span class="notification-card__dot"></span>
-            <div class="notification-card__body">
-              <h3>{{ notification.title }}</h3>
-              <p>{{ notification.body }}</p>
-              <span>{{ notification.time }}</span>
-            </div>
-            <img :src="notification.image" :alt="notification.title" />
-          </article>
+  <BaseModal
+    :open="open"
+    panel-class="purchase-modal purchase-modal--notification"
+    body-class="base-modal__body base-modal__body--notification modal-scroll"
+    header-label="알림"
+    @close="$emit('close')"
+  >
+    <div class="notification-list">
+      <article
+        v-for="notification in notifications"
+        :key="notification.title"
+        class="notification-card"
+        :class="{ unread: notification.unread }"
+      >
+        <span class="notification-card__dot"></span>
+        <div class="notification-card__body">
+          <h3>{{ notification.title }}</h3>
+          <p>{{ notification.body }}</p>
+          <span>{{ notification.time }}</span>
         </div>
-      </div>
-    </section>
-  </div>
+        <img :src="notification.image" :alt="notification.title" />
+      </article>
+    </div>
+  </BaseModal>
 </template>
 
 <script setup>
+import BaseModal from './BaseModal.vue'
 import { notifications } from '../data/mypage'
 
 defineProps({

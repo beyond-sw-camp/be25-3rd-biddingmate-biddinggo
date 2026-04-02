@@ -24,6 +24,6 @@
 </template>
 
 <script setup>
-import MyPageLayout from '../components/MyPageLayout.vue'
-import { addresses } from '../data/mypage'
+import MyPageLayout from '../../MyPageLayout.vue'
+import { addresses } from '../../../data/mypage'
 </script>

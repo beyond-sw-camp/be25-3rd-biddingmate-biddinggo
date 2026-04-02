@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <MyPageLayout>
     <section class="page-header-block">
       <h1>구매 / 판매 문의 내역</h1>
@@ -19,7 +19,9 @@
 </template>
 
 <script setup>
-import MyPageLayout from '../components/MyPageLayout.vue'
-import InquiryCard from '../components/InquiryCard.vue'
-import { tradeInquiries } from '../data/mypage'
+import MyPageLayout from '../../MyPageLayout.vue'
+import InquiryCard from '../cards/InquiryCard.vue'
+import { tradeInquiries } from '../../../data/mypage'
 </script>
+
+

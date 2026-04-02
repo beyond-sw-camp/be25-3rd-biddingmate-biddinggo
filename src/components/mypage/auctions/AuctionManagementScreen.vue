@@ -23,8 +23,8 @@
         <button class="chip" type="button">유찰</button>
       </div>
       <div class="search-box compact">
-        <span>⌕</span>
-        <input type="text" placeholder="상품명, 브랜드 검색" />
+        <span>검색</span>
+        <input type="text" placeholder="상품명 또는 브랜드 검색" />
       </div>
     </section>
 
@@ -35,7 +35,7 @@
 </template>
 
 <script setup>
-import MyPageLayout from '../components/MyPageLayout.vue'
-import ProductGridCard from '../components/ProductGridCard.vue'
-import { auctionItems, auctionSummary } from '../data/mypage'
+import MyPageLayout from '../../MyPageLayout.vue'
+import ProductGridCard from '../cards/ProductGridCard.vue'
+import { auctionItems, auctionSummary } from '../../../data/mypage'
 </script>

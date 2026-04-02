@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <article class="status-row-card" :class="{ 'status-row-card--interactive': clickable }" @click="handleClick">
     <div>
       <span class="status-pill" :class="{ muted: muted }">{{ item.status }}</span>
@@ -36,3 +36,4 @@ function handleClick() {
   }
 }
 </script>
+

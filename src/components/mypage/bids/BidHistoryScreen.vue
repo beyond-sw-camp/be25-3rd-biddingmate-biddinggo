@@ -1,7 +1,7 @@
-<template>
+﻿<template>
   <MyPageLayout>
     <section class="page-header-block">
-      <h1>입찰 내역</h1>
+      <h1>?낆같 ?댁뿭</h1>
     </section>
 
     <div class="stack-list">
@@ -11,7 +11,8 @@
 </template>
 
 <script setup>
-import MyPageLayout from '../components/MyPageLayout.vue'
-import ProductBidCard from '../components/ProductBidCard.vue'
-import { bidItems } from '../data/mypage'
+import MyPageLayout from '../../MyPageLayout.vue'
+import ProductBidCard from '../cards/ProductBidCard.vue'
+import { bidItems } from '../../../data/mypage'
 </script>
+

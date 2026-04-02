@@ -6,7 +6,7 @@
 
     <section class="hero-card hero-card--left">
       <p>보유 포인트</p>
-      <strong>1,850,000 원</strong>
+      <strong>1,850,000 P</strong>
       <div class="button-row">
         <button class="primary-button" type="button">충전하기</button>
         <button class="secondary-button" type="button">환급하기</button>
@@ -20,7 +20,7 @@
       <div class="stack-list">
         <article v-for="entry in pointHistory" :key="entry.title + entry.date" class="point-row">
           <div class="point-row__left">
-            <span class="point-icon" :class="entry.tone">{{ entry.tone === 'minus' ? '−' : '+' }}</span>
+            <span class="point-icon" :class="entry.tone">{{ entry.tone === 'minus' ? '-' : '+' }}</span>
             <div>
               <h3>{{ entry.title }}</h3>
               <p>{{ entry.date }}</p>
@@ -34,6 +34,6 @@
 </template>
 
 <script setup>
-import MyPageLayout from '../components/MyPageLayout.vue'
-import { pointHistory } from '../data/mypage'
+import MyPageLayout from '../../MyPageLayout.vue'
+import { pointHistory } from '../../../data/mypage'
 </script>
