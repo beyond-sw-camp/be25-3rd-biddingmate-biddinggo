@@ -1,6 +1,7 @@
-<script setup>
-</script>
-
 <template>
-  테스트
+  <RouterView />
 </template>
+
+<script setup>
+import { RouterView } from 'vue-router'
+</script>
