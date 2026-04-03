@@ -36,7 +36,7 @@
           <p v-else>배송지 정보를 등록해 주세요.</p>
         </div>
 
-        <div v-else class="purchase-info-card purchase-info-card--alert">
+        <div v-else class="purchase-info-card purchase-info-card--alert winnerdeal-info-card--alert">
           <p>배송지 정보를 등록해 주세요.</p>
         </div>
       </div>
@@ -50,8 +50,7 @@
 
         <div
           v-else-if="variant === 'sale' && item.modalType === 'seller-needs-shipping-info'"
-          class="purchase-info-card purchase-info-card--alert"
-        >
+          class="purchase-info-card purchase-info-card--alert winnerdeal-info-card--alert">
           <p>배송 정보를 등록해 주세요.</p>
         </div>
       </div>

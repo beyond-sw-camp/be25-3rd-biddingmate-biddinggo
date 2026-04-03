@@ -39,10 +39,6 @@
           <span>전화번호</span>
           <input v-model="form.phone" type="text" />
         </label>
-        <label>
-          <span>직업</span>
-          <input v-model="form.job" type="text" />
-        </label>
         <label class="bank-row">
           <span>계좌번호</span>
           <div class="bank-row__inputs">
@@ -76,7 +72,6 @@ const form = reactive({
   nickname: overviewUser.nickname ?? '설정11',
   email: overviewUser.email ?? 'seller@gmail.com',
   phone: overviewUser.phone ?? '010-1111-2222',
-  job: overviewUser.job ?? '',
   bank: overviewUser.bank ?? '우리은행',
   accountNumber: overviewUser.accountNumber ?? '123-456-789012',
 })
@@ -87,7 +82,6 @@ function saveProfile() {
     nickname: form.nickname,
     email: form.email,
     phone: form.phone,
-    job: form.job,
     bank: form.bank,
     accountNumber: form.accountNumber,
   })
