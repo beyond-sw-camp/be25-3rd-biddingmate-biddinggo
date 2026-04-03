@@ -1,17 +1,16 @@
 <template>
   <SurfaceCard
     as="article"
-    class="status-row-card"
-    :class="{ 'status-row-card--interactive': clickable }"
+    class="winner-deal-card"
+    :class="{ 'winner-deal-card--interactive': clickable }"
     @click="handleClick"
   >
-    <div class="status-row-card__main">
+    <div class="winner-deal-card__main">
       <StatusBadge :status="item.status" />
       <h3>{{ item.name }}</h3>
-      <p v-if="item.person">{{ item.person }}</p>
     </div>
 
-    <div class="status-row-card__side">
+    <div class="winner-deal-card__side">
       <strong>{{ item.price }}</strong>
       <span>{{ item.date }}</span>
     </div>

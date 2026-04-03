@@ -17,26 +17,57 @@
 
     <section class="filter-bar">
       <div class="filter-chips">
-        <button class="chip active" type="button">전체</button>
-        <button class="chip" type="button">경매 진행 중</button>
-        <button class="chip" type="button">낙찰</button>
-        <button class="chip" type="button">유찰</button>
+        <button
+          v-for="tag in filterTags"
+          :key="tag"
+          class="chip"
+          :class="{ active: selectedTag === tag }"
+          type="button"
+          @click="selectedTag = tag"
+        >
+          {{ tag }}
+        </button>
       </div>
-      <div class="search-box compact">
-        <v-icon class="search-box__icon" icon="mdi-magnify" />
-        <input type="text" placeholder="상품명 또는 브랜드 검색" />
-      </div>
+      <v-text-field
+        v-model="searchQuery"
+        class="page-search-field"
+        density="comfortable"
+        hide-details
+        placeholder="상품명 또는 브랜드 검색"
+        prepend-inner-icon="mdi-magnify"
+        variant="solo"
+      />
     </section>
 
     <div class="grid-list">
-      <ProductGridCard v-for="(item, index) in auctionItems" :key="item.name + index" :item="item" />
+      <ProductGridCard v-for="(item, index) in filteredItems" :key="item.name + index" :item="item" />
     </div>
   </MyPageLayout>
 </template>
 
 <script setup>
+import { computed, ref } from 'vue'
 import SurfaceCard from '../../SurfaceCard.vue'
 import MyPageLayout from '../../layout/MyPageLayout.vue'
 import ProductGridCard from '../cards/ProductGridCard.vue'
 import { auctionItems, auctionSummary } from '../../../data/mypage'
+
+const selectedTag = ref('전체')
+const searchQuery = ref('')
+const filterTags = ['전체', '경매 진행 중', '낙찰', '유찰']
+
+const auctionItemsWithStatus = auctionItems.map((item, index) => ({
+  ...item,
+  auctionStatus: filterTags[(index % 3) + 1],
+}))
+
+const filteredItems = computed(() => {
+  const keyword = searchQuery.value.trim().toLowerCase()
+
+  return auctionItemsWithStatus.filter((item) => {
+    const matchesTag = selectedTag.value === '전체' || item.auctionStatus === selectedTag.value
+    const matchesSearch = !keyword || item.name.toLowerCase().includes(keyword)
+    return matchesTag && matchesSearch
+  })
+})
 </script>

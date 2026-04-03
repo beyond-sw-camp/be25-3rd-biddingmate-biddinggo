@@ -10,11 +10,22 @@ function formatAmount(value, suffix = 'P') {
   return `${value.toLocaleString('ko-KR')} ${suffix}`
 }
 
+function formatTimestamp(date = new Date()) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+
+  return `${year}.${month}.${day} ${hours}:${minutes}`
+}
+
 export function usePointModal() {
   const currentPoints = ref(INITIAL_POINTS)
   const history = ref([...pointHistory])
   const modalMode = ref('')
-  const amount = ref(100000)
+  const amount = ref(0)
+  const selectedPreset = ref(null)
 
   const presets = computed(() => (modalMode.value === 'withdraw' ? WITHDRAW_PRESETS : CHARGE_PRESETS))
   const modalTitle = computed(() => {
@@ -25,13 +36,6 @@ export function usePointModal() {
   const actionLabel = computed(() => (modalMode.value === 'withdraw' ? '인출하기' : '충전하기'))
   const amountLabel = computed(() => (modalMode.value === 'withdraw' ? '인출할 포인트' : '충전할 포인트'))
   const expectedLabel = computed(() => (modalMode.value === 'withdraw' ? '인출 후 예상 포인트' : '충전 후 예상 포인트'))
-  const selectedPreset = computed(() => {
-    if (modalMode.value === 'withdraw' && amount.value === currentPoints.value) {
-      return 'all'
-    }
-
-    return presets.value.find((preset) => preset === amount.value) ?? null
-  })
   const expectedPoints = computed(() => {
     if (modalMode.value === 'withdraw') {
       return Math.max(currentPoints.value - amount.value, 0)
@@ -45,32 +49,54 @@ export function usePointModal() {
     accountNumber: '1002-123-456789',
     accountHolder: '주식회사 비딩고',
     depositAmount: formatAmount(amount.value, '원'),
-    dueAt: '2026.03.24 23:59',
+    dueAt: '2026.04.03 23:59',
   }))
+
+  function resetAmount() {
+    amount.value = 0
+    selectedPreset.value = null
+  }
 
   function openWithdrawModal() {
     modalMode.value = 'withdraw'
-    amount.value = 100000
+    resetAmount()
   }
 
   function openChargeModal() {
     modalMode.value = 'charge'
-    amount.value = 100000
+    resetAmount()
   }
 
   function closeModal() {
     modalMode.value = ''
+    selectedPreset.value = null
   }
 
   function setPreset(preset) {
-    amount.value = preset === 'all' ? currentPoints.value : preset
+    selectedPreset.value = preset
+
+    if (preset === 'all') {
+      amount.value = currentPoints.value
+      return
+    }
+
+    if (modalMode.value === 'withdraw') {
+      amount.value = Math.min(amount.value + preset, currentPoints.value)
+      return
+    }
+
+    amount.value += preset
   }
 
   function submitModal() {
+    if (amount.value <= 0) {
+      return
+    }
+
     if (modalMode.value === 'withdraw') {
       history.value.unshift({
         title: '인출',
-        date: '2026.04.02 16:10',
+        date: formatTimestamp(),
         amount: `-${amount.value.toLocaleString('ko-KR')} P`,
         tone: 'minus',
       })
@@ -85,6 +111,18 @@ export function usePointModal() {
   }
 
   function confirmVirtualAccount() {
+    if (amount.value <= 0) {
+      closeModal()
+      return
+    }
+
+    history.value.unshift({
+      title: '충전',
+      date: formatTimestamp(),
+      amount: `+${amount.value.toLocaleString('ko-KR')} P`,
+      tone: 'plus',
+    })
+    currentPoints.value += amount.value
     closeModal()
   }
 

@@ -31,8 +31,8 @@
         <RouterLink to="/mypage/purchases">View All</RouterLink>
       </div>
       <div class="winner-deal-list">
-        <StatusRowCard
-          v-for="item in purchaseStatusItems.slice(0, 2)"
+        <WinnerDealCard
+          v-for="item in purchaseStatusItems.slice(0, 3)"
           :key="item.date + item.status"
           :item="item"
           clickable
@@ -47,8 +47,8 @@
         <RouterLink to="/mypage/sales">View All</RouterLink>
       </div>
       <div class="winner-deal-list">
-        <StatusRowCard
-          v-for="item in salesHistoryItems.slice(0, 2)"
+        <WinnerDealCard
+          v-for="item in salesHistoryItems.slice(0, 3)"
           :key="item.date + item.status"
           :item="item"
           clickable
@@ -90,7 +90,7 @@ import { RouterLink } from 'vue-router'
 import SurfaceCard from '../../SurfaceCard.vue'
 import MyPageLayout from '../../layout/MyPageLayout.vue'
 import ProductBidCard from '../cards/ProductBidCard.vue'
-import StatusRowCard from '../cards/StatusRowCard.vue'
+import WinnerDealCard from '../cards/WinnerDealCard.vue'
 import WinnerDealDetailModal from '../winner-deals/WinnerDealDetailModal.vue'
 import { usePurchaseModal } from '../../../composables/usePurchaseModal'
 import { useSalesModal } from '../../../composables/useSalesModal'

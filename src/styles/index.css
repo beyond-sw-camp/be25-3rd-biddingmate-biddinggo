@@ -212,6 +212,61 @@ select {
   width: 100%;
 }
 
+.topbar-search-field {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.page-search-field,
+.wishlist-search-field {
+  flex: 1 1 auto;
+  max-width: 459px;
+}
+
+.topbar-search-field .v-input__control,
+.page-search-field .v-input__control,
+.wishlist-search-field .v-input__control {
+  min-height: 0;
+}
+
+.topbar-search-field .v-field,
+.page-search-field .v-field,
+.wishlist-search-field .v-field {
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: none;
+}
+
+.topbar-search-field .v-field__overlay,
+.topbar-search-field .v-field__outline,
+.page-search-field .v-field__overlay,
+.page-search-field .v-field__outline,
+.wishlist-search-field .v-field__overlay,
+.wishlist-search-field .v-field__outline {
+  display: none;
+}
+
+.topbar-search-field .v-field__input,
+.page-search-field .v-field__input,
+.wishlist-search-field .v-field__input {
+  min-height: 52px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.topbar-search-field .v-field__prepend-inner,
+.page-search-field .v-field__prepend-inner,
+.wishlist-search-field .v-field__prepend-inner {
+  padding-top: 0;
+  align-items: center;
+}
+
+.topbar-search-field .v-input__details,
+.page-search-field .v-input__details,
+.wishlist-search-field .v-input__details {
+  display: none;
+}
+
 .topbar-links {
   display: flex;
   gap: 24px;
@@ -253,7 +308,7 @@ select {
 .filter-bar,
 .address-card,
 .history-card__body,
-.status-row-card,
+.winner-deal-card,
 .point-row,
 .inquiry-card__head,
 .user-summary__identity,
@@ -392,7 +447,7 @@ select {
 }
 
 .history-card h3,
-.status-row-card h3,
+.winner-deal-card h3,
 .product-grid-card h3,
 .point-row h3,
 .inquiry-card h3 {
@@ -403,7 +458,7 @@ select {
 }
 
 .history-card__meta,
-.status-row-card p,
+.winner-deal-card p,
 .point-row p,
 .inquiry-card p,
 .inquiry-answer-meta {
@@ -432,7 +487,7 @@ select {
 }
 
 .history-card__pricebox strong,
-.status-row-card__side strong {
+.winner-deal-card__side strong {
   display: block;
   margin: 4px 0 8px;
   color: var(--primary);
@@ -442,14 +497,14 @@ select {
 }
 
 .history-card__pricebox span,
-.status-row-card__side span,
+.winner-deal-card__side span,
 .notification-card__body span {
   color: var(--muted);
   font-size: 12px;
   font-weight: 400;
 }
 
-.status-row-card {
+.winner-deal-card {
   display: flex;
   justify-content: space-between;
   gap: 20px;
@@ -457,23 +512,23 @@ select {
   padding: 24px 40px;
 }
 
-.status-row-card__main {
+.winner-deal-card__main {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
 
-.status-row-card--interactive {
+.winner-deal-card--interactive {
   cursor: pointer;
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
-.status-row-card--interactive:hover {
+.winner-deal-card--interactive:hover {
   transform: translateY(-2px);
   box-shadow: 0 16px 34px rgba(25, 28, 29, 0.08);
 }
 
-.status-row-card__side {
+.winner-deal-card__side {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -545,6 +600,10 @@ select {
   margin-bottom: 30px;
 }
 
+.wishlist-filter-bar {
+  justify-content: space-between;
+}
+
 .search-box.compact {
   max-width: 459px;
   width: 100%;
@@ -563,6 +622,52 @@ select {
   color: var(--text);
   padding: 10px 18px;
   font-weight: 500;
+}
+
+
+.sort-menu__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  padding: 0;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.sort-menu__trigger:focus,
+.sort-menu__trigger:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.sort-menu__panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 164px;
+  padding: 8px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: var(--button-shadow-soft);
+}
+
+.sort-menu__item {
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.sort-menu__item--active,
+.sort-menu__item:hover {
+  background: var(--surface-soft);
 }
 
 .chip.active,
@@ -1085,7 +1190,39 @@ select {
 
 .inquiry-card__footer {
   display: flex;
+  flex-direction: column;
+  align-items: stretch;
   justify-content: flex-end;
+  gap: 18px;
+  padding-top: 18px;
+}
+
+.inquiry-reply-form {
+  padding-left: 34px;
+}
+
+.inquiry-reply-form__textarea {
+  width: 100%;
+}
+
+.inquiry-reply-form__textarea .v-field {
+  border-radius: 14px;
+}
+
+.inquiry-reply-form__textarea .v-field__input {
+  padding: 18px;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.inquiry-reply-form__textarea textarea {
+  margin: 0;
+}
+
+.inquiry-card__footer > .primary-button,
+.inquiry-card__footer > .primary-button.light {
+  align-self: flex-end;
 }
 
 .purchase-modal--form {
@@ -1651,7 +1788,7 @@ select {
   }
 
   .history-card,
-  .status-row-card,
+  .winner-deal-card,
   .address-card,
   .notification-card {
     flex-direction: column;

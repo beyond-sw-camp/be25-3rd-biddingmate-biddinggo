@@ -22,10 +22,14 @@
 
     <div class="content-shell">
       <header class="topbar">
-        <div class="search-box">
-          <v-icon class="search-box__icon" icon="mdi-magnify" />
-          <input type="text" placeholder="어떤 경매를 찾으시나요?" />
-        </div>
+        <v-text-field
+          class="topbar-search-field"
+          density="comfortable"
+          hide-details
+          placeholder="어떤 경매를 찾으시나요?"
+          prepend-inner-icon="mdi-magnify"
+          variant="solo"
+        />
 
         <div class="topbar-links">
           <RouterLink to="/mypage">마이페이지</RouterLink>

@@ -2,7 +2,7 @@
   <SurfaceCard as="article" class="history-card">
     <img :src="item.image" :alt="item.name" class="history-card__thumb" />
     <div class="history-card__body">
-      <div>
+      <div class="history-card__content">
         <StatusBadge :status="item.status" />
         <h3>{{ item.name }}</h3>
         <div class="history-card__time">
