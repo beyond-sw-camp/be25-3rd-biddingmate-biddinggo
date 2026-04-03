@@ -1,0 +1,54 @@
+<script setup>
+defineProps({
+  assets: {
+    type: Object,
+    required: true,
+  },
+  item: {
+    type: Object,
+    required: true,
+  },
+})
+
+defineEmits(['open-bid'])
+</script>
+
+<template>
+  <div class="price-panel">
+    <div class="price-top-line">
+      <div class="price-tags">
+        <span class="price-tag is-danger">TIME DEAL</span>
+        <span class="price-tag is-light">검수 완료</span>
+      </div>
+      <button type="button" class="detail-heart-button">
+        <img :src="assets.heartIcon" alt="" />
+      </button>
+    </div>
+
+    <p class="detail-brand-line">{{ item.brand }} |</p>
+    <h2 class="detail-product-title">{{ item.title }}</h2>
+
+    <div class="detail-price-block">
+      <span>현재 입찰가</span>
+      <strong>{{ item.price }}</strong>
+    </div>
+
+    <p class="detail-price-meta">{{ item.bids }} | 시작가 {{ item.price }}</p>
+    <p class="detail-time-left">{{ item.time }}</p>
+
+    <div class="detail-bid-box">
+      <label class="detail-bid-field">
+        <span>입찰 금액</span>
+        <input type="text" :value="item.price" />
+      </label>
+      <button type="button" class="detail-bid-button" @click="$emit('open-bid')">지금 입찰하기</button>
+    </div>
+
+    <div class="detail-stats">
+      <div><span>입찰 단위</span><strong>{{ item.bidUnit }}</strong></div>
+      <div><span>즉시 구매가</span><strong>{{ item.buyNowPrice }}</strong></div>
+      <div><span>시작일</span><strong>{{ item.startDate }}</strong></div>
+      <div><span>종료일</span><strong>{{ item.endDate }}</strong></div>
+    </div>
+  </div>
+</template>
