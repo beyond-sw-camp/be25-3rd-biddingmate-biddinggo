@@ -1,9 +1,60 @@
+<template>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <button class="brand-block app-shell__brand" type="button" @click="$emit('navigate', '/')">
+        <strong>Biddinggo</strong>
+        <span>BIDDINGMATE</span>
+      </button>
+
+      <nav class="sidebar-nav app-shell__nav" aria-label="메인 메뉴">
+        <button
+          v-for="item in navigationItems"
+          :key="item.label"
+          type="button"
+          class="sidebar-link app-shell__nav-link"
+          :class="{ active: currentNavKey === item.key || (!currentNavKey && currentScreen === item.key) }"
+          @click="$emit('navigate', item.route ?? item.key)"
+        >
+          <img :src="item.icon" :alt="item.label" class="app-shell__nav-icon" />
+          <span>{{ item.label }}</span>
+        </button>
+      </nav>
+    </aside>
+
+    <div class="content-shell">
+      <header class="topbar">
+        <v-text-field
+          class="topbar-search-field"
+          density="comfortable"
+          hide-details
+          placeholder="어떤 경매를 찾으시나요?"
+          prepend-inner-icon="mdi-magnify"
+          variant="solo"
+        />
+
+        <div class="topbar-links">
+          <button class="topbar-link-button" type="button" @click="$emit('open-mypage')">마이페이지</button>
+          <button class="topbar-link-button topbar-link-button--icon" type="button" @click="isNotificationOpen = true">
+            <span>알림</span>
+          </button>
+          <button class="topbar-link-button" type="button">로그인/회원가입</button>
+        </div>
+      </header>
+
+      <main class="page-area">
+        <slot />
+      </main>
+    </div>
+
+    <NotificationModal :open="isNotificationOpen" @close="isNotificationOpen = false" />
+  </div>
+</template>
+
 <script setup>
+import { ref } from 'vue'
+import NotificationModal from './NotificationModal.vue'
+
 defineProps({
-  assets: {
-    type: Object,
-    required: true,
-  },
   currentScreen: {
     type: String,
     required: true,
@@ -19,48 +70,6 @@ defineProps({
 })
 
 defineEmits(['navigate', 'open-mypage'])
+
+const isNotificationOpen = ref(false)
 </script>
-
-<template>
-  <div class="page-shell">
-    <aside class="sidebar">
-      <div class="brand-block">
-        <h1 class="brand-title">Biddinggo</h1>
-        <p class="brand-subtitle">BIDDINGMATE</p>
-      </div>
-
-      <nav class="navigation" aria-label="메인 메뉴">
-        <button
-          v-for="item in navigationItems"
-          :key="item.label"
-          type="button"
-          class="nav-item"
-          :class="{ 'is-active': currentNavKey === item.key || (!currentNavKey && currentScreen === item.key) }"
-          @click="$emit('navigate', item.route ?? item.key)"
-        >
-          <img :src="item.icon" :alt="item.label" class="nav-icon" />
-          <span>{{ item.label }}</span>
-        </button>
-      </nav>
-    </aside>
-
-    <div class="main-area">
-      <header class="topbar">
-        <div class="search-box">
-          <img :src="assets.searchIcon" alt="" class="search-icon" />
-          <span>어떤 경매를 찾으시나요?</span>
-        </div>
-
-        <div class="top-links">
-          <button type="button" @click="$emit('open-mypage')">마이페이지</button>
-          <button type="button">알림</button>
-          <button type="button">로그인/회원가입</button>
-        </div>
-      </header>
-
-      <main class="content">
-        <slot />
-      </main>
-    </div>
-  </div>
-</template>
