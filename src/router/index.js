@@ -4,6 +4,9 @@ import AuctionDetailView from '../views/AuctionDetailView.vue'
 import AuctionInquiryView from '../views/AuctionInquiryView.vue'
 import AuctionListView from '../views/AuctionListView.vue'
 import AuctionManagementView from '../views/AuctionManagementView.vue'
+import AdminInquiriesView from '../views/AdminInquiriesView.vue'
+import AdminPlaceholderView from '../views/AdminPlaceholderView.vue'
+import AdminTransactionsView from '../views/AdminTransactionsView.vue'
 import BidHistoryView from '../views/BidHistoryView.vue'
 import DashboardView from '../views/DashboardView.vue'
 import DirectInquiryView from '../views/DirectInquiryView.vue'
@@ -167,6 +170,68 @@ const routes = [
     meta: {
       navSection: 'mypage',
       navKey: 'direct-inquiries',
+    },
+  },
+  {
+    path: '/admin',
+    redirect: '/admin/transactions',
+  },
+  {
+    path: '/admin/transactions',
+    name: 'admin-transactions',
+    component: AdminTransactionsView,
+    meta: {
+      navSection: 'admin',
+      navKey: 'transactions',
+    },
+  },
+  {
+    path: '/admin/inquiries',
+    name: 'admin-inquiries',
+    component: AdminInquiriesView,
+    meta: {
+      navSection: 'admin',
+      navKey: 'inquiries',
+    },
+  },
+  {
+    path: '/admin/users',
+    name: 'admin-users',
+    component: AdminPlaceholderView,
+    meta: {
+      navSection: 'admin',
+      navKey: 'users',
+      adminTitle: '사용자 관리',
+    },
+  },
+  {
+    path: '/admin/inspections',
+    name: 'admin-inspections',
+    component: AdminPlaceholderView,
+    meta: {
+      navSection: 'admin',
+      navKey: 'inspections',
+      adminTitle: '검수 관리',
+    },
+  },
+  {
+    path: '/admin/notices',
+    name: 'admin-notices',
+    component: AdminPlaceholderView,
+    meta: {
+      navSection: 'admin',
+      navKey: 'notices',
+      adminTitle: '공지사항 관리',
+    },
+  },
+  {
+    path: '/admin/settlements',
+    name: 'admin-settlements',
+    component: AdminPlaceholderView,
+    meta: {
+      navSection: 'admin',
+      navKey: 'settlements',
+      adminTitle: '정산 관리',
     },
   },
   {
