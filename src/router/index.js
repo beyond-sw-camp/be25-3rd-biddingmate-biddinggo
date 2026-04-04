@@ -4,6 +4,12 @@ import AuctionDetailView from '../views/AuctionDetailView.vue'
 import AuctionInquiryView from '../views/AuctionInquiryView.vue'
 import AuctionListView from '../views/AuctionListView.vue'
 import AuctionManagementView from '../views/AuctionManagementView.vue'
+import AdminInquiriesView from '../views/AdminInquiriesView.vue'
+import AdminInspectionsView from '../views/AdminInspectionsView.vue'
+import AdminNoticesView from '../views/AdminNoticesView.vue'
+import AdminSettlementsView from '../views/AdminSettlementsView.vue'
+import AdminTransactionsView from '../views/AdminTransactionsView.vue'
+import AdminUsersView from '../views/AdminUsersView.vue'
 import BidHistoryView from '../views/BidHistoryView.vue'
 import DashboardView from '../views/DashboardView.vue'
 import DirectInquiryView from '../views/DirectInquiryView.vue'
@@ -167,6 +173,64 @@ const routes = [
     meta: {
       navSection: 'mypage',
       navKey: 'direct-inquiries',
+    },
+  },
+  {
+    path: '/admin',
+    redirect: '/admin/transactions',
+  },
+  {
+    path: '/admin/transactions',
+    name: 'admin-transactions',
+    component: AdminTransactionsView,
+    meta: {
+      navSection: 'admin',
+      navKey: 'transactions',
+    },
+  },
+  {
+    path: '/admin/inquiries',
+    name: 'admin-inquiries',
+    component: AdminInquiriesView,
+    meta: {
+      navSection: 'admin',
+      navKey: 'inquiries',
+    },
+  },
+  {
+    path: '/admin/users',
+    name: 'admin-users',
+    component: AdminUsersView,
+    meta: {
+      navSection: 'admin',
+      navKey: 'users',
+    },
+  },
+  {
+    path: '/admin/inspections',
+    name: 'admin-inspections',
+    component: AdminInspectionsView,
+    meta: {
+      navSection: 'admin',
+      navKey: 'inspections',
+    },
+  },
+  {
+    path: '/admin/notices',
+    name: 'admin-notices',
+    component: AdminNoticesView,
+    meta: {
+      navSection: 'admin',
+      navKey: 'notices',
+    },
+  },
+  {
+    path: '/admin/settlements',
+    name: 'admin-settlements',
+    component: AdminSettlementsView,
+    meta: {
+      navSection: 'admin',
+      navKey: 'settlements',
     },
   },
   {
