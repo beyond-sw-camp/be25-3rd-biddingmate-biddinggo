@@ -8,7 +8,6 @@ export const adminNavItems = [
 ]
 
 export const adminTransactionStatusFilters = ['전체', '거래 완료', '발송 대기', '배송 중', '배송 완료']
-
 export const shippingCompanies = ['CJ대한통운', '한진택배', '롯데택배', '우체국 택배']
 
 const previewImage = 'https://www.figma.com/api/mcp/asset/82df99db-c677-428b-a8bc-5ec6eb6aa16b'
@@ -264,5 +263,163 @@ export const adminInquiries = [
     createdAt: '2023.10.19 11:05',
     question: '거래 후 상품 상태 이슈로 분쟁이 접수되었습니다. 처리 절차와 예상 소요 시간이 궁금합니다.',
     answer: null,
+  },
+]
+
+export const adminUserStatusFilters = ['전체', '활성', '정지']
+
+export const adminUsers = [
+  {
+    userNo: 'U-1001',
+    nickname: '김셀러',
+    email: 'seller.kim@biddinggo.com',
+    joinedAt: '2025.09.12',
+    tradeCount: 128,
+    reportCount: 0,
+    status: '활성',
+  },
+  {
+    userNo: 'U-1002',
+    nickname: '박셀러',
+    email: 'seller.park@biddinggo.com',
+    joinedAt: '2025.10.02',
+    tradeCount: 84,
+    reportCount: 1,
+    status: '활성',
+  },
+  {
+    userNo: 'U-1003',
+    nickname: '이구매',
+    email: 'buyer.lee@biddinggo.com',
+    joinedAt: '2025.12.22',
+    tradeCount: 37,
+    reportCount: 2,
+    status: '정지',
+  },
+  {
+    userNo: 'U-1004',
+    nickname: '한콜렉터',
+    email: 'collector.han@biddinggo.com',
+    joinedAt: '2026.01.04',
+    tradeCount: 15,
+    reportCount: 0,
+    status: '활성',
+  },
+  {
+    userNo: 'U-1005',
+    nickname: '오션마스터',
+    email: 'auction.master@biddinggo.com',
+    joinedAt: '2026.02.10',
+    tradeCount: 9,
+    reportCount: 3,
+    status: '정지',
+  },
+]
+
+export const adminInspectionFilters = ['전체', '검수 대기', '승인', '반려']
+
+export const adminInspections = [
+  {
+    inspectionNo: 'I-3201',
+    productName: '롤렉스 시계',
+    seller: '김셀러',
+    requestedAt: '2026.03.03 14:30',
+    grade: 'S',
+    status: '검수 대기',
+    reason: '',
+  },
+  {
+    inspectionNo: 'I-3202',
+    productName: '에르메스 가방',
+    seller: '박셀러',
+    requestedAt: '2026.03.03 11:10',
+    grade: 'A',
+    status: '승인',
+    reason: '',
+  },
+  {
+    inspectionNo: 'I-3203',
+    productName: '루이비통 지갑',
+    seller: '한셀러',
+    requestedAt: '2026.03.02 17:05',
+    grade: 'B',
+    status: '반려',
+    reason: '구성품 누락 및 스크래치 확인',
+  },
+  {
+    inspectionNo: 'I-3204',
+    productName: '오메가 시계',
+    seller: '이셀러',
+    requestedAt: '2026.03.02 09:22',
+    grade: 'A',
+    status: '검수 대기',
+    reason: '',
+  },
+]
+
+export const adminNoticeStatusFilters = ['전체', '게시중', '비공개']
+
+export const adminNotices = [
+  {
+    noticeNo: 'N-201',
+    title: '4월 정기 점검 안내',
+    content: '2026년 4월 10일 02:00~04:00 시스템 점검이 진행됩니다.',
+    createdAt: '2026.04.02 13:00',
+    status: '게시중',
+  },
+  {
+    noticeNo: 'N-200',
+    title: '배송비 정책 변경 안내',
+    content: '검수 완료 거래에 한해 배송비 정산 정책이 일부 조정됩니다.',
+    createdAt: '2026.03.25 09:30',
+    status: '게시중',
+  },
+  {
+    noticeNo: 'N-199',
+    title: '신규 회원 프로모션 종료 예정',
+    content: '신규 회원 첫 등록 무료 프로모션이 4월 말 종료됩니다.',
+    createdAt: '2026.03.14 15:20',
+    status: '비공개',
+  },
+]
+
+export const adminSettlementFilters = ['전체', '정산 대기', '정산 완료']
+
+export const adminSettlements = [
+  {
+    settlementNo: 'S-8201',
+    seller: '김셀러',
+    sellerEmail: 'seller.kim@biddinggo.com',
+    sellerAccount: '우리은행 1002-123-456789',
+    grossSales: '2,400,000',
+    fee: '120,000',
+    amount: '2,280,000',
+    period: '2026/02/01 ~ 2026/02/28',
+    processedAt: '2026/02/05',
+    status: '정산 완료',
+  },
+  {
+    settlementNo: 'S-8202',
+    seller: '박셀러',
+    sellerEmail: 'seller.park@biddinggo.com',
+    sellerAccount: '국민은행 814-02-119900',
+    grossSales: '1,950,000',
+    fee: '97,500',
+    amount: '1,852,500',
+    period: '2026/02/01 ~ 2026/02/28',
+    processedAt: '-',
+    status: '정산 대기',
+  },
+  {
+    settlementNo: 'S-8203',
+    seller: '한셀러',
+    sellerEmail: 'seller.han@biddinggo.com',
+    sellerAccount: '신한은행 110-337-120901',
+    grossSales: '980,000',
+    fee: '49,000',
+    amount: '931,000',
+    period: '2026/02/01 ~ 2026/02/28',
+    processedAt: '2026/02/06',
+    status: '정산 완료',
   },
 ]
