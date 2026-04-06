@@ -4,6 +4,26 @@ export function formatNumber(value) {
   }).format(Number(value || 0))
 }
 
+export function formatPrice(value, { suffix = '' } = {}) {
+  const formatted = formatNumber(value)
+
+  return suffix ? `${formatted}${suffix}` : formatted
+}
+
+export function formatDateTime(value) {
+  if (!value) {
+    return '-'
+  }
+
+  return new Intl.DateTimeFormat('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(value))
+}
+
 export function getCountdownLabel(value) {
   if (!value) {
     return '-'
@@ -37,10 +57,71 @@ export function normalizeAuctionCard(result = {}) {
     auctionId: result.auctionId,
     title: result.item?.name || result.name || '등록 상품',
     brand: result.item?.brand || result.brand || '브랜드 미정',
-    price: formatNumber(result.startPrice),
+    price: formatPrice(result.startPrice),
     bids: `입찰 ${result.bidCount ?? 0}회`,
     time: getCountdownLabel(result.endDate),
     highlight: result.status === 'ON_GOING',
     image: result.item?.images?.[0]?.url || result.representativeImageUrl || '',
+  }
+}
+
+export function normalizeBidHistory(rows = []) {
+  if (!rows.length) {
+    return [
+      { bidder: '아직 입찰 없음', amount: '-', date: '-' },
+      { bidder: '대기 중', amount: '-', date: '-' },
+      { bidder: '대기 중', amount: '-', date: '-' },
+    ]
+  }
+
+  return rows.map((row) => ({
+    bidder: `${row.bidderId ?? '-'}번 회원`,
+    amount: `${formatPrice(row.amount)}원`,
+    date: formatDateTime(row.createdAt),
+  }))
+}
+
+export function normalizeInquiries(rows = []) {
+  if (!rows.length) {
+    return []
+  }
+
+  return rows.map((row) => ({
+    status: row.answer ? '답변 완료' : '답변 대기',
+    title: row.title || '문의',
+    meta: `${row.writerName || '익명'} | ${formatDateTime(row.createdAt)}`,
+    question: row.content || '',
+    answer: row.answer || '아직 답변이 등록되지 않았습니다.',
+  }))
+}
+
+export function normalizeAuctionDetail(detail = {}, { bidHistory = [], inquiries = [] } = {}) {
+  return {
+    id: detail.auctionId ? `auction-${detail.auctionId}` : 'auction-detail',
+    auctionId: detail.auctionId,
+    itemId: detail.item?.itemId,
+    sellerId: detail.sellerId,
+    title: detail.item?.name || '상품명 없음',
+    brand: detail.item?.brand || '브랜드 미정',
+    price: formatPrice(detail.startPrice),
+    bids: `입찰 ${detail.bidCount ?? 0}회`,
+    time: getCountdownLabel(detail.endDate),
+    highlight: detail.status === 'ON_GOING',
+    seller: `SELLER ${detail.sellerId || ''}`.trim(),
+    sellerGrade: detail.inspectionYn === 'YES' ? 'CERTIFIED' : 'STANDARD',
+    description: detail.item?.description || '상품 설명이 없습니다.',
+    inspectionLabel: detail.inspectionYn === 'YES' ? '검수 완료 상품' : '일반 등록 상품',
+    inspectionDescription:
+      detail.inspectionYn === 'YES'
+        ? '전문가 검수를 통과한 상품입니다.'
+        : '판매자가 직접 등록한 상품입니다.',
+    buyNowPrice: `${formatPrice(detail.buyNowPrice)}원`,
+    bidUnit: `${formatPrice(detail.bidUnit)}원`,
+    startDate: formatDateTime(detail.startDate),
+    endDate: formatDateTime(detail.endDate),
+    history: normalizeBidHistory(bidHistory),
+    inquiries: normalizeInquiries(inquiries),
+    images: detail.item?.images || [],
+    image: detail.item?.images?.[0]?.url || detail.representativeImageUrl || '',
   }
 }

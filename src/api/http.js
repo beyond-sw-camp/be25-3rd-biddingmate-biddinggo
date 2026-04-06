@@ -48,6 +48,11 @@ export async function request(path, options = {}) {
   }
 
   const body = await readBody(response)
+  const contentType = String(response.headers.get('content-type') || '').toLowerCase()
+
+  if (response.ok && contentType.includes('text/html')) {
+    throw new Error('API 대신 HTML이 반환되었습니다. VITE_API_BASE_URL 설정을 확인해주세요.')
+  }
 
   if (!response.ok) {
     throw new Error(body?.message || '요청 처리 중 오류가 발생했습니다.')

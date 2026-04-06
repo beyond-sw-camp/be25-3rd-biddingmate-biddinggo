@@ -45,7 +45,7 @@ function handleSelect() {
   >
     <div class="item-image-wrap">
       <span v-if="showLiveTag && item.highlight" class="live-tag">TIME DEAL</span>
-      <img :src="imageSrc" :alt="item.title" class="item-image" />
+      <img :src="item.image || imageSrc" :alt="item.title" class="item-image" />
 
       <button type="button" class="wish-button" aria-label="관심상품 추가" @click.stop>
         <img :src="heartIcon" alt="" />

@@ -8,3 +8,11 @@ export async function getAuctionList(params = {}) {
 
   return unwrap(data)
 }
+
+export async function getAuctionDetail(auctionId) {
+  const data = await request(`/api/v1/auctions/${auctionId}`, {
+    method: 'GET',
+  })
+
+  return unwrap(data)
+}

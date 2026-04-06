@@ -9,8 +9,8 @@ defineProps({
 
 <template>
   <div class="inquiry-section">
-    <div class="inquiry-heading">상품 문의 (2)</div>
-    <div class="inquiry-list">
+    <div class="inquiry-heading">상품 문의 ({{ item.inquiries.length }})</div>
+    <div v-if="item.inquiries.length" class="inquiry-list">
       <article
         v-for="(inquiry, index) in item.inquiries"
         :key="`${inquiry.title}-${index}`"
@@ -41,5 +41,6 @@ defineProps({
         </div>
       </article>
     </div>
+    <div v-else class="question-box">아직 등록된 문의가 없습니다.</div>
   </div>
 </template>

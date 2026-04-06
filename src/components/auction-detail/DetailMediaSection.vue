@@ -14,7 +14,7 @@ defineProps({
 <template>
   <div class="detail-left">
     <div class="detail-image-card">
-      <img :src="assets.listWatchImage" :alt="item.title" class="detail-image" />
+      <img :src="item.image || item.images?.[0]?.url || assets.listWatchImage" :alt="item.title" class="detail-image" />
       <button type="button" class="gallery-arrow gallery-arrow-left">‹</button>
       <button type="button" class="gallery-arrow gallery-arrow-right">›</button>
     </div>
