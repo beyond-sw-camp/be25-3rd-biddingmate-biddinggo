@@ -193,9 +193,11 @@ select {
 }
 
 .app-shell__nav-icon {
-  width: 18px;
-  height: 18px;
+  width: 32px;
+  height: 20px;
+  flex-shrink: 0;
   object-fit: contain;
+  object-position: center;
   opacity: 0.8;
 }
 
@@ -209,7 +211,7 @@ select {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 20px 350px;
+  padding: 20px 110px;
 }
 
 .search-box {
@@ -313,7 +315,7 @@ select {
 }
 
 .page-area {
-  padding: 30px 350px 48px;
+  padding: 30px 110px 48px;
 }
 
 .page-header-block h1,
