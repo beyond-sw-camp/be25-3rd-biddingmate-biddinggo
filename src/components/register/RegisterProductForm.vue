@@ -2,13 +2,25 @@
 import { ref } from 'vue'
 
 defineProps({
+  categoryOptions: {
+    type: Array,
+    required: true,
+  },
   currentMode: {
     type: String,
     required: true,
   },
+  errorMessage: {
+    type: String,
+    default: '',
+  },
   form: {
     type: Object,
     required: true,
+  },
+  processing: {
+    type: Boolean,
+    default: false,
   },
   submitted: {
     type: Boolean,
@@ -21,6 +33,10 @@ defineProps({
   thumbnailPlaceholders: {
     type: Number,
     required: true,
+  },
+  uploadInProgress: {
+    type: Boolean,
+    default: false,
   },
   uploadedImages: {
     type: Array,
@@ -61,7 +77,7 @@ function openFilePicker() {
           <template v-else>
             <div class="register-upload-placeholder">
               <div class="register-upload-icon">+</div>
-              <span>이미지 업로드</span>
+              <span>{{ uploadInProgress ? '업로드 중...' : '이미지 업로드' }}</span>
             </div>
           </template>
         </button>
@@ -83,7 +99,9 @@ function openFilePicker() {
           />
         </div>
 
-        <p class="register-helper-text">최대 20MB까지 업로드 가능</p>
+        <p class="register-helper-text">
+          {{ uploadInProgress ? '이미지를 업로드하고 있습니다.' : '최대 20MB까지 업로드 가능' }}
+        </p>
       </div>
 
       <div class="register-fields-column">
@@ -99,13 +117,17 @@ function openFilePicker() {
         <label class="register-field">
           <span class="register-label">카테고리 <span>*</span></span>
           <div class="register-select-wrap">
-            <select v-model="form.category">
+            <select v-model="form.categoryId">
               <option value="" disabled>
                 {{ currentMode === 'inspection' ? '카테고리를 선택해 주세요.' : '카테고리를 선택해주세요.' }}
               </option>
-              <option value="watch">시계</option>
-              <option value="bag">가방</option>
-              <option value="shoes">신발</option>
+              <option
+                v-for="option in categoryOptions"
+                :key="option.id"
+                :value="String(option.id)"
+              >
+                {{ option.label }}
+              </option>
             </select>
           </div>
         </label>
@@ -142,16 +164,20 @@ function openFilePicker() {
       </div>
     </div>
 
-    <div v-if="submitted" class="register-success-banner">
+    <div v-if="errorMessage" class="register-success-banner is-error">
+      {{ errorMessage }}
+    </div>
+
+    <div v-else-if="submitted" class="register-success-banner">
       {{ successMessage }}
     </div>
 
     <div class="register-actions">
-      <button type="button" class="register-secondary-button" @click="$emit('cancel')">
+      <button type="button" class="register-secondary-button" :disabled="processing || uploadInProgress" @click="$emit('cancel')">
         취소
       </button>
-      <button type="button" class="register-primary-button" @click="$emit('submit')">
-        확인
+      <button type="button" class="register-primary-button" :disabled="processing || uploadInProgress" @click="$emit('submit')">
+        {{ processing ? '처리 중...' : '확인' }}
       </button>
     </div>
   </section>

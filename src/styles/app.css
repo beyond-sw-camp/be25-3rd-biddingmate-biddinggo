@@ -2512,6 +2512,11 @@ img {
   font-weight: 600;
 }
 
+.register-success-banner.is-error {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
 .register-actions {
   justify-content: flex-end;
   gap: 10px;
@@ -2538,6 +2543,12 @@ img {
 .register-primary-button {
   background: #23008d;
   color: #fff;
+}
+
+.register-secondary-button:disabled,
+.register-primary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .inspection-header {
@@ -2817,6 +2828,8 @@ img {
   border: 1px dashed #94a3b8;
   border-radius: 16px;
   background: transparent;
+  padding: 0 16px;
+  cursor: pointer;
 }
 
 .register-empty-icon {

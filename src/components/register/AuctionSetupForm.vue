@@ -12,6 +12,14 @@ defineProps({
     type: Array,
     required: true,
   },
+  errorMessage: {
+    type: String,
+    default: '',
+  },
+  processing: {
+    type: Boolean,
+    default: false,
+  },
   selectedBidUnit: {
     type: String,
     required: true,
@@ -143,16 +151,20 @@ defineEmits(['cancel', 'select-bid-unit', 'select-duration', 'submit', 'toggle-f
         </div>
       </div>
 
-      <div v-if="submitted" class="register-success-banner">
+      <div v-if="errorMessage" class="register-success-banner is-error">
+        {{ errorMessage }}
+      </div>
+
+      <div v-else-if="submitted" class="register-success-banner">
         {{ successMessage }}
       </div>
 
       <div class="register-actions">
-        <button type="button" class="register-secondary-button" @click="$emit('cancel')">
+        <button type="button" class="register-secondary-button" :disabled="processing" @click="$emit('cancel')">
           취소
         </button>
-        <button type="button" class="register-primary-button" @click="$emit('submit')">
-          확인
+        <button type="button" class="register-primary-button" :disabled="processing" @click="$emit('submit')">
+          {{ processing ? '처리 중...' : '확인' }}
         </button>
       </div>
     </div>

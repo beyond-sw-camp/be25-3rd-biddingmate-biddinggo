@@ -22,11 +22,11 @@ defineEmits(['close', 'start-auction'])
 
       <div class="inspection-detail-grid">
         <div class="inspection-detail-image-card">
-          <img :src="inspectionProductImage" :alt="item.title" class="inspection-detail-image" />
+          <img :src="item.image || inspectionProductImage" :alt="item.title" class="inspection-detail-image" />
         </div>
 
         <div class="inspection-detail-summary">
-          <p class="inspection-detail-category">럭셔리 &gt; 시계 &gt; 남성용 시계</p>
+          <p class="inspection-detail-category">{{ item.categoryLabel || '카테고리 정보 없음' }}</p>
           <span class="inspection-badge is-passed">검수 통과</span>
           <h3>{{ item.title }}</h3>
 
@@ -53,8 +53,8 @@ defineEmits(['close', 'start-auction'])
 
         <div class="inspection-detail-section">
           <h4>배송 정보</h4>
-          <p>우체국 택배</p>
-          <p>1928391823798</p>
+          <p>{{ item.carrier || '배송 정보 미등록' }}</p>
+          <p>{{ item.trackingNumber || '-' }}</p>
         </div>
       </div>
 

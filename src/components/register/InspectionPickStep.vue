@@ -6,6 +6,10 @@ defineProps({
     type: Object,
     required: true,
   },
+  errorMessage: {
+    type: String,
+    default: '',
+  },
   inspectionPickItems: {
     type: Array,
     required: true,
@@ -28,7 +32,7 @@ defineProps({
   },
 })
 
-defineEmits(['close-detail', 'select-item', 'start-auction'])
+defineEmits(['close-detail', 'open-inspection-request', 'select-item', 'start-auction'])
 </script>
 
 <template>
@@ -40,6 +44,10 @@ defineEmits(['close-detail', 'select-item', 'start-auction'])
       </div>
     </div>
 
+    <div v-if="errorMessage" class="register-success-banner is-error">
+      {{ errorMessage }}
+    </div>
+
     <div class="inspection-card-grid register-inspection-grid">
       <article
         v-for="item in inspectionPickItems"
@@ -49,7 +57,7 @@ defineEmits(['close-detail', 'select-item', 'start-auction'])
         @click="$emit('select-item', item.displayId)"
       >
         <div class="inspection-product-image-wrap">
-          <img :src="inspectionProductImage" :alt="item.title" class="inspection-product-image" />
+          <img :src="item.image || inspectionProductImage" :alt="item.title" class="inspection-product-image" />
           <span class="inspection-badge is-passed">검수 통과</span>
         </div>
 
@@ -65,11 +73,11 @@ defineEmits(['close-detail', 'select-item', 'start-auction'])
         </div>
       </article>
 
-      <article class="register-empty-card">
+      <button type="button" class="register-empty-card" @click="$emit('open-inspection-request')">
         <div class="register-empty-icon">+</div>
         <strong>상품이 없으신가요?</strong>
         <p>신규 사전 검수 상품을 등록해보세요.</p>
-      </article>
+      </button>
     </div>
 
     <InspectionDetailModal

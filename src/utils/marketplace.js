@@ -125,3 +125,34 @@ export function normalizeAuctionDetail(detail = {}, { bidHistory = [], inquiries
     image: detail.item?.images?.[0]?.url || detail.representativeImageUrl || '',
   }
 }
+
+export function formatShortDate(value) {
+  if (!value) {
+    return '-'
+  }
+
+  return new Intl.DateTimeFormat('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  })
+    .format(new Date(value))
+    .replace(/\. /g, ' / ')
+    .replace('.', '')
+}
+
+export function normalizeInspectionPickItem(result = {}) {
+  return {
+    inspectionId: result.inspectionId,
+    itemId: result.itemId,
+    title: result.name || '검수 상품',
+    brand: result.brand || '브랜드 미정',
+    inspectionGrade: result.quality || '-',
+    inspectionDate: formatShortDate(result.createdAt),
+    description: `${result.brand || '브랜드 미정'} ${result.name || ''}`.trim(),
+    image: result.representativeImageUrl || '',
+    carrier: result.carrier || '',
+    trackingNumber: result.trackingNumber || '',
+    categoryLabel: '',
+  }
+}

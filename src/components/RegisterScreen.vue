@@ -55,9 +55,11 @@ const registrationMethods = [
 const {
   auctionForm,
   bidUnitOptions,
+  categoryOptions,
   closeInspectionDetail,
   currentMode,
   durationOptions,
+  errorMessage,
   firstStepLabel,
   form,
   goBackToSelect,
@@ -67,7 +69,9 @@ const {
   inspectionPickItems,
   isAuctionStep,
   isInspectionDetailOpen,
+  openInspectionRequest,
   openMode,
+  processing,
   removeImage,
   returnFromAuctionStep,
   selectedBidUnit,
@@ -82,6 +86,7 @@ const {
   successMessage,
   thumbnailPlaceholders,
   toggleAuctionField,
+  uploadInProgress,
   uploadedImages,
 } = useRegisterFlow(toRef(props, 'initialMode'))
 </script>
@@ -108,23 +113,29 @@ const {
     <InspectionPickStep
       v-else-if="currentMode === 'inspection-pick'"
       :assets="assets"
+      :error-message="errorMessage"
       :inspection-pick-items="inspectionPickItems"
       :inspection-product-image="inspectionProductImage"
       :is-inspection-detail-open="isInspectionDetailOpen"
       :selected-inspection-id="selectedInspectionId"
       :selected-inspection-item="selectedInspectionItem"
       @close-detail="closeInspectionDetail"
+      @open-inspection-request="openInspectionRequest"
       @select-item="selectInspectionItem"
       @start-auction="startAuctionFromInspection"
     />
 
     <RegisterProductForm
       v-else-if="currentMode === 'inspection' || currentMode === 'direct'"
+      :category-options="categoryOptions"
       :current-mode="currentMode"
+      :error-message="errorMessage"
       :form="form"
+      :processing="processing"
       :submitted="submitted"
       :success-message="successMessage"
       :thumbnail-placeholders="thumbnailPlaceholders"
+      :upload-in-progress="uploadInProgress"
       :uploaded-images="uploadedImages"
       @cancel="goBackToSelect"
       @files-selected="handleFiles"
@@ -137,6 +148,8 @@ const {
       :auction-form="auctionForm"
       :bid-unit-options="bidUnitOptions"
       :duration-options="durationOptions"
+      :error-message="errorMessage"
+      :processing="processing"
       :selected-bid-unit="selectedBidUnit"
       :selected-duration="selectedDuration"
       :submitted="submitted"

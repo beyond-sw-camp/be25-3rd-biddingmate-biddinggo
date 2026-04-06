@@ -23,3 +23,33 @@ export function buildCategoryGroups(categories = [], selectedCategoryId = null) 
     selectable: category.selectable === true || category.hasChildren === false || Number(category.level) === 3,
   }))
 }
+
+export function buildLeafCategoryOptions(categories = []) {
+  const rows = categories.length ? categories : FALLBACK_CATEGORIES
+  const byId = new Map(rows.map((category) => [Number(category.id), category]))
+
+  return rows
+    .filter((category) => category.selectable === true || category.hasChildren === false || Number(category.level) === 3)
+    .map((category) => ({
+      id: Number(category.id),
+      label: buildCategoryPathLabel(category, byId),
+    }))
+    .sort((left, right) => left.label.localeCompare(right.label, 'ko'))
+}
+
+function buildCategoryPathLabel(category, byId) {
+  const names = []
+  let current = category
+
+  while (current) {
+    names.unshift(current.name)
+
+    if (!current.parentId) {
+      break
+    }
+
+    current = byId.get(Number(current.parentId)) || null
+  }
+
+  return names.join(' > ')
+}

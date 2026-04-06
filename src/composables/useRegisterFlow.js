@@ -1,5 +1,85 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
-import { inspectionItems } from '../data/marketplaceData'
+import { createAuction, createAuctionFromInspectionItem } from '../api/auctions'
+import { getCategoryList } from '../api/categories'
+import { requestPresignedUpload, uploadToPresignedUrl, deleteUploadedFile } from '../api/files'
+import { createInspection, getInspectionList } from '../api/inspections'
+import { buildLeafCategoryOptions, getFallbackCategories } from '../utils/category'
+import { normalizeInspectionPickItem } from '../utils/marketplace'
+
+function createEmptyForm() {
+  return {
+    name: '',
+    categoryId: '',
+    brand: '',
+    condition: '',
+    description: '',
+  }
+}
+
+function createEmptyAuctionForm() {
+  return {
+    extendAuction: true,
+    timeDeal: false,
+    startPrice: '',
+    buyNowPrice: '',
+    startDate: '',
+    startTime: '',
+    endDate: '',
+    endTime: '',
+  }
+}
+
+function formatDatePart(value) {
+  return new Intl.DateTimeFormat('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  })
+    .format(value)
+    .replace(/\. /g, ' / ')
+    .replace('.', '')
+}
+
+function formatTimePart(value) {
+  return new Intl.DateTimeFormat('ko-KR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  }).format(value)
+}
+
+function parseMoney(value) {
+  return Number(String(value || '').replace(/[^\d]/g, '')) || 0
+}
+
+function normalizeBidUnit(option) {
+  return parseMoney(option)
+}
+
+function computeEndDate(startDate, durationLabel) {
+  const endDate = new Date(startDate)
+  const value = Number.parseInt(String(durationLabel || '').replace(/[^\d]/g, ''), 10) || 0
+
+  if (String(durationLabel).includes('시간')) {
+    endDate.setHours(endDate.getHours() + value)
+  } else {
+    endDate.setDate(endDate.getDate() + value)
+  }
+
+  return endDate
+}
+
+function toLocalDateTimeString(value) {
+  const year = value.getFullYear()
+  const month = String(value.getMonth() + 1).padStart(2, '0')
+  const day = String(value.getDate()).padStart(2, '0')
+  const hours = String(value.getHours()).padStart(2, '0')
+  const minutes = String(value.getMinutes()).padStart(2, '0')
+  const seconds = String(value.getSeconds()).padStart(2, '0')
+
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
+}
 
 export function useRegisterFlow(initialMode) {
   const allowedModes = ['select', 'inspection', 'inspection-pick', 'direct', 'direct-auction']
@@ -8,30 +88,20 @@ export function useRegisterFlow(initialMode) {
     initialMode.value === 'inspection' || initialMode.value === 'inspection-pick' ? 'inspection' : 'direct',
   )
   const submitted = ref(false)
+  const processing = ref(false)
+  const uploadInProgress = ref(false)
   const uploadedImages = ref([])
   const selectedBidUnit = ref('10,000')
   const selectedDuration = ref('5일')
   const selectedInspectionId = ref(0)
   const isInspectionDetailOpen = ref(false)
+  const categoryOptions = ref([])
+  const inspectionPickItems = ref([])
+  const successMessage = ref('')
+  const errorMessage = ref('')
 
-  const form = ref({
-    name: '',
-    category: '',
-    brand: '',
-    condition: '',
-    description: '',
-  })
-
-  const auctionForm = ref({
-    extendAuction: true,
-    timeDeal: false,
-    startPrice: '',
-    buyNowPrice: '',
-    startDate: '2024 / 03 / 27',
-    startTime: '12 : 00 : 00',
-    endDate: '2024 / 03 / 27',
-    endTime: '12 : 00 : 00',
-  })
+  const form = ref(createEmptyForm())
+  const auctionForm = ref(createEmptyAuctionForm())
 
   const headerTitle = computed(() => {
     if (currentMode.value === 'inspection') return '검수 상품 신청'
@@ -49,20 +119,7 @@ export function useRegisterFlow(initialMode) {
     return '경매 등록하실 방법을 선택해주세요.'
   })
 
-  const thumbnailPlaceholders = computed(() =>
-    Math.max(0, 3 - Math.max(0, uploadedImages.value.length - 1)),
-  )
-
-  const successMessage = computed(() =>
-    currentMode.value === 'inspection'
-      ? '더미 데이터 기준으로 검수 상품 신청이 완료되었습니다.'
-      : currentMode.value === 'direct-auction'
-        ? registrationType.value === 'inspection'
-          ? '더미 데이터 기준으로 사전 검수 상품 경매 등록이 완료되었습니다.'
-          : '더미 데이터 기준으로 경매 등록이 완료되었습니다.'
-        : '더미 데이터 기준으로 직접 상품 등록이 완료되었습니다.',
-  )
-
+  const thumbnailPlaceholders = computed(() => Math.max(0, 3 - Math.max(0, uploadedImages.value.length - 1)))
   const showStepper = computed(() =>
     currentMode.value === 'inspection-pick' || currentMode.value === 'direct' || currentMode.value === 'direct-auction',
   )
@@ -70,53 +127,123 @@ export function useRegisterFlow(initialMode) {
   const firstStepLabel = computed(() =>
     registrationType.value === 'inspection' ? '사전 검수 상품 등록' : '직접 상품 등록',
   )
-  const bidUnitOptions = ['1,000', '5,000', '10,000', '50,000', '100,000', '직접입력']
+  const bidUnitOptions = ['1,000', '5,000', '10,000', '50,000', '100,000']
   const durationOptions = computed(() =>
     auctionForm.value.timeDeal
       ? ['4시간', '8시간', '12시간', '16시간', '20시간', '24시간', '28시간', '32시간', '36시간', '40시간', '44시간', '48시간']
       : ['3일', '4일', '5일', '6일', '7일', '8일', '9일', '10일'],
   )
-  const inspectionReadyItems = computed(() => inspectionItems.filter((item) => item.status === '검수 통과'))
   const selectedInspectionItem = computed(() =>
-    inspectionReadyItems.value.length
-      ? inspectionReadyItems.value[selectedInspectionId.value % inspectionReadyItems.value.length]
-      : null,
+    inspectionPickItems.value.find((item) => item.displayId === selectedInspectionId.value) || null,
   )
-  const inspectionPickItems = computed(() => {
-    if (!inspectionReadyItems.value.length) return []
 
-    return Array.from({ length: 7 }, (_, index) => ({
-      ...inspectionReadyItems.value[index % inspectionReadyItems.value.length],
-      displayId: index,
-    }))
-  })
-
-  function openMode(mode) {
-    registrationType.value = mode === 'inspection' || mode === 'inspection-pick' ? 'inspection' : 'direct'
-    currentMode.value = mode
+  function clearMessages() {
     submitted.value = false
+    successMessage.value = ''
+    errorMessage.value = ''
   }
 
-  function handleFiles(event) {
-    const files = Array.from(event.target.files || [])
-    const remain = Math.max(0, 4 - uploadedImages.value.length)
+  function syncAuctionSchedule() {
+    const startDate = new Date()
+    const endDate = computeEndDate(startDate, selectedDuration.value)
+
+    auctionForm.value.startDate = formatDatePart(startDate)
+    auctionForm.value.startTime = formatTimePart(startDate)
+    auctionForm.value.endDate = formatDatePart(endDate)
+    auctionForm.value.endTime = formatTimePart(endDate)
+  }
+
+  async function loadCategoryOptions() {
+    try {
+      const response = await getCategoryList()
+      const rows = response?.categories || response || []
+      categoryOptions.value = buildLeafCategoryOptions(Array.isArray(rows) ? rows : [])
+    } catch {
+      categoryOptions.value = buildLeafCategoryOptions(getFallbackCategories())
+    }
+  }
+
+  async function loadInspectionPickItems() {
+    try {
+      const page = await getInspectionList({
+        page: 1,
+        size: 24,
+        status: 'PASSED',
+        order: 'DESC',
+      })
+
+      inspectionPickItems.value = (page?.content || []).map((item, index) => ({
+        ...normalizeInspectionPickItem(item),
+        displayId: index,
+      }))
+      selectedInspectionId.value = inspectionPickItems.value[0]?.displayId || 0
+    } catch (error) {
+      inspectionPickItems.value = []
+
+      if (currentMode.value === 'inspection-pick') {
+        errorMessage.value = error?.message || '검수 완료 상품을 불러오지 못했습니다.'
+      }
+    }
+  }
+
+  async function uploadSingleFile(file) {
+    const presigned = await requestPresignedUpload(file)
+    await uploadToPresignedUrl(presigned.uploadUrl, file)
+
+    uploadedImages.value.push({
+      name: file.name,
+      previewUrl: URL.createObjectURL(file),
+      fileKey: presigned.fileKey,
+      publicUrl: presigned.publicUrl,
+      type: file.type,
+      size: file.size,
+    })
+  }
+
+  async function handleFiles(event) {
+    const files = Array.from(event?.target?.files || [])
+    const remain = Math.max(0, 10 - uploadedImages.value.length)
     const selected = files.slice(0, remain)
 
-    selected.forEach((file) => {
-      uploadedImages.value.push({
-        name: file.name,
-        previewUrl: URL.createObjectURL(file),
-      })
-    })
+    if (!selected.length) {
+      return
+    }
 
-    event.target.value = ''
+    uploadInProgress.value = true
+    errorMessage.value = ''
+
+    try {
+      for (const file of selected) {
+        await uploadSingleFile(file)
+      }
+    } catch (error) {
+      errorMessage.value = error?.message || '이미지 업로드에 실패했습니다.'
+    } finally {
+      uploadInProgress.value = false
+
+      if (event?.target) {
+        event.target.value = ''
+      }
+    }
   }
 
-  function removeImage(index) {
+  async function removeImage(index) {
     const [image] = uploadedImages.value.splice(index, 1)
 
-    if (image?.previewUrl) {
+    if (!image) {
+      return
+    }
+
+    if (image.previewUrl) {
       URL.revokeObjectURL(image.previewUrl)
+    }
+
+    if (image.fileKey) {
+      try {
+        await deleteUploadedFile(image.fileKey)
+      } catch {
+        // 삭제 실패는 사용자 입력 흐름을 막지 않는다.
+      }
     }
   }
 
@@ -128,14 +255,28 @@ export function useRegisterFlow(initialMode) {
     })
 
     uploadedImages.value = []
-    form.value = {
-      name: '',
-      category: '',
-      brand: '',
-      condition: '',
-      description: '',
+    form.value = createEmptyForm()
+    auctionForm.value = createEmptyAuctionForm()
+    selectedBidUnit.value = '10,000'
+    selectedDuration.value = '5일'
+    syncAuctionSchedule()
+    clearMessages()
+  }
+
+  function openMode(mode) {
+    registrationType.value = mode === 'inspection' || mode === 'inspection-pick' ? 'inspection' : 'direct'
+    currentMode.value = mode
+    clearMessages()
+
+    if (mode === 'inspection-pick') {
+      loadInspectionPickItems()
     }
-    submitted.value = false
+  }
+
+  function openInspectionRequest() {
+    registrationType.value = 'inspection'
+    currentMode.value = 'inspection'
+    clearMessages()
   }
 
   function goBackToSelect() {
@@ -143,19 +284,157 @@ export function useRegisterFlow(initialMode) {
     currentMode.value = 'select'
   }
 
-  function submitForm() {
-    if (currentMode.value === 'direct' || currentMode.value === 'inspection-pick') {
-      currentMode.value = 'direct-auction'
-      submitted.value = false
+  function validateProductForm({ requireCondition }) {
+    if (!uploadedImages.value.length) {
+      throw new Error('상품 이미지를 1장 이상 업로드해주세요.')
+    }
+
+    if (!form.value.name.trim()) {
+      throw new Error('상품명을 입력해주세요.')
+    }
+
+    if (!form.value.categoryId) {
+      throw new Error('카테고리를 선택해주세요.')
+    }
+
+    if (requireCondition && !form.value.condition) {
+      throw new Error('상품 상태를 선택해주세요.')
+    }
+
+    if (!form.value.description.trim()) {
+      throw new Error('상세 설명을 입력해주세요.')
+    }
+  }
+
+  function validateAuctionForm() {
+    if (!auctionForm.value.startPrice) {
+      throw new Error('경매 시작가를 입력해주세요.')
+    }
+
+    if (!selectedBidUnit.value) {
+      throw new Error('입찰 단위를 선택해주세요.')
+    }
+  }
+
+  function buildImagePayload() {
+    return uploadedImages.value.map((image, index) => ({
+      fileKey: image.fileKey,
+      displayOrder: index + 1,
+    }))
+  }
+
+  function buildAuctionPayload(type) {
+    const startDate = new Date()
+    const endDate = computeEndDate(startDate, selectedDuration.value)
+
+    return {
+      type,
+      startPrice: parseMoney(auctionForm.value.startPrice),
+      bidUnit: normalizeBidUnit(selectedBidUnit.value),
+      vickreyPrice: null,
+      buyNowPrice: parseMoney(auctionForm.value.buyNowPrice) || null,
+      startDate: toLocalDateTimeString(startDate),
+      endDate: toLocalDateTimeString(endDate),
+    }
+  }
+
+  async function submitInspectionRegistration() {
+    validateProductForm({ requireCondition: false })
+
+    const payload = {
+      item: {
+        categoryId: Number(form.value.categoryId),
+        brand: form.value.brand.trim() || null,
+        name: form.value.name.trim(),
+        quality: form.value.condition || null,
+        description: form.value.description.trim(),
+        images: buildImagePayload(),
+      },
+      inspection: {
+        carrier: null,
+        trackingNumber: null,
+      },
+    }
+
+    const result = await createInspection(payload)
+    submitted.value = true
+    successMessage.value = `검수 등록이 완료되었습니다. (검수 ID: ${result?.inspectionId ?? '-'})`
+  }
+
+  async function submitDirectAuctionRegistration() {
+    validateProductForm({ requireCondition: true })
+    validateAuctionForm()
+
+    const payload = {
+      item: {
+        categoryId: Number(form.value.categoryId),
+        brand: form.value.brand.trim() || null,
+        name: form.value.name.trim(),
+        quality: form.value.condition || null,
+        description: form.value.description.trim(),
+        images: buildImagePayload(),
+      },
+      auction: buildAuctionPayload(auctionForm.value.timeDeal ? 'TIME_DEAL' : 'NORMAL'),
+    }
+
+    const result = await createAuction(payload)
+    submitted.value = true
+    successMessage.value = `경매 등록이 완료되었습니다. (경매 ID: ${result?.auctionId ?? '-'})`
+  }
+
+  async function submitInspectionAuctionRegistration() {
+    validateAuctionForm()
+
+    if (!selectedInspectionItem.value?.itemId) {
+      throw new Error('경매 등록할 검수 완료 상품을 선택해주세요.')
+    }
+
+    const payload = {
+      itemId: selectedInspectionItem.value.itemId,
+      auction: buildAuctionPayload(auctionForm.value.timeDeal ? 'TIME_DEAL' : 'INSPECTION'),
+    }
+
+    const result = await createAuctionFromInspectionItem(payload)
+    submitted.value = true
+    successMessage.value = `검수 완료 상품 경매 등록이 완료되었습니다. (경매 ID: ${result?.auctionId ?? '-'})`
+  }
+
+  async function submitForm() {
+    clearMessages()
+
+    if (currentMode.value === 'direct') {
+      try {
+        validateProductForm({ requireCondition: true })
+        currentMode.value = 'direct-auction'
+        syncAuctionSchedule()
+      } catch (error) {
+        errorMessage.value = error?.message || '입력값을 확인해주세요.'
+      }
       return
     }
 
-    submitted.value = true
+    processing.value = true
+
+    try {
+      if (currentMode.value === 'inspection') {
+        await submitInspectionRegistration()
+      } else if (currentMode.value === 'direct-auction') {
+        if (registrationType.value === 'inspection') {
+          await submitInspectionAuctionRegistration()
+        } else {
+          await submitDirectAuctionRegistration()
+        }
+      }
+    } catch (error) {
+      errorMessage.value = error?.message || '등록 처리 중 오류가 발생했습니다.'
+    } finally {
+      processing.value = false
+    }
   }
 
   function returnFromAuctionStep() {
     currentMode.value = registrationType.value === 'inspection' ? 'inspection-pick' : 'direct'
-    submitted.value = false
+    clearMessages()
   }
 
   function toggleAuctionField(field) {
@@ -176,9 +455,15 @@ export function useRegisterFlow(initialMode) {
   }
 
   function startAuctionFromInspection() {
+    if (!selectedInspectionItem.value) {
+      errorMessage.value = '경매 등록할 검수 완료 상품을 선택해주세요.'
+      return
+    }
+
     isInspectionDetailOpen.value = false
     currentMode.value = 'direct-auction'
-    submitted.value = false
+    clearMessages()
+    syncAuctionSchedule()
   }
 
   watch(
@@ -186,9 +471,30 @@ export function useRegisterFlow(initialMode) {
     (mode) => {
       currentMode.value = allowedModes.includes(mode) ? mode : 'select'
       registrationType.value = mode === 'inspection' || mode === 'inspection-pick' ? 'inspection' : 'direct'
-      submitted.value = false
+      clearMessages()
+
+      if (currentMode.value === 'inspection-pick') {
+        loadInspectionPickItems()
+      }
+    },
+    { immediate: true },
+  )
+
+  watch(selectedDuration, () => {
+    syncAuctionSchedule()
+  })
+
+  watch(
+    currentMode,
+    (mode) => {
+      if (mode === 'inspection-pick') {
+        loadInspectionPickItems()
+      }
     },
   )
+
+  loadCategoryOptions()
+  syncAuctionSchedule()
 
   onBeforeUnmount(() => {
     uploadedImages.value.forEach((image) => {
@@ -201,9 +507,11 @@ export function useRegisterFlow(initialMode) {
   return {
     auctionForm,
     bidUnitOptions,
+    categoryOptions,
     closeInspectionDetail,
     currentMode,
     durationOptions,
+    errorMessage,
     firstStepLabel,
     form,
     goBackToSelect,
@@ -213,7 +521,9 @@ export function useRegisterFlow(initialMode) {
     inspectionPickItems,
     isAuctionStep,
     isInspectionDetailOpen,
+    openInspectionRequest,
     openMode,
+    processing,
     removeImage,
     returnFromAuctionStep,
     selectedBidUnit,
@@ -228,6 +538,7 @@ export function useRegisterFlow(initialMode) {
     successMessage,
     thumbnailPlaceholders,
     toggleAuctionField,
+    uploadInProgress,
     uploadedImages,
   }
 }

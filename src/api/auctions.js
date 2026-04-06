@@ -16,3 +16,27 @@ export async function getAuctionDetail(auctionId) {
 
   return unwrap(data)
 }
+
+export async function createAuction(payload) {
+  const data = await request('/api/v1/auctions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  })
+
+  return unwrap(data)
+}
+
+export async function createAuctionFromInspectionItem(payload) {
+  const data = await request('/api/v1/auctions/inspection-items', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  })
+
+  return unwrap(data)
+}
