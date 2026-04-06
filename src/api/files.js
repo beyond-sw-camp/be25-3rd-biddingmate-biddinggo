@@ -2,6 +2,7 @@ import { request, unwrap } from './http'
 
 export async function requestPresignedUpload(file) {
   const data = await request('/api/v1/files/presigned-upload', {
+    auth: true,
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -31,6 +32,7 @@ export async function uploadToPresignedUrl(uploadUrl, file) {
 
 export async function deleteUploadedFile(fileKey) {
   const data = await request('/api/v1/files/delete', {
+    auth: true,
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

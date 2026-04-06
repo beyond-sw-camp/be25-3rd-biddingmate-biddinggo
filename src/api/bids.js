@@ -4,6 +4,7 @@ export async function createBid(memberId, payload) {
   const suffix = buildQueryString({ memberId })
 
   const data = await request(`/api/v1/bids${suffix}`, {
+    auth: true,
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

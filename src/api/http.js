@@ -1,3 +1,5 @@
+import { clearSession, getAccessToken, setSession } from '../lib/authSession'
+
 function deriveApiBaseUrl() {
   const explicitApiBaseUrl = String(import.meta.env.VITE_API_BASE_URL || '').trim()
 
@@ -16,6 +18,8 @@ function deriveApiBaseUrl() {
 
 export const API_BASE_URL = deriveApiBaseUrl()
 
+let refreshPromise = null
+
 export function buildQueryString(params = {}) {
   const query = new URLSearchParams()
 
@@ -31,20 +35,95 @@ export function buildQueryString(params = {}) {
 }
 
 async function readBody(response) {
-  return response.json().catch(() => null)
+  const contentType = String(response.headers.get('content-type') || '').toLowerCase()
+
+  if (contentType.includes('application/json')) {
+    return response.json().catch(() => null)
+  }
+
+  return response.text().catch(() => null)
 }
 
-export async function request(path, options = {}) {
+function withAuthorizationHeader(headers = {}, auth = false) {
+  if (!auth) {
+    return headers
+  }
+
+  const accessToken = getAccessToken()
+
+  if (!accessToken) {
+    return headers
+  }
+
+  const hasAuthorizationHeader = Object.keys(headers).some((key) => key.toLowerCase() === 'authorization')
+
+  if (hasAuthorizationHeader) {
+    return headers
+  }
+
+  return {
+    ...headers,
+    Authorization: `Bearer ${accessToken}`,
+  }
+}
+
+async function attemptRefreshToken() {
+  if (!API_BASE_URL) {
+    return false
+  }
+
+  if (!refreshPromise) {
+    refreshPromise = (async () => {
+      let response
+
+      try {
+        response = await fetch(`${API_BASE_URL}/api/v1/auth/refresh`, {
+          method: 'POST',
+          credentials: 'include',
+        })
+      } catch {
+        clearSession()
+        return false
+      }
+
+      const body = await readBody(response)
+
+      if (!response.ok || typeof body !== 'object' || !body?.result?.accessToken) {
+        clearSession()
+        return false
+      }
+
+      setSession(body.result)
+      return true
+    })().finally(() => {
+      refreshPromise = null
+    })
+  }
+
+  return refreshPromise
+}
+
+async function performRequest(path, options = {}, allowRefresh = true) {
+  const { auth = false, ...fetchOptions } = options
   const target = `${API_BASE_URL}${path}`
   let response
 
   try {
     response = await fetch(target, {
       credentials: 'include',
-      ...options,
+      ...fetchOptions,
+      headers: withAuthorizationHeader(fetchOptions.headers || {}, auth),
     })
-  } catch (error) {
+  } catch {
     throw new Error(`요청 실패: ${target} 에 연결하지 못했습니다.`)
+  }
+
+  if (auth && response.status === 401 && allowRefresh && path !== '/api/v1/auth/refresh') {
+    const refreshed = await attemptRefreshToken()
+
+    if (refreshed) {
+      return performRequest(path, options, false)
+    }
   }
 
   const body = await readBody(response)
@@ -55,10 +134,18 @@ export async function request(path, options = {}) {
   }
 
   if (!response.ok) {
-    throw new Error(body?.message || '요청 처리 중 오류가 발생했습니다.')
+    if (typeof body === 'object' && body?.message) {
+      throw new Error(body.message)
+    }
+
+    throw new Error('요청 처리 중 오류가 발생했습니다.')
   }
 
   return body
+}
+
+export async function request(path, options = {}) {
+  return performRequest(path, options)
 }
 
 export function unwrap(data) {

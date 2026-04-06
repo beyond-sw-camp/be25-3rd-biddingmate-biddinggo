@@ -314,8 +314,127 @@ select {
   gap: 6px;
 }
 
+.topbar-auth-label {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--surface-blue);
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .page-area {
   padding: 30px 110px 48px;
+}
+
+.auth-page {
+  min-height: calc(100vh - 122px);
+  display: grid;
+  place-items: center;
+}
+
+.auth-page--callback {
+  min-height: 100vh;
+  padding: 32px;
+}
+
+.auth-card {
+  width: min(560px, 100%);
+  padding: 40px;
+  display: grid;
+  gap: 20px;
+}
+
+.auth-card--callback {
+  max-width: 420px;
+  text-align: center;
+}
+
+.auth-card h1 {
+  margin: 0;
+  font-size: 34px;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+
+.auth-card__eyebrow {
+  margin: 0;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+}
+
+.auth-card__description {
+  margin: 0;
+  color: #667085;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.auth-card__status {
+  display: grid;
+  gap: 6px;
+  padding: 18px 20px;
+  border-radius: 16px;
+  background: var(--surface-blue);
+}
+
+.auth-card__status strong {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.auth-card__status span {
+  color: #667085;
+  font-size: 14px;
+}
+
+.auth-card__actions {
+  display: grid;
+  gap: 12px;
+}
+
+.auth-provider {
+  min-height: 54px;
+  border: 0;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.auth-provider:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--button-shadow-soft);
+}
+
+.auth-provider--kakao {
+  background: #fee500;
+  color: #191919;
+}
+
+.auth-provider--google {
+  background: #ffffff;
+  color: #202124;
+  border: 1px solid #d0d5dd;
+}
+
+.auth-card__footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.auth-card__error {
+  margin: 0;
+  color: #b42318;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .page-header-block h1,

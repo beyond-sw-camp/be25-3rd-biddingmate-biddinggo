@@ -15,12 +15,14 @@ import DashboardView from '../views/DashboardView.vue'
 import DirectInquiryView from '../views/DirectInquiryView.vue'
 import HomeView from '../views/HomeView.vue'
 import InspectionView from '../views/InspectionView.vue'
+import LoginView from '../views/LoginView.vue'
 import PointsView from '../views/PointsView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import PurchaseHistoryView from '../views/PurchaseHistoryView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import SalesHistoryView from '../views/SalesHistoryView.vue'
 import WishlistView from '../views/WishlistView.vue'
+import AuthCallbackView from '../views/AuthCallbackView.vue'
 
 const routes = [
   {
@@ -67,6 +69,20 @@ const routes = [
       navSection: 'main',
       navKey: 'inspection',
     },
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: LoginView,
+    meta: {
+      navSection: 'main',
+      navKey: '',
+    },
+  },
+  {
+    path: '/auth/callback',
+    name: 'auth-callback',
+    component: AuthCallbackView,
   },
   {
     path: '/mypage',

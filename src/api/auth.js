@@ -1,0 +1,30 @@
+import { API_BASE_URL, request, unwrap } from './http'
+
+export function buildSocialLoginUrl(provider) {
+  return `${API_BASE_URL}/oauth2/authorization/${provider}`
+}
+
+export async function checkAuthStatus() {
+  return unwrap(
+    await request('/api/v1/auth/check', {
+      auth: true,
+      headers: {
+        Accept: 'application/json',
+      },
+    }),
+  )
+}
+
+export async function refreshAccessToken() {
+  return unwrap(
+    await request('/api/v1/auth/refresh', {
+      method: 'POST',
+    }),
+  )
+}
+
+export async function logoutAuth() {
+  return request('/api/v1/auth/logout', {
+    method: 'POST',
+  })
+}

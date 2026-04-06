@@ -3,6 +3,7 @@ import { buildQueryString, request, unwrap } from './http'
 export async function getInspectionList(params = {}) {
   const suffix = buildQueryString(params)
   const data = await request(`/api/v1/inspections${suffix}`, {
+    auth: true,
     method: 'GET',
   })
 
@@ -11,6 +12,7 @@ export async function getInspectionList(params = {}) {
 
 export async function createInspection(payload) {
   const data = await request('/api/v1/inspections', {
+    auth: true,
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

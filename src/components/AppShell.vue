@@ -37,7 +37,11 @@
           <button class="topbar-link-button topbar-link-button--icon" type="button" @click="isNotificationOpen = true">
             <span>알림</span>
           </button>
-          <button class="topbar-link-button" type="button">로그인/회원가입</button>
+          <template v-if="auth.isAuthenticated">
+            <span class="topbar-auth-label">{{ auth.username || '로그인됨' }}</span>
+            <button class="topbar-link-button" type="button" @click="$emit('logout')">로그아웃</button>
+          </template>
+          <button v-else class="topbar-link-button" type="button" @click="$emit('open-login')">로그인/회원가입</button>
         </div>
       </header>
 
@@ -67,9 +71,13 @@ defineProps({
     type: Array,
     required: true,
   },
+  auth: {
+    type: Object,
+    required: true,
+  },
 })
 
-defineEmits(['navigate', 'open-mypage'])
+defineEmits(['navigate', 'open-login', 'open-mypage', 'logout'])
 
 const isNotificationOpen = ref(false)
 </script>

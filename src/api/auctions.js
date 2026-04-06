@@ -19,6 +19,7 @@ export async function getAuctionDetail(auctionId) {
 
 export async function createAuction(payload) {
   const data = await request('/api/v1/auctions', {
+    auth: true,
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -31,6 +32,7 @@ export async function createAuction(payload) {
 
 export async function createAuctionFromInspectionItem(payload) {
   const data = await request('/api/v1/auctions/inspection-items', {
+    auth: true,
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

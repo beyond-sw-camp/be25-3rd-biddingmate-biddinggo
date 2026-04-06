@@ -2,6 +2,7 @@ import { buildQueryString, request, unwrap } from './http'
 
 export async function createAuctionInquiry(payload) {
   const data = await request('/api/v1/inquiries', {
+    auth: true,
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -14,7 +15,7 @@ export async function createAuctionInquiry(payload) {
 
 export async function getAuctionInquiryList(auctionId, params = {}) {
   const suffix = buildQueryString(params)
-  const data = await request(`/api/v1/inquiries/auctions/${auctionId}/inquiries${suffix}`, {
+  const data = await request(`/api/v1/auctions/${auctionId}/inquiries${suffix}`, {
     method: 'GET',
   })
 
