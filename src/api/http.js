@@ -103,6 +103,13 @@ async function attemptRefreshToken() {
   return refreshPromise
 }
 
+function needsCookie(path) {
+
+  return path === '/api/v1/auth/refresh'
+    || path === '/api/v1/auth/logout'
+    || path === '/api/v1/auth/check'
+}
+
 async function performRequest(path, options = {}, allowRefresh = true) {
   const { auth = false, ...fetchOptions } = options
   const target = `${API_BASE_URL}${path}`
@@ -110,7 +117,7 @@ async function performRequest(path, options = {}, allowRefresh = true) {
 
   try {
     response = await fetch(target, {
-      credentials: 'include',
+      credentials: needsCookie(path) ? 'include' : 'omit',
       ...fetchOptions,
       headers: withAuthorizationHeader(fetchOptions.headers || {}, auth),
     })
