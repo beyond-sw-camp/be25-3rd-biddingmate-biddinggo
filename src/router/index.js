@@ -74,10 +74,6 @@ const routes = [
     path: '/login',
     name: 'login',
     component: LoginView,
-    meta: {
-      navSection: 'main',
-      navKey: '',
-    },
   },
   {
     path: '/auth/callback',
