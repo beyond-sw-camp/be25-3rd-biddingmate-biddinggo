@@ -196,9 +196,14 @@ select {
   width: 32px;
   height: 20px;
   flex-shrink: 0;
-  object-fit: contain;
-  object-position: center;
-  opacity: 0.8;
+  background: currentColor;
+  opacity: 0.72;
+  -webkit-mask: var(--nav-icon-url) center / contain no-repeat;
+  mask: var(--nav-icon-url) center / contain no-repeat;
+}
+
+.sidebar-link.active .app-shell__nav-icon {
+  opacity: 1;
 }
 
 .content-shell {

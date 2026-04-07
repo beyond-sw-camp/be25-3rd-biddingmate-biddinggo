@@ -15,7 +15,11 @@
           :class="{ active: currentNavKey === item.key || (!currentNavKey && currentScreen === item.key) }"
           @click="$emit('navigate', item.route ?? item.key)"
         >
-          <img :src="item.icon" :alt="item.label" class="app-shell__nav-icon" />
+          <span
+            class="app-shell__nav-icon"
+            :style="{ '--nav-icon-url': `url(${item.icon})` }"
+            aria-hidden="true"
+          ></span>
           <span>{{ item.label }}</span>
         </button>
       </nav>
