@@ -87,6 +87,7 @@ export function normalizeInquiries(rows = []) {
   }
 
   return rows.map((row) => ({
+    id: row.id,
     status: row.answer ? '답변 완료' : '답변 대기',
     title: row.title || '문의',
     meta: `${row.writerName || '익명'} | ${formatDateTime(row.createdAt)}`,
