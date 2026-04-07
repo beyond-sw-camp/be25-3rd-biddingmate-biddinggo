@@ -974,6 +974,12 @@ img {
   cursor: pointer;
 }
 
+.seller-button:disabled {
+  background: #cbd5e1;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
 .detail-description-card {
   padding: 25px 24px;
 }
@@ -1589,6 +1595,12 @@ img {
   font-weight: 600;
   box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.3);
   cursor: pointer;
+}
+
+.detail-inquiry-submit:disabled {
+  background: #94a3b8;
+  box-shadow: none;
+  cursor: not-allowed;
 }
 
 .detail-report-fields {

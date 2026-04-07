@@ -16,6 +16,7 @@ export async function createAuctionInquiry(payload) {
 export async function getAuctionInquiryList(auctionId, params = {}) {
   const suffix = buildQueryString(params)
   const data = await request(`/api/v1/auctions/${auctionId}/inquiries${suffix}`, {
+    auth: true,
     method: 'GET',
   })
 

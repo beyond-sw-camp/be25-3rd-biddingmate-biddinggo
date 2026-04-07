@@ -7,6 +7,10 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  isOwnAuction: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 defineEmits(['open-inquiry', 'open-seller'])
@@ -34,6 +38,13 @@ const sellerGradeBadge = computed(() => getGradeBadge(props.item?.sellerGrade))
         <span v-else class="seller-grade">{{ item.sellerGrade }}</span>
       </div>
     </div>
-    <button type="button" class="seller-button" @click="$emit('open-inquiry')">문의 하기</button>
+    <button
+      type="button"
+      class="seller-button"
+      :disabled="isOwnAuction"
+      @click="$emit('open-inquiry')"
+    >
+      {{ isOwnAuction ? '내 경매' : '문의 하기' }}
+    </button>
   </div>
 </template>

@@ -7,6 +7,7 @@ const state = reactive({
   isAuthenticated: false,
   accessToken: '',
   type: 'Bearer',
+  memberId: null,
   username: '',
   authorities: [],
   issuedAt: 0,
@@ -58,6 +59,7 @@ function persistSession() {
     JSON.stringify({
       accessToken: state.accessToken,
       type: state.type,
+      memberId: state.memberId,
       username: state.username,
       authorities: state.authorities,
       issuedAt: state.issuedAt,
@@ -71,6 +73,7 @@ function applySession(snapshot = {}) {
 
   state.accessToken = String(source.accessToken || '').trim()
   state.type = String(source.type || 'Bearer')
+  state.memberId = source.memberId === null || source.memberId === undefined ? null : Number(source.memberId)
   state.username = String(source.username || '')
   state.authorities = normalizeAuthorities(source.authorities)
   state.issuedAt = Number(source.issuedAt || 0)
@@ -90,6 +93,7 @@ export function setSession(loginResponse = {}) {
   applySession({
     accessToken: loginResponse.accessToken ?? state.accessToken,
     type: loginResponse.type ?? state.type,
+    memberId: loginResponse.memberId ?? state.memberId,
     username: loginResponse.username ?? state.username,
     authorities: loginResponse.authorities ?? state.authorities,
     issuedAt: loginResponse.issuedAt ?? state.issuedAt,
@@ -100,6 +104,7 @@ export function setSession(loginResponse = {}) {
 }
 
 export function setUserInfo(userInfo = {}) {
+  state.memberId = userInfo.memberId === null || userInfo.memberId === undefined ? state.memberId : Number(userInfo.memberId)
   state.username = String(userInfo.username || state.username || '')
   state.authorities = normalizeAuthorities(userInfo.role ?? state.authorities)
   state.isAuthenticated = Boolean(state.accessToken)

@@ -12,6 +12,7 @@ import PricePanel from './auction-detail/PricePanel.vue'
 import ReportModal from './auction-detail/ReportModal.vue'
 import SellerCardSection from './auction-detail/SellerCardSection.vue'
 import SellerProfileModal from './auction-detail/SellerProfileModal.vue'
+import { authState } from '../lib/authSession'
 import { runtimeIdentity } from '../lib/runtimeIdentity'
 import { getGradeBadge } from '../utils/gradeBadge'
 import { formatNumber } from '../utils/marketplace'
@@ -42,6 +43,7 @@ const feedbackMessage = ref('')
 const isBidHistoryDrawerOpen = ref(false)
 const isBidModalOpen = ref(false)
 const isInquiryModalOpen = ref(false)
+const isInquirySubmitting = ref(false)
 const isReportModalOpen = ref(false)
 const isSellerModalOpen = ref(false)
 
@@ -94,6 +96,13 @@ const buyNowAmount = computed(() =>
 
 const bidHistoryRows = computed(() => props.item?.history || [])
 
+const isOwnAuction = computed(() => {
+  const memberId = Number(authState.memberId)
+  const sellerId = Number(props.item?.sellerId)
+
+  return Number.isFinite(memberId) && Number.isFinite(sellerId) && memberId === sellerId
+})
+
 function openSellerModal() {
   isSellerModalOpen.value = true
 }
@@ -133,6 +142,11 @@ function closeReportModal() {
 }
 
 function openInquiryModal() {
+  if (isOwnAuction.value) {
+    feedbackMessage.value = '본인이 등록한 경매에는 문의할 수 없습니다.'
+    return
+  }
+
   isInquiryModalOpen.value = true
 }
 
@@ -177,11 +191,30 @@ async function submitInquiry() {
     return
   }
 
+  const title = inquiryForm.value.title.trim()
+  const content = inquiryForm.value.content.trim()
+
+  if (!title || !content) {
+    feedbackMessage.value = '문의 제목과 내용을 입력해주세요.'
+    return
+  }
+
+  if (title.length > 50) {
+    feedbackMessage.value = '문의 제목은 50자 이내로 입력해주세요.'
+    return
+  }
+
+  if (isInquirySubmitting.value) {
+    return
+  }
+
+  isInquirySubmitting.value = true
+
   try {
     await createAuctionInquiry({
       auctionId: props.item.auctionId,
-      title: inquiryForm.value.title,
-      content: inquiryForm.value.content,
+      title,
+      content,
       secretYn: inquiryForm.value.isPrivate,
     })
     feedbackMessage.value = '문의가 등록되었습니다.'
@@ -194,6 +227,8 @@ async function submitInquiry() {
     emit('refresh')
   } catch (error) {
     feedbackMessage.value = error?.message || '문의 등록에 실패했습니다.'
+  } finally {
+    isInquirySubmitting.value = false
   }
 }
 
@@ -223,7 +258,12 @@ function buyNow() {
       <div class="detail-grid">
         <div class="detail-left">
           <DetailMediaSection :assets="assets" :item="item" />
-          <SellerCardSection :item="item" @open-inquiry="openInquiryModal" @open-seller="openSellerModal" />
+          <SellerCardSection
+            :is-own-auction="isOwnAuction"
+            :item="item"
+            @open-inquiry="openInquiryModal"
+            @open-seller="openSellerModal"
+          />
           <div class="detail-description-card">
             <p>{{ item.description }}</p>
           </div>
@@ -283,6 +323,7 @@ function buyNow() {
         :assets="assets"
         :form="inquiryForm"
         :item="item"
+        :submitting="isInquirySubmitting"
         @close="closeInquiryModal"
         @submit="submitInquiry"
       />

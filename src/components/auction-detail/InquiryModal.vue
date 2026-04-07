@@ -14,6 +14,10 @@ defineProps({
     type: Object,
     required: true,
   },
+  submitting: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 defineEmits(['close', 'submit'])
@@ -41,6 +45,7 @@ defineEmits(['close', 'submit'])
           <input
             v-model="form.title"
             type="text"
+            maxlength="50"
             placeholder="제목을 입력해 주세요."
           />
         </label>
@@ -54,8 +59,13 @@ defineEmits(['close', 'submit'])
         </label>
       </div>
 
-      <button type="button" class="detail-inquiry-submit" @click="$emit('submit')">
-        문의하기
+      <button
+        type="button"
+        class="detail-inquiry-submit"
+        :disabled="submitting"
+        @click="$emit('submit')"
+      >
+        {{ submitting ? '등록 중...' : '문의하기' }}
       </button>
   </BaseModal>
 </template>
