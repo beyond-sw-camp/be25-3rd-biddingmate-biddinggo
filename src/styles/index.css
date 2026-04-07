@@ -241,6 +241,43 @@ select {
   min-width: 0;
 }
 
+.topbar-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 660px;
+  max-width: 100%;
+  min-height: 39px;
+  border-radius: 16px;
+  background: #f2f4f6;
+  padding: 0 20px;
+  color: #94a3b8;
+}
+
+.topbar-search__icon {
+  width: 18px;
+  height: 24px;
+  flex: 0 0 18px;
+  object-fit: contain;
+}
+
+.topbar-search input {
+  width: min(413px, 100%);
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #2c2c35;
+  font-family: Manrope, 'Noto Sans KR', Pretendard, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.topbar-search input::placeholder {
+  color: #94a3b8;
+  opacity: 1;
+}
+
 .page-search-field,
 .wishlist-search-field {
   flex: 1 1 auto;

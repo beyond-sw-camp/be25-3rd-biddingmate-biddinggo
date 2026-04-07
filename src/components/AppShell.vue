@@ -23,14 +23,10 @@
 
     <div class="content-shell">
       <header class="topbar">
-        <v-text-field
-          class="topbar-search-field"
-          density="comfortable"
-          hide-details
-          placeholder="어떤 경매를 찾으시나요?"
-          prepend-inner-icon="mdi-magnify"
-          variant="solo"
-        />
+        <form class="topbar-search-field topbar-search" role="search" @submit.prevent>
+          <img :src="searchIcon" alt="" class="topbar-search__icon" />
+          <input type="search" placeholder="어떤 경매를 찾으시나요?" aria-label="경매 검색" />
+        </form>
 
         <div class="topbar-links">
           <button class="topbar-link-button" type="button" @click="$emit('open-mypage')">마이페이지</button>
@@ -57,6 +53,8 @@
 <script setup>
 import { ref } from 'vue'
 import NotificationModal from './NotificationModal.vue'
+
+const searchIcon = 'https://www.figma.com/api/mcp/asset/43c34f06-dced-42d0-9368-8ac16f87d2f7'
 
 defineProps({
   currentScreen: {
