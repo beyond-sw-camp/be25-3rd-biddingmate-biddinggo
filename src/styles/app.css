@@ -822,7 +822,7 @@ img {
 
 .gallery-arrow {
   position: absolute;
-  top: 168px;
+  top: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -834,6 +834,7 @@ img {
   color: #475569;
   font-size: 24px;
   cursor: pointer;
+  transform: translateY(-50%);
 }
 
 .gallery-arrow-left {
@@ -842,6 +843,23 @@ img {
 
 .gallery-arrow-right {
   right: 16px;
+}
+
+.gallery-counter {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.62);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 18px;
+  backdrop-filter: blur(8px);
 }
 
 .inspection-banner {
