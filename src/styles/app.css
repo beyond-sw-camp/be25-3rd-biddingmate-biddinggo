@@ -704,9 +704,36 @@ img {
   cursor: pointer;
 }
 
-.wish-button img {
-  width: 20px;
-  height: 18.35px;
+.wish-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.wish-button svg {
+  width: 22px;
+  height: 22px;
+  color: #94a3b8;
+}
+
+.wish-button path {
+  fill: transparent;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.wish-button:hover:not(:disabled) svg,
+.wish-button.is-wished svg {
+  color: #ef4444;
+}
+
+.wish-button.is-wished {
+  background: #fff1f2;
+}
+
+.wish-button.is-wished path {
+  fill: currentColor;
 }
 
 .item-body {

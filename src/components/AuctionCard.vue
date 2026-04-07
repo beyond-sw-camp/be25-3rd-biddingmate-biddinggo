@@ -28,12 +28,20 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  wishlistProcessing: {
+    type: Boolean,
+    default: false,
+  },
 })
 
-const emit = defineEmits(['select'])
+const emit = defineEmits(['select', 'toggleWishlist'])
 
 function handleSelect() {
   emit('select', props.item)
+}
+
+function handleToggleWishlist() {
+  emit('toggleWishlist', props.item)
 }
 </script>
 
@@ -47,8 +55,20 @@ function handleSelect() {
       <span v-if="showLiveTag && item.highlight" class="live-tag">TIME DEAL</span>
       <img :src="item.image || imageSrc" :alt="item.title" class="item-image" />
 
-      <button type="button" class="wish-button" aria-label="관심상품 추가" @click.stop>
-        <img :src="heartIcon" alt="" />
+      <button
+        type="button"
+        class="wish-button"
+        :class="{ 'is-wished': item.isWished }"
+        :disabled="wishlistProcessing"
+        :aria-pressed="item.isWished"
+        :aria-label="item.isWished ? '찜 취소' : '찜하기'"
+        @click.stop="handleToggleWishlist"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M12 20.25S4.5 15.98 4.5 9.8A4.25 4.25 0 0 1 12 7.05 4.25 4.25 0 0 1 19.5 9.8c0 6.18-7.5 10.45-7.5 10.45Z"
+          />
+        </svg>
       </button>
     </div>
 

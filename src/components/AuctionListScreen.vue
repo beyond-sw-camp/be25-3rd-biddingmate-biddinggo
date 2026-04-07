@@ -26,9 +26,13 @@ defineProps({
     type: String,
     default: '최신순',
   },
+  wishlistProcessingIds: {
+    type: Object,
+    default: () => new Set(),
+  },
 })
 
-defineEmits(['openDetail', 'selectCategory', 'toggleCategory', 'toggleSort'])
+defineEmits(['openDetail', 'selectCategory', 'toggleCategory', 'toggleSort', 'toggleWishlist'])
 </script>
 
 <template>
@@ -86,7 +90,9 @@ defineEmits(['openDetail', 'selectCategory', 'toggleCategory', 'toggleSort'])
           :heart-icon="assets.heartIcon"
           :image-src="assets.listWatchImage"
           :item="item"
+          :wishlist-processing="wishlistProcessingIds.has(item.auctionId)"
           @select="$emit('openDetail', $event)"
+          @toggle-wishlist="$emit('toggleWishlist', $event)"
         />
       </div>
       <p v-else class="feedback-strip">조건에 맞는 경매가 없습니다.</p>

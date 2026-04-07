@@ -59,6 +59,8 @@ export function normalizeAuctionCard(result = {}) {
     brand: result.item?.brand || result.brand || '브랜드 미정',
     price: formatPrice(result.startPrice),
     bids: `입찰 ${result.bidCount ?? 0}회`,
+    wishCount: Number(result.wishCount || 0),
+    isWished: Boolean(result.isWished ?? result.wished ?? false),
     time: getCountdownLabel(result.endDate),
     highlight: result.status === 'ON_GOING',
     image: result.item?.images?.[0]?.url || result.representativeImageUrl || '',
