@@ -112,7 +112,7 @@ function normalizeEnumValue(value) {
 
 export function normalizeAuctionDetail(
   detail = {},
-  { bidHistory = [], inquiries = [], sellerReviews = [] } = {},
+  { bidHistory = [], inquiries = [], sellerReviews = [], wishlistStatus = {} } = {},
 ) {
   const currentPrice = detail.vickreyPrice ?? detail.vickrey_price ?? detail.startPrice
   const sellerName = detail.sellerNickname || (detail.sellerId ? `판매자 ${detail.sellerId}` : '판매자')
@@ -138,6 +138,8 @@ export function normalizeAuctionDetail(
     price: formatPrice(currentPrice),
     startPrice: formatPrice(detail.startPrice),
     bids: `입찰 ${detail.bidCount ?? 0}회`,
+    wishCount: Number(detail.wishCount || 0),
+    isWished: Boolean(wishlistStatus?.wished),
     time: getCountdownLabel(detail.endDate),
     highlight: detail.status === 'ON_GOING',
     isTimeDeal: auctionType === 'TIME_DEAL',

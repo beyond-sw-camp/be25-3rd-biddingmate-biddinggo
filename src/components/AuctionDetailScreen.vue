@@ -35,9 +35,13 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  wishlistProcessing: {
+    type: Boolean,
+    default: false,
+  },
 })
 
-const emit = defineEmits(['back', 'refresh'])
+const emit = defineEmits(['back', 'refresh', 'toggle-wishlist'])
 
 const bidAmount = ref('')
 const feedbackMessage = ref('')
@@ -338,7 +342,9 @@ function buyNow() {
             :assets="assets"
             :is-own-auction="isOwnAuction"
             :item="item"
+            :wishlist-processing="wishlistProcessing"
             @open-bid="openBidModal"
+            @toggle-wishlist="emit('toggle-wishlist')"
           />
           <HistoryPanel :item="item" @view-all="openBidHistoryDrawer" />
         </div>

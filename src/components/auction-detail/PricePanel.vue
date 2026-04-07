@@ -12,9 +12,13 @@ defineProps({
     type: Boolean,
     default: false,
   },
+  wishlistProcessing: {
+    type: Boolean,
+    default: false,
+  },
 })
 
-defineEmits(['open-bid'])
+defineEmits(['open-bid', 'toggle-wishlist'])
 </script>
 
 <template>
@@ -24,8 +28,21 @@ defineEmits(['open-bid'])
         <span v-if="item.isTimeDeal" class="price-tag is-danger">TIME DEAL</span>
         <span v-if="item.isInspected" class="price-tag is-light">검수 완료</span>
       </div>
-      <button type="button" class="detail-heart-button">
-        <img :src="assets.heartIcon" alt="" />
+      <div v-else class="price-tags" aria-hidden="true"></div>
+      <button
+        type="button"
+        class="detail-heart-button"
+        :class="{ 'is-wished': item.isWished }"
+        :disabled="wishlistProcessing"
+        :aria-pressed="item.isWished"
+        :aria-label="item.isWished ? '찜 취소' : '찜하기'"
+        @click="$emit('toggle-wishlist')"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M12 20.25S4.5 15.98 4.5 9.8A4.25 4.25 0 0 1 12 7.05 4.25 4.25 0 0 1 19.5 9.8c0 6.18-7.5 10.45-7.5 10.45Z"
+          />
+        </svg>
       </button>
     </div>
 

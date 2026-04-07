@@ -1928,11 +1928,15 @@ img {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  min-height: 40px;
 }
 
 .price-tags {
   display: flex;
   gap: 10px;
+  min-width: 0;
+  flex: 1;
 }
 
 .price-tag {
@@ -1960,15 +1964,46 @@ img {
   justify-content: center;
   width: 40px;
   height: 40px;
-  border: 0;
+  border: 1px solid #e2e8f0;
   border-radius: 999px;
-  background: transparent;
+  background: #fff;
+  color: #94a3b8;
   cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease, transform 0.2s ease;
 }
 
-.detail-heart-button img {
-  width: 24px;
-  height: 24px;
+.detail-heart-button:hover:not(:disabled) {
+  border-color: #fecaca;
+  color: #ef4444;
+  transform: translateY(-1px);
+}
+
+.detail-heart-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.detail-heart-button.is-wished {
+  border-color: #fecaca;
+  background: #fff1f2;
+  color: #ef4444;
+}
+
+.detail-heart-button svg {
+  width: 22px;
+  height: 22px;
+}
+
+.detail-heart-button path {
+  fill: transparent;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.detail-heart-button.is-wished path {
+  fill: currentColor;
 }
 
 .detail-brand-line {
