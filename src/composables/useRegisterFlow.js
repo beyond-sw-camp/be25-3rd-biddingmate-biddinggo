@@ -3,7 +3,7 @@ import { createAuction, createAuctionFromInspectionItem } from '../api/auctions'
 import { getCategoryList } from '../api/categories'
 import { requestPresignedUpload, uploadToPresignedUrl, deleteUploadedFile } from '../api/files'
 import { createInspection, getInspectionList } from '../api/inspections'
-import { buildLeafCategoryOptions, getFallbackCategories } from '../utils/category'
+import { normalizeCategoryRows, getFallbackCategories } from '../utils/category'
 import { normalizeInspectionPickItem } from '../utils/marketplace'
 
 function createEmptyForm() {
@@ -173,9 +173,9 @@ export function useRegisterFlow(initialMode) {
     try {
       const response = await getCategoryList()
       const rows = response?.categories || response || []
-      categoryOptions.value = buildLeafCategoryOptions(Array.isArray(rows) ? rows : [])
+      categoryOptions.value = normalizeCategoryRows(Array.isArray(rows) ? rows : [])
     } catch {
-      categoryOptions.value = buildLeafCategoryOptions(getFallbackCategories())
+      categoryOptions.value = normalizeCategoryRows(getFallbackCategories())
     }
   }
 

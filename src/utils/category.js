@@ -12,7 +12,7 @@ export function getFallbackCategories() {
 }
 
 export function buildCategoryGroups(categories = [], selectedCategoryId = null) {
-  const rows = categories.length ? categories : FALLBACK_CATEGORIES
+  const rows = normalizeCategoryRows(categories.length ? categories : FALLBACK_CATEGORIES)
   const selectedId = Number(selectedCategoryId)
 
   return rows.map((category) => ({
@@ -25,7 +25,7 @@ export function buildCategoryGroups(categories = [], selectedCategoryId = null) 
 }
 
 export function buildLeafCategoryOptions(categories = []) {
-  const rows = categories.length ? categories : FALLBACK_CATEGORIES
+  const rows = normalizeCategoryRows(categories.length ? categories : FALLBACK_CATEGORIES)
   const byId = new Map(rows.map((category) => [Number(category.id), category]))
 
   return rows
@@ -37,7 +37,30 @@ export function buildLeafCategoryOptions(categories = []) {
     .sort((left, right) => left.label.localeCompare(right.label, 'ko'))
 }
 
-function buildCategoryPathLabel(category, byId) {
+export function normalizeCategoryRows(categories = []) {
+  const rows = categories.length ? categories : FALLBACK_CATEGORIES
+
+  return rows
+    .map((category) => {
+      const hasChildren = Boolean(category.hasChildren ?? category.has_children)
+
+      return {
+        id: Number(category.id),
+        parentId: category.parentId ?? category.parent_id ?? null,
+        name: String(category.name || category.label || ''),
+        level: Number(category.level || 1),
+        hasChildren,
+        selectable: Boolean(category.selectable ?? !hasChildren),
+      }
+    })
+    .filter((category) => Number.isFinite(category.id) && category.name)
+    .map((category) => ({
+      ...category,
+      parentId: category.parentId === null || category.parentId === undefined ? null : Number(category.parentId),
+    }))
+}
+
+export function buildCategoryPathLabel(category, byId) {
   const names = []
   let current = category
 
