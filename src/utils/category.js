@@ -24,6 +24,51 @@ export function buildCategoryGroups(categories = [], selectedCategoryId = null) 
   }))
 }
 
+export function buildCategoryTreeItems(categories = [], selectedCategoryId = null, expandedCategoryIds = new Set()) {
+  const rows = normalizeCategoryRows(categories.length ? categories : FALLBACK_CATEGORIES)
+  const selectedId = Number(selectedCategoryId)
+  const childrenByParentId = new Map()
+
+  rows.forEach((category) => {
+    const key = category.parentId === null || category.parentId === undefined ? 'root' : String(category.parentId)
+    const values = childrenByParentId.get(key) || []
+    values.push(category)
+    childrenByParentId.set(key, values)
+  })
+
+  const treeItems = []
+
+  function appendChildren(parentId, depth) {
+    const key = parentId === null || parentId === undefined ? 'root' : String(parentId)
+    const children = childrenByParentId.get(key) || []
+
+    children.forEach((category) => {
+      const childCount = (childrenByParentId.get(String(category.id)) || []).length
+      const hasChildren = childCount > 0 || category.hasChildren === true
+      const expanded = expandedCategoryIds.has(Number(category.id))
+      const selectable = category.selectable === true || (!hasChildren && Number(category.level) >= 3)
+
+      treeItems.push({
+        id: Number(category.id),
+        label: category.name,
+        depth,
+        active: Number(category.id) === selectedId,
+        selectable,
+        hasChildren,
+        expanded,
+      })
+
+      if (hasChildren && expanded) {
+        appendChildren(category.id, depth + 1)
+      }
+    })
+  }
+
+  appendChildren(null, 0)
+
+  return treeItems
+}
+
 export function buildLeafCategoryOptions(categories = []) {
   const rows = normalizeCategoryRows(categories.length ? categories : FALLBACK_CATEGORIES)
   const byId = new Map(rows.map((category) => [Number(category.id), category]))

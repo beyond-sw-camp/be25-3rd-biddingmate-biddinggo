@@ -28,27 +28,38 @@ defineProps({
   },
 })
 
-defineEmits(['openDetail', 'selectCategory', 'toggleSort'])
+defineEmits(['openDetail', 'selectCategory', 'toggleCategory', 'toggleSort'])
 </script>
 
 <template>
   <section class="list-screen">
     <div class="category-column">
       <button
-        v-for="(item, index) in categories"
-        :key="`${item.label}-${index}`"
+        v-for="item in categories"
+        :key="item.id"
         type="button"
         class="category-button"
         :class="[
           { 'is-active': item.active },
-          { 'is-disabled': !item.selectable },
-          item.indent === 1 ? 'is-indent-1' : '',
-          item.indent === 2 ? 'is-indent-2' : '',
+          { 'is-disabled': !item.selectable && !item.hasChildren },
+          { 'is-branch': item.hasChildren },
+          { 'is-expanded': item.hasChildren && item.expanded },
+          item.depth === 1 ? 'is-indent-1' : '',
+          item.depth === 2 ? 'is-indent-2' : '',
         ]"
-        :disabled="!item.selectable"
-        @click="$emit('selectCategory', item)"
+        :disabled="!item.selectable && !item.hasChildren"
+        :aria-expanded="item.hasChildren ? item.expanded : undefined"
+        @click="item.hasChildren ? $emit('toggleCategory', item) : $emit('selectCategory', item)"
       >
-        {{ item.label }}
+        <span>{{ item.label }}</span>
+        <span
+          v-if="item.hasChildren"
+          class="category-toggle-icon"
+          :class="{ 'is-expanded': item.expanded }"
+          aria-hidden="true"
+        >
+          ›
+        </span>
       </button>
     </div>
 

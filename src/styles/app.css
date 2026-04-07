@@ -528,6 +528,8 @@ img {
 .category-button {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   width: 100%;
   border: 0;
   border-radius: 8px;
@@ -540,10 +542,25 @@ img {
   cursor: pointer;
 }
 
+.category-button span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .category-button.is-active {
   background: #f3f6fe;
   color: #23008d;
   font-weight: 600;
+}
+
+.category-button.is-branch {
+  cursor: pointer;
+}
+
+.category-button.is-expanded {
+  color: #23008d;
 }
 
 .category-button.is-indent-1 {
@@ -552,6 +569,20 @@ img {
 
 .category-button.is-indent-2 {
   padding-left: 32px;
+}
+
+.category-toggle-icon {
+  flex: 0 0 auto;
+  color: currentColor;
+  font-size: 22px;
+  line-height: 1;
+  opacity: 0.7;
+  transform: rotate(0deg);
+  transition: transform 0.18s ease;
+}
+
+.category-toggle-icon.is-expanded {
+  transform: rotate(90deg);
 }
 
 .list-column {

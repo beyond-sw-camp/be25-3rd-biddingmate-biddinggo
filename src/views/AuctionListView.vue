@@ -5,28 +5,35 @@ import { getAuctionList } from '../api/auctions'
 import { getCategoryList } from '../api/categories'
 import AuctionListScreen from '../components/AuctionListScreen.vue'
 import { assets } from '../data/marketplaceData'
-import { buildCategoryGroups, getFallbackCategories } from '../utils/category'
+import { buildCategoryTreeItems, getFallbackCategories, normalizeCategoryRows } from '../utils/category'
 import { normalizeAuctionCard } from '../utils/marketplace'
 
 const router = useRouter()
 const categoryRows = ref([])
 const errorMessage = ref('')
+const expandedCategoryIds = ref(new Set())
 const items = ref([])
 const loading = ref(false)
 const selectedCategoryId = ref(null)
 const selectedSort = ref('CREATED_AT')
 
-const categories = computed(() => buildCategoryGroups(categoryRows.value, selectedCategoryId.value))
+const categories = computed(() => buildCategoryTreeItems(categoryRows.value, selectedCategoryId.value, expandedCategoryIds.value))
 const selectedSortLabel = computed(() => (selectedSort.value === 'WISH_COUNT' ? '인기순' : '최신순'))
 
 async function loadCategories() {
   try {
     const response = await getCategoryList()
     const rows = response?.categories || response || []
-    categoryRows.value = Array.isArray(rows) && rows.length ? rows : getFallbackCategories()
+    categoryRows.value = normalizeCategoryRows(Array.isArray(rows) && rows.length ? rows : getFallbackCategories())
   } catch {
-    categoryRows.value = getFallbackCategories()
+    categoryRows.value = normalizeCategoryRows(getFallbackCategories())
   }
+
+  expandedCategoryIds.value = new Set(
+    categoryRows.value
+      .filter((category) => category.hasChildren)
+      .map((category) => Number(category.id)),
+  )
 }
 
 async function loadAuctionList() {
@@ -61,8 +68,30 @@ function openDetail(item) {
 }
 
 function selectCategory(category) {
+  if (category?.hasChildren) {
+    toggleCategory(category)
+    return
+  }
+
   selectedCategoryId.value = Number(category?.id || 0) || null
   loadAuctionList()
+}
+
+function toggleCategory(category) {
+  if (!category?.hasChildren) {
+    return
+  }
+
+  const next = new Set(expandedCategoryIds.value)
+  const categoryId = Number(category.id)
+
+  if (next.has(categoryId)) {
+    next.delete(categoryId)
+  } else {
+    next.add(categoryId)
+  }
+
+  expandedCategoryIds.value = next
 }
 
 function toggleSort() {
@@ -86,6 +115,7 @@ onMounted(async () => {
     :selected-sort-label="selectedSortLabel"
     @open-detail="openDetail"
     @select-category="selectCategory"
+    @toggle-category="toggleCategory"
     @toggle-sort="toggleSort"
   />
 </template>
