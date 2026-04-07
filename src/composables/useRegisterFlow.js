@@ -57,6 +57,14 @@ function normalizeBidUnit(option) {
   return parseMoney(option)
 }
 
+function getAuctionId(result) {
+  return result?.auctionId
+    ?? result?.id
+    ?? result?.auction?.auctionId
+    ?? result?.auction?.id
+    ?? null
+}
+
 function computeEndDate(startDate, durationLabel) {
   const endDate = new Date(startDate)
   const value = Number.parseInt(String(durationLabel || '').replace(/[^\d]/g, ''), 10) || 0
@@ -378,8 +386,17 @@ export function useRegisterFlow(initialMode) {
     }
 
     const result = await createAuction(payload)
+    const auctionId = getAuctionId(result)
+
+    if (auctionId) {
+      resetForm()
+      currentMode.value = 'select'
+      return { type: 'auction', auctionId }
+    }
+
     submitted.value = true
-    successMessage.value = `경매 등록이 완료되었습니다. (경매 ID: ${result?.auctionId ?? '-'})`
+    successMessage.value = '경매 등록이 완료되었습니다.'
+    return { type: 'auction', auctionId: null }
   }
 
   async function submitInspectionAuctionRegistration() {
@@ -395,8 +412,17 @@ export function useRegisterFlow(initialMode) {
     }
 
     const result = await createAuctionFromInspectionItem(payload)
+    const auctionId = getAuctionId(result)
+
+    if (auctionId) {
+      resetForm()
+      currentMode.value = 'select'
+      return { type: 'auction', auctionId }
+    }
+
     submitted.value = true
-    successMessage.value = `검수 완료 상품 경매 등록이 완료되었습니다. (경매 ID: ${result?.auctionId ?? '-'})`
+    successMessage.value = '검수 완료 상품 경매 등록이 완료되었습니다.'
+    return { type: 'auction', auctionId: null }
   }
 
   async function submitForm() {
@@ -407,6 +433,7 @@ export function useRegisterFlow(initialMode) {
         validateProductForm({ requireCondition: true })
         currentMode.value = 'direct-auction'
         syncAuctionSchedule()
+        return { type: 'step', mode: 'direct-auction' }
       } catch (error) {
         errorMessage.value = error?.message || '입력값을 확인해주세요.'
       }
@@ -418,12 +445,13 @@ export function useRegisterFlow(initialMode) {
     try {
       if (currentMode.value === 'inspection') {
         await submitInspectionRegistration()
+        return { type: 'inspection' }
       } else if (currentMode.value === 'direct-auction') {
         if (registrationType.value === 'inspection') {
-          await submitInspectionAuctionRegistration()
-        } else {
-          await submitDirectAuctionRegistration()
+          return await submitInspectionAuctionRegistration()
         }
+
+        return await submitDirectAuctionRegistration()
       }
     } catch (error) {
       errorMessage.value = error?.message || '등록 처리 중 오류가 발생했습니다.'

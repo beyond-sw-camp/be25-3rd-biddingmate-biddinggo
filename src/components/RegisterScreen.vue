@@ -1,5 +1,6 @@
 <script setup>
 import { toRef } from 'vue'
+import { useRouter } from 'vue-router'
 import { assets } from '../data/marketplaceData'
 import { useRegisterFlow } from '../composables/useRegisterFlow'
 import AuctionSetupForm from './register/AuctionSetupForm.vue'
@@ -20,6 +21,8 @@ const props = defineProps({
     default: 'select',
   },
 })
+
+const router = useRouter()
 
 const registrationMethods = [
   {
@@ -89,6 +92,14 @@ const {
   uploadInProgress,
   uploadedImages,
 } = useRegisterFlow(toRef(props, 'initialMode'))
+
+async function handleSubmit() {
+  const result = await submitForm()
+
+  if (result?.type === 'auction' && result.auctionId) {
+    await router.replace(`/auctions/${result.auctionId}`)
+  }
+}
 </script>
 
 <template>
@@ -140,7 +151,7 @@ const {
       @cancel="goBackToSelect"
       @files-selected="handleFiles"
       @remove-image="removeImage"
-      @submit="submitForm"
+      @submit="handleSubmit"
     />
 
     <AuctionSetupForm
@@ -157,7 +168,7 @@ const {
       @cancel="returnFromAuctionStep"
       @select-bid-unit="selectedBidUnit = $event"
       @select-duration="selectedDuration = $event"
-      @submit="submitForm"
+      @submit="handleSubmit"
       @toggle-field="toggleAuctionField"
     />
   </section>
