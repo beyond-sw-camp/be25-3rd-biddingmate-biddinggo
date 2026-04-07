@@ -2179,6 +2179,7 @@ img {
 }
 
 .register-upload-box {
+  position: relative;
   width: 100%;
   height: 400px;
   margin-top: 15px;
@@ -2188,6 +2189,29 @@ img {
   padding: 0;
   overflow: hidden;
   cursor: pointer;
+}
+
+.register-upload-box:disabled {
+  cursor: progress;
+  opacity: 0.75;
+}
+
+.register-upload-overlay {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: rgba(25, 28, 30, 0.78);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 18px;
+  backdrop-filter: blur(8px);
 }
 
 .register-upload-placeholder {
@@ -2221,18 +2245,36 @@ img {
   object-fit: cover;
 }
 
-.register-thumb-row {
-  justify-content: space-between;
-  gap: 12.5px;
+.register-thumb-strip {
+  position: relative;
   margin-top: 15px;
 }
 
+.register-thumb-row {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  gap: 12.5px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.register-thumb-row::-webkit-scrollbar {
+  display: none;
+}
+
 .register-thumb {
+  position: relative;
+  flex: 0 0 125px;
   width: 125px;
   height: 125px;
+  scroll-snap-align: start;
   border-radius: 8px;
   background: #f1f5f9;
-  border: 0;
+  border: 1px solid transparent;
   padding: 0;
   overflow: hidden;
 }
@@ -2241,10 +2283,124 @@ img {
   cursor: pointer;
 }
 
-.register-thumb-image img {
+.register-thumb-image.is-primary {
+  border-color: #23008d;
+  box-shadow: 0 0 0 2px rgba(35, 0, 141, 0.18);
+}
+
+.register-thumb-preview {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.register-thumb-preview img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.register-thumb-badge {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: rgba(35, 0, 141, 0.88);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.register-thumb-remove {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(25, 28, 30, 0.72);
+  color: #fff;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.register-thumb-add {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px dashed #cbd5e1;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.register-thumb-add:disabled {
+  cursor: progress;
+  opacity: 0.65;
+}
+
+.register-thumb-add span {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 2px solid #cbd5e1;
+  color: #94a3b8;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.register-thumb-add em {
+  font-style: normal;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.register-thumb-nav {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 48px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+  color: rgba(35, 0, 141, 0.55);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transform: translateY(-50%);
+  backdrop-filter: blur(8px);
+}
+
+.register-thumb-nav:hover {
+  background: rgba(255, 255, 255, 0.92);
+  color: rgba(35, 0, 141, 0.9);
+}
+
+.register-thumb-nav.is-left {
+  left: -10px;
+}
+
+.register-thumb-nav.is-right {
+  right: -10px;
 }
 
 .register-helper-text {

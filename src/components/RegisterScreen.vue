@@ -82,6 +82,7 @@ const {
   selectedInspectionId,
   selectedInspectionItem,
   selectInspectionItem,
+  setPrimaryImage,
   showStepper,
   startAuctionFromInspection,
   submitted,
@@ -151,6 +152,7 @@ async function handleSubmit() {
       @cancel="goBackToSelect"
       @files-selected="handleFiles"
       @remove-image="removeImage"
+      @set-primary-image="setPrimaryImage"
       @submit="handleSubmit"
     />
 

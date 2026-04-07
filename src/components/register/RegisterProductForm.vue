@@ -1,7 +1,9 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
-defineProps({
+const MAX_IMAGE_COUNT = 10
+
+const props = defineProps({
   categoryOptions: {
     type: Array,
     required: true,
@@ -44,12 +46,41 @@ defineProps({
   },
 })
 
-defineEmits(['cancel', 'files-selected', 'remove-image', 'submit'])
+const emit = defineEmits(['cancel', 'files-selected', 'remove-image', 'set-primary-image', 'submit'])
 
 const fileInput = ref(null)
+const thumbnailScroller = ref(null)
+const remainingImageCount = computed(() => Math.max(0, MAX_IMAGE_COUNT - props.uploadedImages.length))
+const showThumbnailNav = computed(() => props.uploadedImages.length + (remainingImageCount.value > 0 ? 1 : 0) > 3)
+const imageHelperText = computed(() => {
+  if (props.uploadInProgress) {
+    return '이미지를 업로드하고 있습니다.'
+  }
+
+  return `최대 ${MAX_IMAGE_COUNT}장, 각 20MB까지 업로드 가능 · 현재 ${props.uploadedImages.length}장`
+})
 
 function openFilePicker() {
+  if (remainingImageCount.value <= 0 || props.uploadInProgress) {
+    return
+  }
+
   fileInput.value?.click()
+}
+
+function setPrimaryImage(index) {
+  emit('set-primary-image', index)
+}
+
+function removeImage(index) {
+  emit('remove-image', index)
+}
+
+function slideThumbnails(direction) {
+  thumbnailScroller.value?.scrollBy({
+    left: direction * 138,
+    behavior: 'smooth',
+  })
 }
 </script>
 
@@ -67,13 +98,21 @@ function openFilePicker() {
           @change="$emit('files-selected', $event)"
         />
 
-        <button type="button" class="register-upload-box" @click="openFilePicker">
+        <button
+          type="button"
+          class="register-upload-box"
+          :disabled="uploadInProgress"
+          @click="openFilePicker"
+        >
           <img
             v-if="uploadedImages[0]"
             :src="uploadedImages[0].previewUrl"
             alt=""
             class="register-main-preview"
           />
+          <span v-if="uploadedImages[0]" class="register-upload-overlay">
+            {{ remainingImageCount > 0 ? '사진 추가' : '최대 업로드 완료' }}
+          </span>
           <template v-else>
             <div class="register-upload-placeholder">
               <div class="register-upload-icon">+</div>
@@ -82,25 +121,62 @@ function openFilePicker() {
           </template>
         </button>
 
-        <div class="register-thumb-row">
+        <div class="register-thumb-strip">
           <button
-            v-for="(image, index) in uploadedImages.slice(1)"
-            :key="`${image.name}-${index}`"
+            v-if="showThumbnailNav"
             type="button"
-            class="register-thumb register-thumb-image"
-            @click="$emit('remove-image', index + 1)"
+            class="register-thumb-nav is-left"
+            aria-label="이전 사진 보기"
+            @click="slideThumbnails(-1)"
           >
-            <img :src="image.previewUrl" :alt="image.name" />
+            ‹
           </button>
-          <div
-            v-for="slot in thumbnailPlaceholders"
-            :key="`empty-${slot}`"
-            class="register-thumb"
-          />
+
+          <div ref="thumbnailScroller" class="register-thumb-row">
+            <div
+              v-for="(image, index) in uploadedImages"
+              :key="`${image.name}-${index}`"
+              class="register-thumb register-thumb-image"
+              :class="{ 'is-primary': index === 0 }"
+            >
+              <button type="button" class="register-thumb-preview" @click="setPrimaryImage(index)">
+                <img :src="image.previewUrl" :alt="image.name" />
+                <span v-if="index === 0" class="register-thumb-badge">대표</span>
+              </button>
+              <button
+                type="button"
+                class="register-thumb-remove"
+                :aria-label="`${image.name} 삭제`"
+                @click="removeImage(index)"
+              >
+                ×
+              </button>
+            </div>
+            <button
+              v-if="remainingImageCount > 0"
+              type="button"
+              class="register-thumb register-thumb-add"
+              :disabled="uploadInProgress"
+              @click="openFilePicker"
+            >
+              <span>+</span>
+              <em>사진 추가</em>
+            </button>
+          </div>
+
+          <button
+            v-if="showThumbnailNav"
+            type="button"
+            class="register-thumb-nav is-right"
+            aria-label="다음 사진 보기"
+            @click="slideThumbnails(1)"
+          >
+            ›
+          </button>
         </div>
 
         <p class="register-helper-text">
-          {{ uploadInProgress ? '이미지를 업로드하고 있습니다.' : '최대 20MB까지 업로드 가능' }}
+          {{ imageHelperText }}
         </p>
       </div>
 

@@ -255,6 +255,18 @@ export function useRegisterFlow(initialMode) {
     }
   }
 
+  function setPrimaryImage(index) {
+    if (index <= 0 || index >= uploadedImages.value.length) {
+      return
+    }
+
+    const [image] = uploadedImages.value.splice(index, 1)
+
+    if (image) {
+      uploadedImages.value.unshift(image)
+    }
+  }
+
   function resetForm() {
     uploadedImages.value.forEach((image) => {
       if (image.previewUrl) {
@@ -559,6 +571,7 @@ export function useRegisterFlow(initialMode) {
     selectedInspectionId,
     selectedInspectionItem,
     selectInspectionItem,
+    setPrimaryImage,
     showStepper,
     startAuctionFromInspection,
     submitted,
