@@ -33,7 +33,7 @@ defineEmits(['open-bid'])
       <strong>{{ item.price }}</strong>
     </div>
 
-    <p class="detail-price-meta">{{ item.bids }} | 시작가 {{ item.price }}</p>
+    <p class="detail-price-meta">{{ item.bids }} | 시작가 {{ item.startPrice || item.price }}</p>
     <p class="detail-time-left">{{ item.time }}</p>
 
     <div class="detail-bid-box">

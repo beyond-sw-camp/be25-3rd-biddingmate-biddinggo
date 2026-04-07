@@ -96,6 +96,8 @@ export function normalizeInquiries(rows = []) {
 }
 
 export function normalizeAuctionDetail(detail = {}, { bidHistory = [], inquiries = [] } = {}) {
+  const currentPrice = detail.vickreyPrice ?? detail.vickrey_price ?? detail.startPrice
+
   return {
     id: detail.auctionId ? `auction-${detail.auctionId}` : 'auction-detail',
     auctionId: detail.auctionId,
@@ -103,7 +105,8 @@ export function normalizeAuctionDetail(detail = {}, { bidHistory = [], inquiries
     sellerId: detail.sellerId,
     title: detail.item?.name || '상품명 없음',
     brand: detail.item?.brand || '브랜드 미정',
-    price: formatPrice(detail.startPrice),
+    price: formatPrice(currentPrice),
+    startPrice: formatPrice(detail.startPrice),
     bids: `입찰 ${detail.bidCount ?? 0}회`,
     time: getCountdownLabel(detail.endDate),
     highlight: detail.status === 'ON_GOING',
