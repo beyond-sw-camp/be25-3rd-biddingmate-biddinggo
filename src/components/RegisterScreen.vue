@@ -99,6 +99,11 @@ async function handleSubmit() {
 
   if (result?.type === 'auction' && result.auctionId) {
     await router.replace(`/auctions/${result.auctionId}`)
+    return
+  }
+
+  if (result?.type === 'inspection') {
+    await router.replace('/inspection')
   }
 }
 </script>

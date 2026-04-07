@@ -193,3 +193,50 @@ export function normalizeInspectionPickItem(result = {}) {
     categoryLabel: '',
   }
 }
+
+export function normalizeInspectionListItem(result = {}) {
+  const status = normalizeEnumValue(result.inspectionStatus ?? result.status)
+  const item = result.item || {}
+  const category = item.category || result.category || {}
+  const categoryLabel = category.name ? `${category.name}` : ''
+
+  return {
+    inspectionId: result.inspectionId,
+    itemId: result.itemId ?? item.itemId,
+    title: result.name || item.name || '검수 상품',
+    brand: result.brand || item.brand || '브랜드 미정',
+    status,
+    statusLabel: INSPECTION_STATUS_LABELS[status] || '검수 상태 없음',
+    inspectionGrade: result.quality || item.quality || '-',
+    inspectionDate: formatShortDate(result.createdAt),
+    description: item.description || `${result.brand || item.brand || '브랜드 미정'} ${result.name || item.name || ''}`.trim(),
+    image: result.representativeImageUrl || item.images?.[0]?.url || '',
+    carrier: result.carrier || '',
+    trackingNumber: result.trackingNumber || '',
+    categoryLabel,
+  }
+}
+
+export function buildInspectionSummary(items = []) {
+  const counts = items.reduce(
+    (acc, item) => {
+      acc.total += 1
+      acc[item.status] = (acc[item.status] || 0) + 1
+      return acc
+    },
+    { total: 0 },
+  )
+
+  return [
+    { label: '총 검수 신청', value: formatNumber(counts.total), tone: 'total' },
+    { label: '검수 대기', value: formatNumber(counts.PENDING || 0), tone: 'review' },
+    { label: '검수 통과', value: formatNumber(counts.PASSED || 0), tone: 'approve' },
+    { label: '검수 반려', value: formatNumber(counts.FAILED || 0), tone: 'auction' },
+  ]
+}
+
+export const INSPECTION_STATUS_LABELS = {
+  PENDING: '검수 대기',
+  PASSED: '검수 통과',
+  FAILED: '검수 반려',
+}

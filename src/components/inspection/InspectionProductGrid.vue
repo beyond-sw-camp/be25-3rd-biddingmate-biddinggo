@@ -26,9 +26,9 @@ defineEmits(['open-detail'])
       @click="$emit('open-detail', item)"
     >
       <div class="inspection-product-image-wrap">
-        <img :src="assets.listWatchImage" :alt="item.title" class="inspection-product-image" />
+        <img :src="item.image || assets.listWatchImage" :alt="item.title" class="inspection-product-image" />
         <span class="inspection-badge" :class="badgeClass(item.status)">
-          {{ item.status }}
+          {{ item.statusLabel || item.status }}
         </span>
       </div>
 

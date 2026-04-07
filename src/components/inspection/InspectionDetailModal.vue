@@ -33,13 +33,13 @@ defineEmits(['close', 'handle-action'])
 
     <div class="inspection-status-grid">
         <div class="inspection-status-image-card">
-          <img :src="assets.listWatchImage" :alt="item.title" class="inspection-status-image" />
+          <img :src="item.image || assets.listWatchImage" :alt="item.title" class="inspection-status-image" />
         </div>
 
         <div class="inspection-status-summary">
-          <p class="inspection-status-category">럭셔리 &gt; 시계 &gt; 남성용 시계</p>
+          <p class="inspection-status-category">{{ item.categoryLabel || '카테고리 정보 없음' }}</p>
           <span class="inspection-badge" :class="badgeClass(item.status)">
-            {{ item.status }}
+            {{ item.statusLabel || item.status }}
           </span>
           <h3>{{ item.title }}</h3>
 
@@ -67,21 +67,21 @@ defineEmits(['close', 'handle-action'])
         <div class="inspection-status-section">
           <h4>배송 정보</h4>
 
-          <div v-if="item.status === '검수 대기'" class="inspection-status-alert">
+          <div v-if="item.status === 'PENDING' && !item.carrier && !item.trackingNumber" class="inspection-status-alert">
             <span class="inspection-status-alert-icon">!</span>
             <p>배송 정보를 등록해주세요</p>
           </div>
 
           <template v-else>
-            <p>우체국 택배</p>
-            <p>1928391823798</p>
+            <p>{{ item.carrier || '등록된 택배사 없음' }}</p>
+            <p>{{ item.trackingNumber || '등록된 송장 번호 없음' }}</p>
           </template>
         </div>
       </div>
 
       <div class="inspection-status-actions">
         <button type="button" class="register-secondary-button" @click="$emit('close')">
-          {{ item.status === '검수 대기' ? '신청 취소' : '닫기' }}
+          {{ item.status === 'PENDING' ? '신청 취소' : '닫기' }}
         </button>
         <button type="button" class="register-primary-button" @click="$emit('handle-action')">
           {{ detailActionLabel(item.status) }}

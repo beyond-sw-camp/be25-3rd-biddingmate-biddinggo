@@ -65,6 +65,14 @@ function getAuctionId(result) {
     ?? null
 }
 
+function getInspectionId(result) {
+  return result?.inspectionId
+    ?? result?.id
+    ?? result?.inspection?.inspectionId
+    ?? result?.inspection?.id
+    ?? null
+}
+
 function computeEndDate(startDate, durationLabel) {
   const endDate = new Date(startDate)
   const value = Number.parseInt(String(durationLabel || '').replace(/[^\d]/g, ''), 10) || 0
@@ -377,8 +385,11 @@ export function useRegisterFlow(initialMode) {
     }
 
     const result = await createInspection(payload)
-    submitted.value = true
-    successMessage.value = `검수 등록이 완료되었습니다. (검수 ID: ${result?.inspectionId ?? '-'})`
+    const inspectionId = getInspectionId(result)
+
+    resetForm()
+    currentMode.value = 'select'
+    return { type: 'inspection', inspectionId }
   }
 
   async function submitDirectAuctionRegistration() {
@@ -456,8 +467,7 @@ export function useRegisterFlow(initialMode) {
 
     try {
       if (currentMode.value === 'inspection') {
-        await submitInspectionRegistration()
-        return { type: 'inspection' }
+        return await submitInspectionRegistration()
       } else if (currentMode.value === 'direct-auction') {
         if (registrationType.value === 'inspection') {
           return await submitInspectionAuctionRegistration()

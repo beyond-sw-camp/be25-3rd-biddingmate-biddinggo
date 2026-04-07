@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue'
 
-export function useInspectionState(items) {
+export function useInspectionState(items, { onShippingSubmit } = {}) {
   const activeFilter = ref('전체')
   const selectedItem = ref(null)
   const isShippingModalOpen = ref(false)
@@ -16,13 +16,13 @@ export function useInspectionState(items) {
       return items.value
     }
 
-    return items.value.filter((item) => item.status === activeFilter.value)
+    return items.value.filter((item) => item.statusLabel === activeFilter.value)
   })
 
   function badgeClass(status) {
-    if (status === '검수 통과') return 'is-passed'
-    if (status === '검수 반려') return 'is-rejected'
-    if (status === '경매 진행 중') return 'is-auction'
+    if (status === 'PASSED' || status === '검수 통과') return 'is-passed'
+    if (status === 'FAILED' || status === '검수 반려') return 'is-rejected'
+    if (status === 'ON_AUCTION' || status === '경매 진행 중') return 'is-auction'
     return 'is-pending'
   }
 
@@ -43,16 +43,20 @@ export function useInspectionState(items) {
   }
 
   function detailActionLabel(status) {
-    if (status === '검수 대기') return '배송 정보 등록'
-    if (status === '검수 통과') return '경매 등록'
-    if (status === '경매 진행 중') return '경매 상세 보기'
+    if (status === 'PENDING' || status === '검수 대기') return '배송 정보 등록'
+    if (status === 'PASSED' || status === '검수 통과') return '경매 등록'
+    if (status === 'ON_AUCTION' || status === '경매 진행 중') return '경매 상세 보기'
     return '확인'
   }
 
   function handleDetailAction() {
     if (!selectedItem.value) return
 
-    if (selectedItem.value.status === '검수 대기') {
+    if (selectedItem.value.status === 'PENDING') {
+      shippingForm.value = {
+        company: selectedItem.value.carrier || '',
+        invoiceNumber: selectedItem.value.trackingNumber || '',
+      }
       isShippingModalOpen.value = true
       return
     }
@@ -64,7 +68,15 @@ export function useInspectionState(items) {
     isShippingModalOpen.value = false
   }
 
-  function submitShippingInfo() {
+  async function submitShippingInfo() {
+    if (typeof onShippingSubmit === 'function') {
+      const result = await onShippingSubmit(selectedItem.value, shippingForm.value)
+
+      if (result === false) {
+        return
+      }
+    }
+
     isShippingModalOpen.value = false
   }
 
