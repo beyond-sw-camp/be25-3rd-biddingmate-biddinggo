@@ -13,6 +13,7 @@ import ReportModal from './auction-detail/ReportModal.vue'
 import SellerCardSection from './auction-detail/SellerCardSection.vue'
 import SellerProfileModal from './auction-detail/SellerProfileModal.vue'
 import { runtimeIdentity } from '../lib/runtimeIdentity'
+import { getGradeBadge } from '../utils/gradeBadge'
 import { formatNumber } from '../utils/marketplace'
 
 const props = defineProps({
@@ -64,27 +65,22 @@ const inquiryForm = ref({
   content: '',
 })
 
-const sellerProfile = {
-  avatar: 'https://www.figma.com/api/mcp/asset/1a84177d-d7c8-4353-8a50-20c14d87fbe5',
-  badge: 'https://www.figma.com/api/mcp/asset/81111f1e-47ca-4819-bcc5-08161ec6a90c',
-  rating: '4.8',
-  reviewCount: 100,
-  joinedAt: '2022. 03. 15',
+const defaultSellerAvatar = 'https://www.figma.com/api/mcp/asset/1a84177d-d7c8-4353-8a50-20c14d87fbe5'
+
+const sellerProfile = computed(() => ({
+  avatar: props.item?.sellerAvatar || defaultSellerAvatar,
+  badge: getGradeBadge(props.item?.sellerGrade),
+  rating: props.item?.sellerRating || '0.0',
+  reviewCount: props.item?.sellerReviewCount || 0,
+  joinedAt: props.item?.sellerJoinedAt || '-',
   stats: [
-    { label: '총 판매 건수', value: '1,000' },
-    { label: '판매 취소', value: '3' },
-    { label: '반품', value: '0' },
-    { label: '응답률', value: '98%' },
+    { label: '판매자 등급', value: props.item?.sellerGrade || '-' },
+    { label: '구매자 리뷰', value: `${props.item?.sellerReviewCount || 0}` },
+    { label: '평균 평점', value: props.item?.sellerRating || '0.0' },
+    { label: '판매자 ID', value: props.item?.sellerId ? `${props.item.sellerId}` : '-' },
   ],
-  reviews: [
-    {
-      author: 'Kim_D***',
-      date: '2023. 11. 24',
-      rating: 5,
-      content: '응답과 발송이 빨랐습니다.',
-    },
-  ],
-}
+  reviews: props.item?.sellerReviews || [],
+}))
 
 const minimumBidAmount = computed(() => {
   const currentPrice = Number(String(props.item?.price || '0').replace(/[^\d]/g, '')) || 0

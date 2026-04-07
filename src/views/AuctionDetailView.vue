@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { getAuctionDetail } from '../api/auctions'
 import { getAuctionInquiryList } from '../api/auctionInquiries'
 import { getAuctionBids } from '../api/bids'
+import { getSellerReviews } from '../api/reviews'
 import AuctionDetailScreen from '../components/AuctionDetailScreen.vue'
 import { assets } from '../data/marketplaceData'
 import { normalizeAuctionDetail } from '../utils/marketplace'
@@ -25,19 +26,17 @@ async function loadAuctionDetail(auctionId) {
   errorMessage.value = ''
 
   try {
-    const [detailResponse, bidResponse, inquiryResponse] = await Promise.allSettled([
-      getAuctionDetail(auctionId),
+    const detail = await getAuctionDetail(auctionId)
+    const [bidResponse, inquiryResponse, sellerReviewResponse] = await Promise.allSettled([
       getAuctionBids(auctionId, { page: 1, size: 20 }),
       getAuctionInquiryList(auctionId, { page: 1, size: 20 }),
+      detail?.sellerId ? getSellerReviews(detail.sellerId, { page: 1, size: 3 }) : Promise.resolve({ content: [] }),
     ])
 
-    if (detailResponse.status !== 'fulfilled') {
-      throw detailResponse.reason
-    }
-
-    item.value = normalizeAuctionDetail(detailResponse.value, {
+    item.value = normalizeAuctionDetail(detail, {
       bidHistory: bidResponse.status === 'fulfilled' ? bidResponse.value?.content || [] : [],
       inquiries: inquiryResponse.status === 'fulfilled' ? inquiryResponse.value?.content || [] : [],
+      sellerReviews: sellerReviewResponse.status === 'fulfilled' ? sellerReviewResponse.value?.content || [] : [],
     })
   } catch (error) {
     item.value = null

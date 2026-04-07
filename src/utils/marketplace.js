@@ -95,14 +95,34 @@ export function normalizeInquiries(rows = []) {
   }))
 }
 
-export function normalizeAuctionDetail(detail = {}, { bidHistory = [], inquiries = [] } = {}) {
+export function normalizeSellerReviews(rows = []) {
+  return rows.map((row) => ({
+    author: row.buyerNickname || '구매자',
+    date: formatDateTime(row.reviewDate),
+    rating: Math.round(Number(row.rating || 0)),
+    content: row.reviewText || '리뷰 내용이 없습니다.',
+  }))
+}
+
+export function normalizeAuctionDetail(
+  detail = {},
+  { bidHistory = [], inquiries = [], sellerReviews = [] } = {},
+) {
   const currentPrice = detail.vickreyPrice ?? detail.vickrey_price ?? detail.startPrice
+  const sellerName = detail.sellerNickname || (detail.sellerId ? `판매자 ${detail.sellerId}` : '판매자')
+  const sellerRating = Number(detail.sellerRating || 0)
+  const sellerReviewCount = Number(detail.sellerReviewCount || 0)
 
   return {
     id: detail.auctionId ? `auction-${detail.auctionId}` : 'auction-detail',
     auctionId: detail.auctionId,
     itemId: detail.item?.itemId,
     sellerId: detail.sellerId,
+    sellerAvatar: detail.sellerImageUrl || '',
+    sellerJoinedAt: formatShortDate(detail.sellerCreatedAt),
+    sellerRating: sellerRating ? sellerRating.toFixed(1) : '0.0',
+    sellerReviewCount,
+    sellerReviews: normalizeSellerReviews(sellerReviews),
     title: detail.item?.name || '상품명 없음',
     brand: detail.item?.brand || '브랜드 미정',
     price: formatPrice(currentPrice),
@@ -110,8 +130,8 @@ export function normalizeAuctionDetail(detail = {}, { bidHistory = [], inquiries
     bids: `입찰 ${detail.bidCount ?? 0}회`,
     time: getCountdownLabel(detail.endDate),
     highlight: detail.status === 'ON_GOING',
-    seller: `SELLER ${detail.sellerId || ''}`.trim(),
-    sellerGrade: detail.inspectionYn === 'YES' ? 'CERTIFIED' : 'STANDARD',
+    seller: sellerName,
+    sellerGrade: detail.sellerGrade || (detail.inspectionYn === 'YES' ? 'CERTIFIED' : 'STANDARD'),
     description: detail.item?.description || '상품 설명이 없습니다.',
     inspectionLabel: detail.inspectionYn === 'YES' ? '검수 완료 상품' : '일반 등록 상품',
     inspectionDescription:

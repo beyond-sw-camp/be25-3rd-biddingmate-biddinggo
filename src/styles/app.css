@@ -909,10 +909,22 @@ img {
 }
 
 .seller-avatar {
+  display: grid;
+  place-items: center;
   width: 50px;
   height: 50px;
   border-radius: 999px;
   background: linear-gradient(135deg, #dbe5ff, #cbd5e1);
+  color: #23008d;
+  font-size: 18px;
+  font-weight: 800;
+  overflow: hidden;
+}
+
+.seller-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .seller-info {
@@ -943,6 +955,12 @@ img {
   color: #fff;
   font-size: 12px;
   font-weight: 700;
+}
+
+.seller-grade-image {
+  width: 30px;
+  height: 34px;
+  object-fit: contain;
 }
 
 .seller-button {
@@ -1048,6 +1066,7 @@ img {
   width: 50px;
   height: 57px;
   object-fit: contain;
+  flex-shrink: 0;
 }
 
 .detail-seller-name-row strong {
@@ -1177,9 +1196,17 @@ img {
   object-fit: cover;
 }
 
+.detail-seller-empty-review {
+  margin: 0;
+  border-radius: 12px;
+  background: #f8fafc;
+  padding: 18px;
+  color: #64748b;
+  font-size: 14px;
+}
+
 .detail-seller-review p {
   margin: 0;
-  padding-left: 16px;
   color: #000;
   font-size: 14px;
   font-weight: 500;
