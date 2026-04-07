@@ -44,6 +44,31 @@ function readStoredSession() {
   }
 }
 
+function readJwtTimeClaims(accessToken) {
+  if (typeof atob === 'undefined' || !accessToken) {
+    return {}
+  }
+
+  const [, payload] = accessToken.split('.')
+
+  if (!payload) {
+    return {}
+  }
+
+  try {
+    const normalizedPayload = payload.replace(/-/g, '+').replace(/_/g, '/')
+    const paddedPayload = normalizedPayload.padEnd(Math.ceil(normalizedPayload.length / 4) * 4, '=')
+    const claims = JSON.parse(atob(paddedPayload))
+
+    return {
+      issuedAt: Number(claims.iat || 0) * 1000,
+      expiredAt: Number(claims.exp || 0) * 1000,
+    }
+  } catch {
+    return {}
+  }
+}
+
 function persistSession() {
   if (typeof window === 'undefined') {
     return
@@ -70,14 +95,16 @@ function persistSession() {
 
 function applySession(snapshot = {}) {
   const source = snapshot && typeof snapshot === 'object' ? snapshot : {}
+  const accessToken = String(source.accessToken || '').trim()
+  const jwtTimeClaims = readJwtTimeClaims(accessToken)
 
-  state.accessToken = String(source.accessToken || '').trim()
+  state.accessToken = accessToken
   state.type = String(source.type || 'Bearer')
   state.memberId = source.memberId === null || source.memberId === undefined ? null : Number(source.memberId)
   state.username = String(source.username || '')
   state.authorities = normalizeAuthorities(source.authorities)
-  state.issuedAt = Number(source.issuedAt || 0)
-  state.expiredAt = Number(source.expiredAt || 0)
+  state.issuedAt = Number(source.issuedAt || jwtTimeClaims.issuedAt || 0)
+  state.expiredAt = Number(source.expiredAt || jwtTimeClaims.expiredAt || 0)
   state.isAuthenticated = Boolean(state.accessToken)
 }
 
@@ -87,6 +114,18 @@ export const authState = readonly(state)
 
 export function getAccessToken() {
   return state.accessToken
+}
+
+export function shouldRefreshAccessToken() {
+  if (!state.accessToken) {
+    return true
+  }
+
+  if (!state.expiredAt) {
+    return false
+  }
+
+  return state.expiredAt <= Date.now() + 30_000
 }
 
 export function setSession(loginResponse = {}) {

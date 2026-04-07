@@ -1,4 +1,4 @@
-import { clearSession, getAccessToken, setSession } from '../lib/authSession'
+import { clearSession, getAccessToken, setSession, shouldRefreshAccessToken } from '../lib/authSession'
 
 function deriveApiBaseUrl() {
   const explicitApiBaseUrl = String(import.meta.env.VITE_API_BASE_URL || '').trim()
@@ -114,6 +114,10 @@ async function performRequest(path, options = {}, allowRefresh = true) {
   const { auth = false, ...fetchOptions } = options
   const target = `${API_BASE_URL}${path}`
   let response
+
+  if (auth && allowRefresh && path !== '/api/v1/auth/refresh' && shouldRefreshAccessToken()) {
+    await attemptRefreshToken()
+  }
 
   try {
     response = await fetch(target, {

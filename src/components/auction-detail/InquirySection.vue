@@ -6,7 +6,13 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  canAnswer: {
+    type: Boolean,
+    default: false,
+  },
 })
+
+defineEmits(['open-answer'])
 
 const expandedInquiryKey = ref('')
 
@@ -66,9 +72,26 @@ watch(
           <div class="question-box">
             {{ inquiry.question }}
           </div>
-          <div class="answer-box">
-            <div class="answer-label">판매자 답변</div>
-            <p>{{ inquiry.answer }}</p>
+          <div v-if="inquiry.status === '답변 완료'" class="answer-box">
+            <div class="answer-icon" aria-hidden="true">A</div>
+            <div class="answer-content">
+              <div class="answer-label">
+                <strong>판매자 답변</strong>
+                <span v-if="inquiry.answeredAt !== '-'">{{ inquiry.answeredAt }}</span>
+              </div>
+              <p>{{ inquiry.answer }}</p>
+            </div>
+          </div>
+          <div v-else-if="canAnswer" class="answer-action-row">
+            <button type="button" class="answer-action-button" @click="$emit('open-answer', inquiry)">
+              답변하기
+            </button>
+          </div>
+          <div v-else class="answer-box is-empty">
+            <div class="answer-content">
+              <div class="answer-label"><strong>판매자 답변</strong></div>
+              <p>아직 답변이 등록되지 않았습니다.</p>
+            </div>
           </div>
         </div>
       </article>

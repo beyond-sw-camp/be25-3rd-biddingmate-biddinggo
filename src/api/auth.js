@@ -25,6 +25,7 @@ export async function refreshAccessToken() {
 
 export async function logoutAuth() {
   return request('/api/v1/auth/logout', {
+    auth: true,
     method: 'POST',
   })
 }

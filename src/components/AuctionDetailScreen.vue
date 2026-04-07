@@ -1,11 +1,12 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { createAuctionInquiry } from '../api/auctionInquiries'
+import { answerAuctionInquiry, createAuctionInquiry } from '../api/auctionInquiries'
 import { createBid } from '../api/bids'
 import BidHistoryDrawer from './auction-detail/BidHistoryDrawer.vue'
 import BidModal from './auction-detail/BidModal.vue'
 import DetailMediaSection from './auction-detail/DetailMediaSection.vue'
 import HistoryPanel from './auction-detail/HistoryPanel.vue'
+import InquiryAnswerModal from './auction-detail/InquiryAnswerModal.vue'
 import InquiryModal from './auction-detail/InquiryModal.vue'
 import InquirySection from './auction-detail/InquirySection.vue'
 import PricePanel from './auction-detail/PricePanel.vue'
@@ -41,6 +42,8 @@ const emit = defineEmits(['back', 'refresh'])
 const bidAmount = ref('')
 const feedbackMessage = ref('')
 const isBidHistoryDrawerOpen = ref(false)
+const isAnswerModalOpen = ref(false)
+const isAnswerSubmitting = ref(false)
 const isBidModalOpen = ref(false)
 const isInquiryModalOpen = ref(false)
 const isInquirySubmitting = ref(false)
@@ -66,6 +69,12 @@ const inquiryForm = ref({
   title: '',
   content: '',
 })
+
+const answerForm = ref({
+  answer: '',
+})
+
+const selectedInquiry = ref(null)
 
 const defaultSellerAvatar = 'https://www.figma.com/api/mcp/asset/1a84177d-d7c8-4353-8a50-20c14d87fbe5'
 
@@ -116,6 +125,11 @@ function syncBidAmount(value = minimumBidAmount.value) {
 }
 
 function openBidModal() {
+  if (isOwnAuction.value) {
+    feedbackMessage.value = '본인이 등록한 경매에는 입찰할 수 없습니다.'
+    return
+  }
+
   isBidHistoryDrawerOpen.value = false
   syncBidAmount()
   isBidModalOpen.value = true
@@ -152,6 +166,23 @@ function openInquiryModal() {
 
 function closeInquiryModal() {
   isInquiryModalOpen.value = false
+}
+
+function openAnswerModal(inquiry) {
+  if (!isOwnAuction.value || inquiry.status === '답변 완료') {
+    return
+  }
+
+  selectedInquiry.value = inquiry
+  answerForm.value = {
+    answer: '',
+  }
+  isAnswerModalOpen.value = true
+}
+
+function closeAnswerModal() {
+  isAnswerModalOpen.value = false
+  selectedInquiry.value = null
 }
 
 function stepBid(direction) {
@@ -232,6 +263,38 @@ async function submitInquiry() {
   }
 }
 
+async function submitAnswer() {
+  const inquiryId = selectedInquiry.value?.id
+  const answer = answerForm.value.answer.trim()
+
+  if (!inquiryId) {
+    feedbackMessage.value = '답변할 문의를 찾을 수 없습니다.'
+    return
+  }
+
+  if (!answer) {
+    feedbackMessage.value = '답변 내용을 입력해주세요.'
+    return
+  }
+
+  if (isAnswerSubmitting.value) {
+    return
+  }
+
+  isAnswerSubmitting.value = true
+
+  try {
+    await answerAuctionInquiry(inquiryId, { answer })
+    feedbackMessage.value = '답변이 등록되었습니다.'
+    closeAnswerModal()
+    emit('refresh')
+  } catch (error) {
+    feedbackMessage.value = error?.message || '답변 등록에 실패했습니다.'
+  } finally {
+    isAnswerSubmitting.value = false
+  }
+}
+
 function submitReport() {
   feedbackMessage.value = '신고 기능은 아직 준비 중입니다.'
   closeReportModal()
@@ -267,11 +330,16 @@ function buyNow() {
           <div class="detail-description-card">
             <p>{{ item.description }}</p>
           </div>
-          <InquirySection :item="item" />
+          <InquirySection :can-answer="isOwnAuction" :item="item" @open-answer="openAnswerModal" />
         </div>
 
         <div class="detail-right">
-          <PricePanel :assets="assets" :item="item" @open-bid="openBidModal" />
+          <PricePanel
+            :assets="assets"
+            :is-own-auction="isOwnAuction"
+            :item="item"
+            @open-bid="openBidModal"
+          />
           <HistoryPanel :item="item" @view-all="openBidHistoryDrawer" />
         </div>
       </div>
@@ -326,6 +394,15 @@ function buyNow() {
         :submitting="isInquirySubmitting"
         @close="closeInquiryModal"
         @submit="submitInquiry"
+      />
+
+      <InquiryAnswerModal
+        v-if="isAnswerModalOpen && selectedInquiry"
+        :form="answerForm"
+        :inquiry="selectedInquiry"
+        :submitting="isAnswerSubmitting"
+        @close="closeAnswerModal"
+        @submit="submitAnswer"
       />
     </template>
   </section>
