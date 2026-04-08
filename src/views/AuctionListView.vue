@@ -10,6 +10,8 @@ import { authState } from '../lib/authSession'
 import { buildCategoryTreeItems, getFallbackCategories, normalizeCategoryRows } from '../utils/category'
 import { normalizeAuctionCard } from '../utils/marketplace'
 
+const EXPANDED_CATEGORY_STORAGE_KEY = 'biddinggo.auction-list.expanded-categories'
+
 const router = useRouter()
 const route = useRoute()
 const categoryRows = ref([])
@@ -46,6 +48,55 @@ function readSortKeyFromQuery() {
   const sortKey = String(route.query.sort || '')
 
   return sortOptions.some((option) => option.key === sortKey) ? sortKey : 'latest'
+}
+
+function readStoredExpandedCategoryIds() {
+  if (typeof window === 'undefined') {
+    return new Set()
+  }
+
+  try {
+    const raw = window.localStorage.getItem(EXPANDED_CATEGORY_STORAGE_KEY)
+    const ids = raw ? JSON.parse(raw) : []
+
+    return new Set(
+      Array.isArray(ids)
+        ? ids.map((id) => Number(id)).filter((id) => Number.isFinite(id) && id > 0)
+        : [],
+    )
+  } catch {
+    return new Set()
+  }
+}
+
+function persistExpandedCategoryIds(nextExpandedCategoryIds) {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  window.localStorage.setItem(
+    EXPANDED_CATEGORY_STORAGE_KEY,
+    JSON.stringify(Array.from(nextExpandedCategoryIds)),
+  )
+}
+
+function includeSelectedCategoryPath(baseExpandedCategoryIds = new Set()) {
+  const selectedId = Number(selectedCategoryId.value)
+
+  if (!Number.isFinite(selectedId) || selectedId <= 0 || !categoryRows.value.length) {
+    return new Set(baseExpandedCategoryIds)
+  }
+
+  const next = new Set(baseExpandedCategoryIds)
+  const categoriesById = new Map(categoryRows.value.map((category) => [Number(category.id), category]))
+  let current = categoriesById.get(selectedId) || null
+
+  while (current?.parentId) {
+    next.add(Number(current.parentId))
+    current = categoriesById.get(Number(current.parentId)) || null
+  }
+
+  return next
 }
 
 function buildListQuery({ categoryId = selectedCategoryId.value, sortKey = selectedSortKey.value } = {}) {
@@ -104,11 +155,8 @@ async function loadCategories() {
     categoryRows.value = normalizeCategoryRows(getFallbackCategories())
   }
 
-  expandedCategoryIds.value = new Set(
-    categoryRows.value
-      .filter((category) => category.hasChildren)
-      .map((category) => Number(category.id)),
-  )
+  expandedCategoryIds.value = includeSelectedCategoryPath(readStoredExpandedCategoryIds())
+  persistExpandedCategoryIds(expandedCategoryIds.value)
 }
 
 async function loadAuctionList() {
@@ -177,6 +225,7 @@ function toggleCategory(category) {
   }
 
   expandedCategoryIds.value = next
+  persistExpandedCategoryIds(next)
 }
 
 function selectSort(option) {
@@ -259,6 +308,8 @@ watch(
 
     selectedCategoryId.value = nextCategoryId
     selectedSortKey.value = nextSortKey
+    expandedCategoryIds.value = includeSelectedCategoryPath(expandedCategoryIds.value)
+    persistExpandedCategoryIds(expandedCategoryIds.value)
     loadAuctionList()
   },
 )
