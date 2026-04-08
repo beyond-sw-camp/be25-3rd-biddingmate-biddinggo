@@ -220,6 +220,12 @@ export function formatShortDate(value) {
 export function normalizeInspectionPickItem(result = {}) {
   const inspectionStatus = normalizeEnumValue(result.inspectionStatus ?? result.status)
   const auctionItemStatus = normalizeEnumValue(result.auctionItemStatus ?? result.itemStatus)
+  const images = Array.isArray(result.images)
+    ? result.images
+    : Array.isArray(result.item?.images)
+      ? result.item.images
+      : []
+  const representativeImage = result.representativeImageUrl || images[0]?.url || ''
 
   return {
     inspectionId: result.inspectionId,
@@ -231,7 +237,8 @@ export function normalizeInspectionPickItem(result = {}) {
     inspectionGrade: result.quality || '-',
     inspectionDate: formatShortDate(result.createdAt),
     description: `${result.brand || '브랜드 미정'} ${result.name || ''}`.trim(),
-    image: result.representativeImageUrl || '',
+    image: representativeImage,
+    images: images.length ? images : (representativeImage ? [{ url: representativeImage }] : []),
     carrier: result.carrier || '',
     trackingNumber: result.trackingNumber || '',
     categoryLabel: '',
@@ -242,6 +249,8 @@ export function mergeInspectionItemDetail(item = {}, detail = {}) {
   const detailItem = detail.item || {}
   const detailCategory = detailItem.category || {}
   const detailImage = detailItem.images?.[0]?.url || ''
+  const detailImages = Array.isArray(detailItem.images) ? detailItem.images : []
+  const baseImages = Array.isArray(item.images) ? item.images : []
 
   return {
     ...item,
@@ -250,6 +259,7 @@ export function mergeInspectionItemDetail(item = {}, detail = {}) {
     description: detailItem.description || item.description,
     categoryLabel: detailCategory.name || item.categoryLabel,
     image: detailImage || item.image,
+    images: detailImages.length ? detailImages : baseImages,
     carrier: detail.carrier || item.carrier,
     trackingNumber: detail.trackingNumber || item.trackingNumber,
   }
@@ -260,6 +270,8 @@ export function normalizeInspectionListItem(result = {}) {
   const item = result.item || {}
   const category = item.category || result.category || {}
   const categoryLabel = category.name ? `${category.name}` : ''
+  const images = Array.isArray(item.images) ? item.images : []
+  const representativeImage = result.representativeImageUrl || images[0]?.url || ''
 
   return {
     inspectionId: result.inspectionId,
@@ -271,7 +283,8 @@ export function normalizeInspectionListItem(result = {}) {
     inspectionGrade: result.quality || item.quality || '-',
     inspectionDate: formatShortDate(result.createdAt),
     description: item.description || `${result.brand || item.brand || '브랜드 미정'} ${result.name || item.name || ''}`.trim(),
-    image: result.representativeImageUrl || item.images?.[0]?.url || '',
+    image: representativeImage,
+    images: images.length ? images : (representativeImage ? [{ url: representativeImage }] : []),
     carrier: result.carrier || '',
     trackingNumber: result.trackingNumber || '',
     categoryLabel,

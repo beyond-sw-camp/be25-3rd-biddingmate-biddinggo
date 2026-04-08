@@ -1,7 +1,8 @@
 <script setup>
+import { computed, ref, watch } from 'vue'
 import BaseModal from '../shared/BaseModal.vue'
 
-defineProps({
+const props = defineProps({
   assets: {
     type: Object,
     required: true,
@@ -21,6 +22,46 @@ defineProps({
 })
 
 defineEmits(['close', 'handle-action'])
+
+const currentImageIndex = ref(0)
+
+const imageUrls = computed(() => {
+  const images = Array.isArray(props.item?.images) ? props.item.images : []
+  const urls = images.map((image) => image?.url).filter(Boolean)
+
+  if (urls.length) {
+    return urls
+  }
+
+  return [props.item?.image || props.assets.listWatchImage].filter(Boolean)
+})
+
+const currentImage = computed(() => imageUrls.value[currentImageIndex.value] || props.assets.listWatchImage)
+const canSlideImages = computed(() => imageUrls.value.length > 1)
+
+function showPreviousImage() {
+  if (!canSlideImages.value) {
+    return
+  }
+
+  currentImageIndex.value = (currentImageIndex.value - 1 + imageUrls.value.length) % imageUrls.value.length
+}
+
+function showNextImage() {
+  if (!canSlideImages.value) {
+    return
+  }
+
+  currentImageIndex.value = (currentImageIndex.value + 1) % imageUrls.value.length
+}
+
+watch(
+  () => props.item?.inspectionId,
+  () => {
+    currentImageIndex.value = 0
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -33,7 +74,25 @@ defineEmits(['close', 'handle-action'])
 
     <div class="inspection-status-grid">
         <div class="inspection-status-image-card">
-          <img :src="item.image || assets.listWatchImage" :alt="item.title" class="inspection-status-image" />
+          <img :src="currentImage" :alt="item.title" class="inspection-status-image" />
+          <button
+            v-if="canSlideImages"
+            type="button"
+            class="gallery-arrow gallery-arrow-left"
+            aria-label="이전 사진"
+            @click="showPreviousImage"
+          >
+            ‹
+          </button>
+          <button
+            v-if="canSlideImages"
+            type="button"
+            class="gallery-arrow gallery-arrow-right"
+            aria-label="다음 사진"
+            @click="showNextImage"
+          >
+            ›
+          </button>
         </div>
 
         <div class="inspection-status-summary">
