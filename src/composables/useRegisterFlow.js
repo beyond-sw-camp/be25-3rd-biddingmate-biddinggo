@@ -159,6 +159,9 @@ export function useRegisterFlow(initialMode, initialInspectionId) {
     currentMode.value === 'inspection-pick' || currentMode.value === 'direct' || currentMode.value === 'direct-auction',
   )
   const isAuctionStep = computed(() => currentMode.value === 'direct-auction')
+  const isInspectionAuctionRegistration = computed(
+    () => currentMode.value === 'direct-auction' && registrationType.value === 'inspection',
+  )
   const firstStepLabel = computed(() =>
     registrationType.value === 'inspection' ? '사전 검수 상품 등록' : '직접 상품 등록',
   )
@@ -288,6 +291,7 @@ export function useRegisterFlow(initialMode, initialInspectionId) {
       if (preselectedItem) {
         registrationType.value = 'inspection'
         currentMode.value = 'direct-auction'
+        auctionForm.value.timeDeal = false
         syncAuctionSchedule()
 
         try {
@@ -547,7 +551,7 @@ export function useRegisterFlow(initialMode, initialInspectionId) {
 
     const payload = {
       itemId: selectedInspectionItem.value.itemId,
-      auction: buildAuctionPayload(auctionForm.value.timeDeal ? 'TIME_DEAL' : 'INSPECTION'),
+      auction: buildAuctionPayload('INSPECTION'),
     }
 
     const result = await createAuctionFromInspectionItem(payload)
@@ -607,6 +611,11 @@ export function useRegisterFlow(initialMode, initialInspectionId) {
     auctionForm.value[field] = !auctionForm.value[field]
 
     if (field === 'timeDeal') {
+      if (registrationType.value === 'inspection') {
+        auctionForm.value.timeDeal = false
+        return
+      }
+
       selectedDuration.value = auctionForm.value.timeDeal ? '12시간' : '5일'
       syncAuctionSchedule()
     }
@@ -652,6 +661,7 @@ export function useRegisterFlow(initialMode, initialInspectionId) {
 
     isInspectionDetailOpen.value = false
     currentMode.value = 'direct-auction'
+    auctionForm.value.timeDeal = false
     clearMessages()
     syncAuctionSchedule()
   }
@@ -710,6 +720,7 @@ export function useRegisterFlow(initialMode, initialInspectionId) {
     headerDescription,
     headerTitle,
     inspectionPickItems,
+    isInspectionAuctionRegistration,
     isAuctionStep,
     isInspectionDetailOpen,
     openInspectionRequest,

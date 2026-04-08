@@ -42,6 +42,10 @@ const props = defineProps({
     type: String,
     default: '취소',
   },
+  canUseTimeDeal: {
+    type: Boolean,
+    default: true,
+  },
   showTypeToggles: {
     type: Boolean,
     default: true,
@@ -114,7 +118,7 @@ watch(
           </button>
         </article>
 
-        <article class="auction-toggle-card">
+        <article v-if="canUseTimeDeal" class="auction-toggle-card">
           <div class="auction-toggle-copy">
             <div class="auction-toggle-icon is-timedeal">⚡</div>
             <div>

@@ -59,10 +59,6 @@ defineEmits(['close-detail', 'open-inspection-request', 'select-item', 'start-au
     </div>
 
     <div class="inspection-card-grid register-inspection-grid">
-      <div v-if="!inspectionPickItems.length" class="register-inspection-empty-state">
-        검색 결과가 없습니다.
-      </div>
-
       <article
         v-for="item in inspectionPickItems"
         :key="`${item.title}-${item.displayId}`"

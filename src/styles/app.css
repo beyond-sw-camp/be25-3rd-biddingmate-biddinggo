@@ -3571,19 +3571,6 @@ img {
   gap: 22px 31px;
 }
 
-.register-inspection-empty-state {
-  display: grid;
-  place-items: center;
-  min-height: 216px;
-  border: 1px dashed #d7dee7;
-  border-radius: 20px;
-  background: #fff;
-  color: #94a3b8;
-  font-size: 14px;
-  font-weight: 500;
-  text-align: center;
-}
-
 .inspection-product-card {
   width: 216px;
   overflow: hidden;
