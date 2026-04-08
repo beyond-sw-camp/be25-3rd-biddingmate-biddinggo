@@ -38,7 +38,7 @@
             <span>알림</span>
           </button>
           <template v-if="auth.isAuthenticated">
-            <span class="topbar-auth-label">{{ auth.username || '로그인됨' }}</span>
+            <span class="topbar-auth-label">{{ displayUsername }}</span>
             <button class="topbar-link-button" type="button" @click="$emit('logout')">로그아웃</button>
           </template>
           <button v-else class="topbar-link-button" type="button" @click="$emit('open-login')">로그인/회원가입</button>
@@ -55,12 +55,12 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import NotificationModal from './NotificationModal.vue'
 
 const searchIcon = 'https://www.figma.com/api/mcp/asset/43c34f06-dced-42d0-9368-8ac16f87d2f7'
 
-defineProps({
+const props = defineProps({
   currentScreen: {
     type: String,
     required: true,
@@ -82,4 +82,9 @@ defineProps({
 defineEmits(['navigate', 'open-login', 'open-mypage', 'logout'])
 
 const isNotificationOpen = ref(false)
+const displayUsername = computed(() => {
+  const username = String(props.auth.username || '').trim()
+
+  return username ? username.slice(0, 10) : '로그인됨'
+})
 </script>
