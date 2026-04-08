@@ -97,6 +97,8 @@ const sellerProfile = computed(() => ({
   reviews: props.item?.sellerReviews || [],
 }))
 
+const categoryTrailLabel = computed(() => props.item?.categoryPathLabel || '전체 경매')
+
 const minimumBidAmount = computed(() => {
   const currentPrice = Number(String(props.item?.price || '0').replace(/[^\d]/g, '')) || 0
   const bidUnit = Number(String(props.item?.bidUnit || '0').replace(/[^\d]/g, '')) || 0
@@ -313,7 +315,11 @@ function buyNow() {
 <template>
   <section class="detail-screen">
     <div class="detail-title-row">
-      <button type="button" class="detail-chip" @click="emit('back')">목록으로</button>
+      <button type="button" class="detail-category-trail" @click="emit('back')">
+        <span>홈</span>
+        <em>|</em>
+        <strong>{{ categoryTrailLabel }}</strong>
+      </button>
       <div v-if="feedbackMessage" class="feedback-inline">{{ feedbackMessage }}</div>
       <button
         v-if="item && isOwnAuction"

@@ -136,7 +136,7 @@ function normalizePricePrediction(pricePrediction = null) {
   const predictedPrice = pricePrediction.predictedPrice ?? pricePrediction.predicted_price
 
   if (predictedPrice !== null && predictedPrice !== undefined) {
-    return `예상 가격 ${formatPrice(predictedPrice)}원`
+    return `예상 가격: ${formatPrice(predictedPrice)}원`
   }
 
   const reasonCode = normalizeEnumValue(pricePrediction.reasonCode ?? pricePrediction.reason_code)
@@ -147,7 +147,7 @@ function normalizePricePrediction(pricePrediction = null) {
 
 export function normalizeAuctionDetail(
   detail = {},
-  { bidHistory = [], inquiries = [], sellerReviews = [], wishlistStatus = {} } = {},
+  { bidHistory = [], categoryPathLabel = '', inquiries = [], sellerReviews = [], wishlistStatus = {} } = {},
 ) {
   const currentPrice = detail.vickreyPrice ?? detail.vickrey_price ?? detail.startPrice
   const sellerName = detail.sellerNickname || (detail.sellerId ? `판매자 ${detail.sellerId}` : '판매자')
@@ -156,11 +156,14 @@ export function normalizeAuctionDetail(
   const auctionType = normalizeEnumValue(detail.type ?? detail.auctionType)
   const inspectionYn = normalizeEnumValue(detail.inspectionYn ?? detail.inspection_yn)
   const isInspected = auctionType === 'INSPECTION' || inspectionYn === 'YES'
+  const category = detail.item?.category || {}
 
   return {
     id: detail.auctionId ? `auction-${detail.auctionId}` : 'auction-detail',
     auctionId: detail.auctionId,
     auctionType,
+    categoryId: category.id,
+    categoryPathLabel: categoryPathLabel || category.name || '',
     itemId: detail.item?.itemId,
     sellerId: detail.sellerId,
     sellerAvatar: detail.sellerImageUrl || '',

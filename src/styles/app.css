@@ -822,17 +822,36 @@ img {
   line-height: 32px;
 }
 
-.detail-chip {
+.detail-category-trail {
   display: inline-flex;
   align-items: center;
+  gap: 8px;
+  max-width: min(680px, 100%);
   border: 0;
-  border-radius: 999px;
-  background: #eef2ff;
-  padding: 6px 16px;
-  color: #23008d;
-  font-size: 12px;
-  font-weight: 700;
+  background: transparent;
+  padding: 0;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
+}
+
+.detail-category-trail:hover,
+.detail-category-trail:focus-visible {
+  color: #23008d;
+}
+
+.detail-category-trail em {
+  color: #c7c7c7;
+  font-style: normal;
+}
+
+.detail-category-trail strong {
+  overflow: hidden;
+  color: inherit;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .detail-action-chip {

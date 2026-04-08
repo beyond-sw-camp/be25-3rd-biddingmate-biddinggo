@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { getAuctionList } from '../api/auctions'
 import { getCategoryList } from '../api/categories'
 import { createWishlist, deleteWishlist, getWishlistStatus } from '../api/wishlists'
@@ -11,17 +11,24 @@ import { buildCategoryTreeItems, getFallbackCategories, normalizeCategoryRows } 
 import { normalizeAuctionCard } from '../utils/marketplace'
 
 const router = useRouter()
+const route = useRoute()
 const categoryRows = ref([])
 const errorMessage = ref('')
 const expandedCategoryIds = ref(new Set())
 const items = ref([])
 const loading = ref(false)
-const selectedCategoryId = ref(null)
+const selectedCategoryId = ref(readCategoryIdFromQuery())
 const selectedSort = ref('CREATED_AT')
 const wishlistProcessingIds = ref(new Set())
 
 const categories = computed(() => buildCategoryTreeItems(categoryRows.value, selectedCategoryId.value, expandedCategoryIds.value))
 const selectedSortLabel = computed(() => (selectedSort.value === 'WISH_COUNT' ? '인기순' : '최신순'))
+
+function readCategoryIdFromQuery() {
+  const categoryId = Number(route.query.categoryId)
+
+  return Number.isFinite(categoryId) && categoryId > 0 ? categoryId : null
+}
 
 function updateAuctionWishlistState(auctionId, patch) {
   items.value = items.value.map((item) => (
@@ -112,6 +119,10 @@ function selectCategory(category) {
   }
 
   selectedCategoryId.value = Number(category?.id || 0) || null
+  router.replace({
+    name: 'auction-list',
+    query: selectedCategoryId.value ? { categoryId: selectedCategoryId.value } : {},
+  })
   loadAuctionList()
 }
 

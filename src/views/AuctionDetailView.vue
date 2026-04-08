@@ -4,11 +4,13 @@ import { useRoute, useRouter } from 'vue-router'
 import { getAuctionDetail } from '../api/auctions'
 import { getAuctionInquiryList } from '../api/auctionInquiries'
 import { getAuctionBids } from '../api/bids'
+import { getCategoryList } from '../api/categories'
 import { getSellerReviews } from '../api/reviews'
 import { createWishlist, deleteWishlist, getWishlistStatus } from '../api/wishlists'
 import AuctionDetailScreen from '../components/AuctionDetailScreen.vue'
 import { assets } from '../data/marketplaceData'
 import { authState } from '../lib/authSession'
+import { buildCategoryPathLabelById, getFallbackCategories, normalizeCategoryRows } from '../utils/category'
 import { normalizeAuctionDetail } from '../utils/marketplace'
 
 const route = useRoute()
@@ -30,15 +32,24 @@ async function loadAuctionDetail(auctionId) {
 
   try {
     const detail = await getAuctionDetail(auctionId)
-    const [bidResponse, inquiryResponse, sellerReviewResponse, wishlistStatusResponse] = await Promise.allSettled([
+    const [categoryResponse, bidResponse, inquiryResponse, sellerReviewResponse, wishlistStatusResponse] = await Promise.allSettled([
+      getCategoryList(),
       getAuctionBids(auctionId, { page: 1, size: 20 }),
       getAuctionInquiryList(auctionId, { page: 1, size: 20 }),
       detail?.sellerId ? getSellerReviews(detail.sellerId, { page: 1, size: 3 }) : Promise.resolve({ content: [] }),
       authState.isAuthenticated ? getWishlistStatus(auctionId) : Promise.resolve({ wished: false }),
     ])
+    const categorySource = categoryResponse.status === 'fulfilled'
+      ? categoryResponse.value?.categories || categoryResponse.value || []
+      : []
+    const categoryRows = normalizeCategoryRows(
+      Array.isArray(categorySource) && categorySource.length ? categorySource : getFallbackCategories(),
+    )
+    const categoryPathLabel = buildCategoryPathLabelById(categoryRows, detail?.item?.category?.id)
 
     item.value = normalizeAuctionDetail(detail, {
       bidHistory: bidResponse.status === 'fulfilled' ? bidResponse.value?.content || [] : [],
+      categoryPathLabel,
       inquiries: inquiryResponse.status === 'fulfilled' ? inquiryResponse.value?.content || [] : [],
       sellerReviews: sellerReviewResponse.status === 'fulfilled' ? sellerReviewResponse.value?.content || [] : [],
       wishlistStatus: wishlistStatusResponse.status === 'fulfilled' ? wishlistStatusResponse.value : { wished: false },
@@ -88,7 +99,12 @@ async function toggleWishlist() {
 }
 
 function backToList() {
-  router.push('/auctions')
+  const categoryId = item.value?.categoryId
+
+  router.push({
+    name: 'auction-list',
+    query: categoryId ? { categoryId } : {},
+  })
 }
 
 function openEditPage() {

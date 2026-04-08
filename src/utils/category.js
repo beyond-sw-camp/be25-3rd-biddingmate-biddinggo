@@ -121,3 +121,11 @@ export function buildCategoryPathLabel(category, byId) {
 
   return names.join(' > ')
 }
+
+export function buildCategoryPathLabelById(categories = [], categoryId = null) {
+  const rows = normalizeCategoryRows(categories.length ? categories : FALLBACK_CATEGORIES)
+  const byId = new Map(rows.map((category) => [Number(category.id), category]))
+  const category = byId.get(Number(categoryId))
+
+  return category ? buildCategoryPathLabel(category, byId) : ''
+}
