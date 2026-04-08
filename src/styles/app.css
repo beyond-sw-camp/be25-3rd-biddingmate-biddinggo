@@ -760,10 +760,6 @@ img {
 }
 
 .live-tag {
-  position: absolute;
-  top: 13px;
-  left: 14px;
-  z-index: 1;
   border-radius: 9999px;
   background: #bc1d25;
   padding: 4px 12px;
@@ -773,6 +769,22 @@ img {
   font-weight: 700;
   line-height: 15px;
   letter-spacing: 1px;
+}
+
+.item-tag-stack {
+  position: absolute;
+  top: 13px;
+  left: 14px;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: calc(100% - 28px);
+}
+
+.live-tag.is-inspected {
+  background: rgba(255, 255, 255, 0.94);
+  color: #23008d;
 }
 
 .wish-button {

@@ -52,7 +52,10 @@ function handleToggleWishlist() {
     @click="handleSelect"
   >
     <div class="item-image-wrap">
-      <span v-if="showLiveTag && item.isTimeDeal" class="live-tag">TIME DEAL</span>
+      <div v-if="showLiveTag && (item.isTimeDeal || item.isInspected)" class="item-tag-stack">
+        <span v-if="item.isTimeDeal" class="live-tag">TIME DEAL</span>
+        <span v-if="item.isInspected" class="live-tag is-inspected">검수 완료</span>
+      </div>
       <img :src="item.image || imageSrc" :alt="item.title" class="item-image" />
 
       <button

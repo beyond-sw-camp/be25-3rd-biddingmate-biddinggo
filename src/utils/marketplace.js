@@ -53,6 +53,7 @@ export function getCountdownLabel(value) {
 
 export function normalizeAuctionCard(result = {}) {
   const auctionType = normalizeEnumValue(result.type ?? result.auctionType)
+  const inspectionYn = normalizeEnumValue(result.inspectionYn ?? result.inspection_yn)
 
   return {
     id: result.auctionId ? `auction-${result.auctionId}` : `auction-${result.item?.itemId || 'unknown'}`,
@@ -67,6 +68,7 @@ export function normalizeAuctionCard(result = {}) {
     time: getCountdownLabel(result.endDate),
     highlight: result.status === 'ON_GOING',
     isTimeDeal: auctionType === 'TIME_DEAL',
+    isInspected: auctionType === 'INSPECTION' || inspectionYn === 'YES',
     image: result.item?.images?.[0]?.url || result.representativeImageUrl || '',
   }
 }
