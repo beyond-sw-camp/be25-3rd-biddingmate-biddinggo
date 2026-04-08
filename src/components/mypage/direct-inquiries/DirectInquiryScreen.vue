@@ -1,11 +1,10 @@
 <template>
-  <MyPageLayout>
-    <section class="page-header-inline">
+  <section class="page-header-inline">
       <h1>1:1 문의 내역</h1>
       <button class="primary-button" type="button" @click="openModal">+ 문의하기</button>
-    </section>
+  </section>
 
-    <section class="filter-bar">
+  <section class="filter-bar">
       <div class="filter-chips">
         <button
           v-for="tag in filterTags"
@@ -18,24 +17,22 @@
           {{ tag }}
         </button>
       </div>
-    </section>
+  </section>
 
-    <div class="stack-list">
+  <div class="stack-list">
       <InquiryCard v-for="inquiry in filteredInquiries" :key="inquiry.title + inquiry.date" :inquiry="inquiry" />
-    </div>
+  </div>
 
-    <DirectInquiryModal
+  <DirectInquiryModal
       v-model="draftInquiry"
       :open="isModalOpen"
       @close="closeModal"
       @submit="submitInquiry"
-    />
-  </MyPageLayout>
+  />
 </template>
 
 <script setup>
 import { computed, ref } from 'vue'
-import MyPageLayout from '../../layout/MyPageLayout.vue'
 import InquiryCard from '../cards/InquiryCard.vue'
 import DirectInquiryModal from './DirectInquiryModal.vue'
 import { directInquiries } from '../../../data/mypage'

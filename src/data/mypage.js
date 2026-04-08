@@ -1,3 +1,5 @@
+import defaultAvatar from '../assets/default-avatar.svg'
+
 export const navItems = [
   { label: '대시보드', route: '/mypage' },
   { label: '입찰 내역', route: '/mypage/bids' },
@@ -14,11 +16,11 @@ export const navItems = [
 
 export const overviewUser = {
   name: '셀러111',
-  points: '1,850,000 P',
+  points: '1,850,000원',
   rating: '4.8',
   reviews: '리뷰 100',
   joinedAt: '2022. 03. 15',
-  avatar: 'https://www.figma.com/api/mcp/asset/dd0da364-93f1-438f-8d82-b5dc730cd83d',
+  avatar: defaultAvatar,
 }
 
 export const phoneImage = 'https://www.figma.com/api/mcp/asset/ff4e2075-6f6b-4c57-859f-d3f2dde1e754'

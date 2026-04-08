@@ -38,7 +38,7 @@
             <span>알림</span>
           </button>
           <template v-if="auth.isAuthenticated">
-            <span class="topbar-auth-label">{{ auth.username || '로그인됨' }}</span>
+            <span class="topbar-auth-label">{{ auth.nickname || auth.username || '회원' }}</span>
             <button class="topbar-link-button" type="button" @click="$emit('logout')">로그아웃</button>
           </template>
           <button v-else class="topbar-link-button" type="button" @click="$emit('open-login')">로그인/회원가입</button>

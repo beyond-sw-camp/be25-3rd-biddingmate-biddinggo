@@ -1,5 +1,6 @@
 import { computed, ref } from 'vue'
 import { pointHistory } from '../data/mypage'
+import { getBankLabel } from '../utils/banks'
 
 const INITIAL_POINTS = 1850000
 
@@ -20,12 +21,15 @@ function formatTimestamp(date = new Date()) {
   return `${year}.${month}.${day} ${hours}:${minutes}`
 }
 
-export function usePointModal() {
-  const currentPoints = ref(INITIAL_POINTS)
-  const history = ref([...pointHistory])
+export function usePointModal(options = {}) {
+  const currentPoints = options.currentPoints ?? ref(INITIAL_POINTS)
+  const history = options.history ?? ref([...pointHistory])
+  const onCharge = options.onCharge
+  const onWithdraw = options.onWithdraw
   const modalMode = ref('')
   const amount = ref(0)
   const selectedPreset = ref(null)
+  const issuedVirtualAccount = ref(null)
 
   const presets = computed(() => (modalMode.value === 'withdraw' ? WITHDRAW_PRESETS : CHARGE_PRESETS))
   const modalTitle = computed(() => {
@@ -44,13 +48,13 @@ export function usePointModal() {
     return currentPoints.value + amount.value
   })
 
-  const virtualAccount = computed(() => ({
-    bank: '우리은행',
-    accountNumber: '1002-123-456789',
-    accountHolder: '주식회사 비딩고',
+  const virtualAccount = computed(() => issuedVirtualAccount.value || {
+    bank: '-',
+    accountNumber: '-',
+    accountHolder: '-',
     depositAmount: formatAmount(amount.value, '원'),
-    dueAt: '2026.04.03 23:59',
-  }))
+    dueAt: '-',
+  })
 
   function resetAmount() {
     amount.value = 0
@@ -70,6 +74,7 @@ export function usePointModal() {
   function closeModal() {
     modalMode.value = ''
     selectedPreset.value = null
+    issuedVirtualAccount.value = null
   }
 
   function setPreset(preset) {
@@ -88,12 +93,18 @@ export function usePointModal() {
     amount.value += preset
   }
 
-  function submitModal() {
+  async function submitModal() {
     if (amount.value <= 0) {
       return
     }
 
     if (modalMode.value === 'withdraw') {
+      if (onWithdraw) {
+        await onWithdraw(amount.value)
+        closeModal()
+        return
+      }
+
       history.value.unshift({
         title: '인출',
         date: formatTimestamp(),
@@ -106,6 +117,10 @@ export function usePointModal() {
     }
 
     if (modalMode.value === 'charge') {
+      if (onCharge) {
+        issuedVirtualAccount.value = normalizeVirtualAccount(await onCharge(amount.value))
+      }
+
       modalMode.value = 'virtual-account'
     }
   }
@@ -124,6 +139,24 @@ export function usePointModal() {
     })
     currentPoints.value += amount.value
     closeModal()
+  }
+
+  function formatDueDate(date) {
+    if (!date) {
+      return '-'
+    }
+
+    return String(date).replace('T', ' ')
+  }
+
+  function normalizeVirtualAccount(account = {}) {
+    return {
+      bank: getBankLabel(account.bankCode || account.bank),
+      accountNumber: account.bankAccount || account.accountNumber || '-',
+      accountHolder: account.accountHolderName || account.accountHolder || '-',
+      depositAmount: formatAmount(Number(account.amount ?? amount.value ?? 0), '원'),
+      dueAt: formatDueDate(account.dueDate || account.dueAt),
+    }
   }
 
   return {

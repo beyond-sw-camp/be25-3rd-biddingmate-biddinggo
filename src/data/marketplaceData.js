@@ -1,3 +1,5 @@
+import defaultAvatar from '../assets/default-avatar.svg'
+
 export const assets = {
   heroBackground: 'https://www.figma.com/api/mcp/asset/2c032067-2d24-4567-b3e8-93b8314cf536',
   watchImage: 'https://www.figma.com/api/mcp/asset/efb38393-6d05-42e3-bdbd-49d9c50c580f',
@@ -11,7 +13,7 @@ export const assets = {
   listSearchIcon: 'https://www.figma.com/api/mcp/asset/b4053bac-f43a-41c8-9cec-70b678bc5248',
   sortChevronIcon: 'https://www.figma.com/api/mcp/asset/4df20e91-7e32-47a7-8ea9-3c8deaf9a724',
   listWatchImage: 'https://www.figma.com/api/mcp/asset/e8c9af76-2653-419a-8da5-b7a65a36822d',
-  mypageAvatar: 'https://www.figma.com/api/mcp/asset/21f4d4a4-0d13-4186-b9f8-40a9d874c50e',
+  mypageAvatar: defaultAvatar,
   mypageBadge: 'https://www.figma.com/api/mcp/asset/6f341c54-0e36-4d5a-a893-0a1f78729967',
   mypageProductImage: 'https://www.figma.com/api/mcp/asset/44924696-d661-434c-8b1f-c248e5201a84',
   mypageDashboardIcon: 'https://www.figma.com/api/mcp/asset/887eca34-d802-4708-99ec-92945a1ba784',
@@ -162,8 +164,8 @@ export const inspectionItems = [
 ]
 
 export const mypageProfile = {
-  seller: '셀러111',
-  points: '1,850,000 P',
+  seller: '닉네임 불러오기 실패',
+  points: '포인트 불러오기 실패',
 }
 
 export const mypageBidItems = [

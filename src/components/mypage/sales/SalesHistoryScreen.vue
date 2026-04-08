@@ -1,10 +1,9 @@
 <template>
-  <MyPageLayout>
-    <section class="page-header-block">
+  <section class="page-header-block">
       <h1>판매 내역</h1>
-    </section>
+  </section>
 
-    <section class="filter-bar">
+  <section class="filter-bar">
       <div class="filter-chips">
         <button
           v-for="tag in filterTags"
@@ -26,9 +25,9 @@
         prepend-inner-icon="mdi-magnify"
         variant="solo"
       />
-    </section>
+  </section>
 
-    <div class="winner-deal-list">
+  <div class="winner-deal-list">
       <WinnerDealCard
         v-for="item in filteredItems"
         :key="item.date + item.status + item.name"
@@ -36,9 +35,9 @@
         clickable
         @select="openModal"
       />
-    </div>
+  </div>
 
-    <WinnerDealDetailModal
+  <WinnerDealDetailModal
       v-if="selectedItem"
       variant="sale"
       :item="selectedItem"
@@ -48,13 +47,11 @@
       @next="modalMode = $event"
       @update-form="updateForm"
       @save-shipping="saveShipping"
-    />
-  </MyPageLayout>
+  />
 </template>
 
 <script setup>
 import { computed, ref } from 'vue'
-import MyPageLayout from '../../layout/MyPageLayout.vue'
 import WinnerDealCard from '../cards/WinnerDealCard.vue'
 import WinnerDealDetailModal from '../winner-deals/WinnerDealDetailModal.vue'
 import { useSalesModal } from '../../../composables/useSalesModal'

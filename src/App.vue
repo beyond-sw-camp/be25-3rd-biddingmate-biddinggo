@@ -14,12 +14,15 @@
   </AppShell>
 
   <RouterView v-else />
+
+  <AppToast />
 </template>
 
 <script setup>
 import { computed, onMounted } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import AppShell from './components/AppShell.vue'
+import AppToast from './components/shared/AppToast.vue'
 import { useAuth } from './composables/useAuth'
 import { navigationItems } from './data/marketplaceData'
 

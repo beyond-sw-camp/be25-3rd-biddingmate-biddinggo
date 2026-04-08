@@ -1,10 +1,9 @@
 <template>
-  <MyPageLayout>
-    <section class="page-header-block">
+  <section class="page-header-block">
       <h1>관심 경매 내역</h1>
-    </section>
+  </section>
 
-    <section class="filter-bar wishlist-filter-bar">
+  <section class="filter-bar wishlist-filter-bar">
       <v-text-field
         v-model="searchQuery"
         class="wishlist-search-field"
@@ -36,21 +35,19 @@
           </button>
         </div>
       </v-menu>
-    </section>
+  </section>
 
-    <div class="grid-list">
+  <div class="grid-list">
       <ProductGridCard
         v-for="(item, index) in filteredFavoriteItems"
         :key="item.name + item.currentPrice + index"
         :item="item"
       />
-    </div>
-  </MyPageLayout>
+  </div>
 </template>
 
 <script setup>
 import { computed, ref } from 'vue'
-import MyPageLayout from '../../layout/MyPageLayout.vue'
 import ProductGridCard from '../cards/ProductGridCard.vue'
 import { favoriteItems } from '../../../data/mypage'
 

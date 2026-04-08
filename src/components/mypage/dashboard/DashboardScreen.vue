@@ -1,21 +1,25 @@
 <template>
-  <MyPageLayout>
-    <section class="page-header-block">
+  <section class="page-header-block">
       <h1>마이페이지</h1>
-    </section>
+  </section>
 
-    <SurfaceCard as="section" class="user-summary-card">
+  <SurfaceCard as="section" class="user-summary-card">
       <div class="user-summary__identity">
-        <img :src="overviewUser.avatar" :alt="overviewUser.name" class="avatar avatar--small" />
+        <img
+          :src="overviewUser.avatar"
+          :alt="overviewUser.name"
+          class="avatar avatar--small"
+          @error="setDefaultAvatar"
+        />
         <strong>{{ overviewUser.name }}</strong>
       </div>
       <div class="user-summary__points">
         <p>보유 포인트</p>
         <strong>{{ overviewUser.points }}</strong>
       </div>
-    </SurfaceCard>
+  </SurfaceCard>
 
-    <section class="section-block">
+  <section class="section-block">
       <div class="section-heading">
         <h2>입찰 내역</h2>
         <RouterLink to="/mypage/bids">View All</RouterLink>
@@ -23,9 +27,9 @@
       <div class="bid-history-list">
         <ProductBidCard v-for="item in bidItems.slice(0, 2)" :key="item.date + item.status" :item="item" />
       </div>
-    </section>
+  </section>
 
-    <section class="section-block">
+  <section class="section-block">
       <div class="section-heading">
         <h2>진행 중 구매 현황</h2>
         <RouterLink to="/mypage/purchases">View All</RouterLink>
@@ -39,9 +43,9 @@
           @select="openPurchaseModal"
         />
       </div>
-    </section>
+  </section>
 
-    <section class="section-block">
+  <section class="section-block">
       <div class="section-heading">
         <h2>진행 중 판매 현황</h2>
         <RouterLink to="/mypage/sales">View All</RouterLink>
@@ -55,9 +59,9 @@
           @select="openSalesModal"
         />
       </div>
-    </section>
+  </section>
 
-    <WinnerDealDetailModal
+  <WinnerDealDetailModal
       v-if="selectedPurchaseItem"
       variant="purchase"
       :item="selectedPurchaseItem"
@@ -69,9 +73,9 @@
       @save-address="savePurchaseAddress"
       @select-address="selectPurchaseAddress"
       @confirm-purchase="confirmPurchase"
-    />
+  />
 
-    <WinnerDealDetailModal
+  <WinnerDealDetailModal
       v-if="selectedSalesItem"
       variant="sale"
       :item="selectedSalesItem"
@@ -81,21 +85,43 @@
       @next="salesModalMode = $event"
       @update-form="updateSalesForm"
       @save-shipping="saveSalesShipping"
-    />
-  </MyPageLayout>
+  />
 </template>
 
 <script setup>
 import { RouterLink } from 'vue-router'
+import defaultAvatar from '../../../assets/default-avatar.svg'
 import SurfaceCard from '../../SurfaceCard.vue'
-import MyPageLayout from '../../layout/MyPageLayout.vue'
 import ProductBidCard from '../cards/ProductBidCard.vue'
 import WinnerDealCard from '../cards/WinnerDealCard.vue'
 import WinnerDealDetailModal from '../winner-deals/WinnerDealDetailModal.vue'
 import { usePurchaseModal } from '../../../composables/usePurchaseModal'
 import { useSalesModal } from '../../../composables/useSalesModal'
-import { bidItems, overviewUser, purchaseStatusItems } from '../../../data/mypage'
-import { salesHistoryItems } from '../../../data/salesHistory'
+import {
+  bidItems as fallbackBidItems,
+  overviewUser as fallbackOverviewUser,
+  purchaseStatusItems as fallbackPurchaseStatusItems,
+} from '../../../data/mypage'
+import { salesHistoryItems as fallbackSalesHistoryItems } from '../../../data/salesHistory'
+
+defineProps({
+  bidItems: {
+    type: Array,
+    default: () => fallbackBidItems,
+  },
+  overviewUser: {
+    type: Object,
+    default: () => fallbackOverviewUser,
+  },
+  purchaseStatusItems: {
+    type: Array,
+    default: () => fallbackPurchaseStatusItems,
+  },
+  salesHistoryItems: {
+    type: Array,
+    default: () => fallbackSalesHistoryItems,
+  },
+})
 
 const {
   selectedItem: selectedPurchaseItem,
@@ -117,4 +143,8 @@ const {
   updateForm: updateSalesForm,
   saveShipping: saveSalesShipping,
 } = useSalesModal()
+
+function setDefaultAvatar(event) {
+  event.target.src = defaultAvatar
+}
 </script>

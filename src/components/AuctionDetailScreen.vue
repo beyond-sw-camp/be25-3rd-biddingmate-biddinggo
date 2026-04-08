@@ -12,6 +12,7 @@ import PricePanel from './auction-detail/PricePanel.vue'
 import ReportModal from './auction-detail/ReportModal.vue'
 import SellerCardSection from './auction-detail/SellerCardSection.vue'
 import SellerProfileModal from './auction-detail/SellerProfileModal.vue'
+import defaultAvatar from '../assets/default-avatar.svg'
 import { runtimeIdentity } from '../lib/runtimeIdentity'
 import { formatNumber } from '../utils/marketplace'
 
@@ -65,7 +66,7 @@ const inquiryForm = ref({
 })
 
 const sellerProfile = {
-  avatar: 'https://www.figma.com/api/mcp/asset/1a84177d-d7c8-4353-8a50-20c14d87fbe5',
+  avatar: defaultAvatar,
   badge: 'https://www.figma.com/api/mcp/asset/81111f1e-47ca-4819-bcc5-08161ec6a90c',
   rating: '4.8',
   reviewCount: 100,

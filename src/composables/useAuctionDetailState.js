@@ -1,4 +1,5 @@
 import { computed, ref } from 'vue'
+import defaultAvatar from '../assets/default-avatar.svg'
 
 const reportTypes = [
   '위조품 / 가짜 상품',
@@ -31,7 +32,7 @@ const bidHistoryRows = [
 }))
 
 const sellerProfile = {
-  avatar: 'https://www.figma.com/api/mcp/asset/1a84177d-d7c8-4353-8a50-20c14d87fbe5',
+  avatar: defaultAvatar,
   badge: 'https://www.figma.com/api/mcp/asset/81111f1e-47ca-4819-bcc5-08161ec6a90c',
   rating: '4.8',
   reviewCount: 100,

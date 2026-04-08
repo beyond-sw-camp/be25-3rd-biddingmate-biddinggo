@@ -27,7 +27,7 @@ async function restoreSessionFromRefresh() {
 }
 
 export function useAuth() {
-  const displayName = computed(() => authState.username || '회원')
+  const displayName = computed(() => authState.nickname || authState.username || '회원')
 
   async function initializeAuth() {
     if (authState.initialized) {

@@ -1,10 +1,9 @@
 <template>
-  <MyPageLayout>
-    <section class="page-header-block">
+  <section class="page-header-block">
       <h1>구매 / 판매 문의 내역</h1>
-    </section>
+  </section>
 
-    <section class="filter-bar">
+  <section class="filter-bar">
       <div class="filter-chips">
         <button
           v-for="tag in filterTags"
@@ -17,9 +16,9 @@
           {{ tag }}
         </button>
       </div>
-    </section>
+  </section>
 
-    <div class="stack-list">
+  <div class="stack-list">
       <InquiryCard
         v-for="inquiry in filteredInquiries"
         :key="inquiry.title + inquiry.date"
@@ -27,13 +26,11 @@
         allow-reply
         @submit-reply="submitReply(inquiry, $event)"
       />
-    </div>
-  </MyPageLayout>
+  </div>
 </template>
 
 <script setup>
 import { computed, ref } from 'vue'
-import MyPageLayout from '../../layout/MyPageLayout.vue'
 import InquiryCard from '../cards/InquiryCard.vue'
 import { auctionInquiries } from '../../../data/mypage'
 

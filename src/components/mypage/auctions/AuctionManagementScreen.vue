@@ -1,11 +1,10 @@
 <template>
-  <MyPageLayout>
-    <section class="page-header-inline">
+  <section class="page-header-inline">
       <h1>경매 관리</h1>
       <button class="primary-button" type="button">+ 경매 등록하기</button>
-    </section>
+  </section>
 
-    <section class="stats-grid">
+  <section class="stats-grid">
       <SurfaceCard as="article" v-for="card in auctionSummary" :key="card.label" class="stat-card">
         <span class="stat-card__icon"></span>
         <div>
@@ -13,9 +12,9 @@
           <strong>{{ card.value }}</strong>
         </div>
       </SurfaceCard>
-    </section>
+  </section>
 
-    <section class="filter-bar">
+  <section class="filter-bar">
       <div class="filter-chips">
         <button
           v-for="tag in filterTags"
@@ -37,18 +36,16 @@
         prepend-inner-icon="mdi-magnify"
         variant="solo"
       />
-    </section>
+  </section>
 
-    <div class="grid-list">
+  <div class="grid-list">
       <ProductGridCard v-for="(item, index) in filteredItems" :key="item.name + index" :item="item" />
-    </div>
-  </MyPageLayout>
+  </div>
 </template>
 
 <script setup>
 import { computed, ref } from 'vue'
 import SurfaceCard from '../../SurfaceCard.vue'
-import MyPageLayout from '../../layout/MyPageLayout.vue'
 import ProductGridCard from '../cards/ProductGridCard.vue'
 import { auctionItems, auctionSummary } from '../../../data/mypage'
 

@@ -1,24 +1,23 @@
 <template>
-  <MyPageLayout>
-    <section class="page-header-block">
+  <section class="page-header-block">
       <h1>포인트 관리</h1>
-    </section>
+  </section>
 
-    <SurfaceCard as="section" class="hero-card hero-card--left">
+  <SurfaceCard as="section" class="hero-card hero-card--left">
       <p>보유 포인트</p>
       <strong>{{ formatAmount(currentPoints) }}</strong>
       <div class="button-row point-actions">
         <button class="primary-button" type="button" @click="openChargeModal">충전하기</button>
         <button class="secondary-button" type="button" @click="openWithdrawModal">인출하기</button>
       </div>
-    </SurfaceCard>
+  </SurfaceCard>
 
-    <section class="section-block">
+  <section class="section-block">
       <div class="section-heading">
         <h2>포인트 내역</h2>
       </div>
       <div class="stack-list">
-        <SurfaceCard as="article" v-for="entry in history" :key="entry.title + entry.date" class="point-row">
+        <SurfaceCard as="article" v-for="entry in history" :key="entry.id ?? `${entry.title}-${entry.date}`" class="point-row">
           <div class="point-row__left">
             <span class="point-icon" :class="entry.tone">{{ entry.tone === 'minus' ? '-' : '+' }}</span>
             <div>
@@ -29,9 +28,14 @@
           <strong :class="entry.tone">{{ entry.amount }}</strong>
         </SurfaceCard>
       </div>
-    </section>
+      <div ref="loadMoreTarget" class="load-more-sentinel">
+        <span v-if="loading">포인트 내역을 불러오는 중입니다.</span>
+        <span v-else-if="!hasNext && history.length">마지막 포인트 내역입니다.</span>
+        <span v-else-if="!history.length">포인트 내역이 없습니다.</span>
+      </div>
+  </section>
 
-    <PointActionModal
+  <PointActionModal
       :open="Boolean(modalMode)"
       :mode="modalMode"
       :title="modalTitle"
@@ -48,15 +52,47 @@
       @preset="setPreset"
       @submit="submitModal"
       @confirm="confirmVirtualAccount"
-    />
-  </MyPageLayout>
+  />
 </template>
 
 <script setup>
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import SurfaceCard from '../../SurfaceCard.vue'
-import MyPageLayout from '../../layout/MyPageLayout.vue'
 import PointActionModal from './PointActionModal.vue'
 import { usePointModal } from '../../../composables/usePointModal'
+
+const props = defineProps({
+  currentPoints: {
+    type: Number,
+    default: 0,
+  },
+  history: {
+    type: Array,
+    default: () => [],
+  },
+  hasNext: {
+    type: Boolean,
+    default: false,
+  },
+  loading: {
+    type: Boolean,
+    default: false,
+  },
+  chargePoints: {
+    type: Function,
+    default: null,
+  },
+  withdrawPoints: {
+    type: Function,
+    default: null,
+  },
+})
+
+const emit = defineEmits(['load-more'])
+const modalCurrentPoints = ref(props.currentPoints)
+const modalHistory = ref([])
+const loadMoreTarget = ref(null)
+let observer = null
 
 const {
   actionLabel,
@@ -64,11 +100,9 @@ const {
   amountLabel,
   closeModal,
   confirmVirtualAccount,
-  currentPoints,
   expectedLabel,
   expectedPoints,
   formatAmount,
-  history,
   modalMode,
   modalTitle,
   openChargeModal,
@@ -78,5 +112,66 @@ const {
   setPreset,
   submitModal,
   virtualAccount,
-} = usePointModal()
+} = usePointModal({
+  currentPoints: modalCurrentPoints,
+  history: modalHistory,
+  onCharge: (amount) => props.chargePoints?.(amount),
+  onWithdraw: (amount) => props.withdrawPoints?.(amount),
+})
+
+function requestLoadMore() {
+  if (props.hasNext && !props.loading) {
+    emit('load-more')
+  }
+}
+
+function handleScroll() {
+  const scrollTop = window.scrollY || document.documentElement.scrollTop
+  const viewportHeight = window.innerHeight
+  const scrollHeight = document.documentElement.scrollHeight
+
+  if (scrollTop + viewportHeight >= scrollHeight - 160) {
+    requestLoadMore()
+  }
+}
+
+watch(
+  () => props.currentPoints,
+  (value) => {
+    modalCurrentPoints.value = value
+  },
+  { immediate: true },
+)
+
+watch(
+  () => [props.history.length, props.hasNext, props.loading],
+  () => {
+    modalHistory.value = [...props.history]
+    nextTick(handleScroll)
+  },
+  { immediate: true },
+)
+
+onMounted(() => {
+  observer = new IntersectionObserver(
+    ([entry]) => {
+      if (entry.isIntersecting) {
+        requestLoadMore()
+      }
+    },
+    { rootMargin: '160px' },
+  )
+
+  if (loadMoreTarget.value) {
+    observer.observe(loadMoreTarget.value)
+  }
+
+  window.addEventListener('scroll', handleScroll, { passive: true })
+  nextTick(handleScroll)
+})
+
+onBeforeUnmount(() => {
+  observer?.disconnect()
+  window.removeEventListener('scroll', handleScroll)
+})
 </script>

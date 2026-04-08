@@ -19,7 +19,10 @@ const normalizedStatusMap = {
 }
 
 const statusToneMap = {
+  '경매 예정': 'pending',
   '경매 진행 중': 'progress',
+  '경매 종료': 'success',
+  '경매 취소': 'danger',
   '발송 준비': 'pending',
   '발송 대기': 'pending',
   '답변 대기': 'pending',

@@ -8,6 +8,7 @@ const state = reactive({
   accessToken: '',
   type: 'Bearer',
   username: '',
+  nickname: '',
   authorities: [],
   issuedAt: 0,
   expiredAt: 0,
@@ -59,6 +60,7 @@ function persistSession() {
       accessToken: state.accessToken,
       type: state.type,
       username: state.username,
+      nickname: state.nickname,
       authorities: state.authorities,
       issuedAt: state.issuedAt,
       expiredAt: state.expiredAt,
@@ -72,6 +74,7 @@ function applySession(snapshot = {}) {
   state.accessToken = String(source.accessToken || '').trim()
   state.type = String(source.type || 'Bearer')
   state.username = String(source.username || '')
+  state.nickname = String(source.nickname || '')
   state.authorities = normalizeAuthorities(source.authorities)
   state.issuedAt = Number(source.issuedAt || 0)
   state.expiredAt = Number(source.expiredAt || 0)
@@ -91,6 +94,7 @@ export function setSession(loginResponse = {}) {
     accessToken: loginResponse.accessToken ?? state.accessToken,
     type: loginResponse.type ?? state.type,
     username: loginResponse.username ?? state.username,
+    nickname: loginResponse.nickname ?? state.nickname,
     authorities: loginResponse.authorities ?? state.authorities,
     issuedAt: loginResponse.issuedAt ?? state.issuedAt,
     expiredAt: loginResponse.expiredAt ?? state.expiredAt,
@@ -101,6 +105,7 @@ export function setSession(loginResponse = {}) {
 
 export function setUserInfo(userInfo = {}) {
   state.username = String(userInfo.username || state.username || '')
+  state.nickname = String(userInfo.nickname || userInfo.nickName || state.nickname || '')
   state.authorities = normalizeAuthorities(userInfo.role ?? state.authorities)
   state.isAuthenticated = Boolean(state.accessToken)
   state.initialized = true

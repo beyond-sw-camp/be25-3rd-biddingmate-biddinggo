@@ -293,18 +293,25 @@ select {
 
 .topbar-links {
   display: flex;
+  align-items: center;
   gap: 24px;
   font-size: 14px;
   font-weight: 400;
 }
 
+.topbar-links a,
 .topbar-link-button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
   border: 0;
   background: transparent;
   color: inherit;
   padding: 0;
   font-size: 14px;
   font-weight: 400;
+  line-height: 1;
+  text-decoration: none;
   cursor: pointer;
 }
 
@@ -467,6 +474,15 @@ select {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.history-card--interactive {
+  cursor: pointer;
+}
+
+.history-card--interactive:focus-visible {
+  outline: 3px solid var(--primary-soft);
+  outline-offset: 3px;
 }
 
 .page-header-inline,
@@ -688,6 +704,14 @@ select {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 24px;
+}
+
+.load-more-sentinel {
+  min-height: 48px;
+  display: grid;
+  place-items: center;
+  color: var(--text-muted);
+  font-size: 14px;
 }
 
 .status-badge {
@@ -1034,7 +1058,10 @@ select {
 }
 
 .form-panel {
-  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 50px;
 }
 
 .form-grid {
@@ -1066,16 +1093,35 @@ select {
   font-weight: 500;
 }
 
-.bank-row {
-  grid-column: 1 / 2;
-}
-
 .bank-row__inputs {
   gap: 10px;
 }
 
 .bank-row__inputs select {
   max-width: 129px;
+}
+
+.bank-row__inputs .bank-menu__trigger {
+  flex: 0 0 140px;
+  width: 140px;
+  min-height: 47px;
+  justify-content: space-between;
+  border-radius: 8px;
+  background: var(--surface-soft);
+  padding: 14px 15px;
+  white-space: nowrap;
+}
+
+.bank-menu__trigger span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bank-menu__panel {
+  max-height: 236px;
+  overflow-y: auto;
 }
 
 .form-actions {
@@ -1229,6 +1275,67 @@ select {
 
 .address-card__actions {
   gap: 12px;
+}
+
+.address-add-modal {
+  width: min(560px, 100%);
+}
+
+.address-add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.address-add-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.address-add-form span {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.address-add-form input[type='text'] {
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  background: var(--surface-soft);
+  padding: 14px 15px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.address-add-form input[readonly] {
+  cursor: default;
+}
+
+.address-add-form__lookup {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.address-add-form__check {
+  flex-direction: row !important;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.address-add-form__check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+}
+
+.address-add-form__error {
+  margin: 0;
+  color: #b42318;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .point-row {
@@ -1994,5 +2101,11 @@ select {
 
   .purchase-modal__actions {
     flex-direction: column;
+  }
+
+  .address-add-form__lookup {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
   }
 }
