@@ -620,19 +620,27 @@ img {
 .sort-button {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: 8px;
-  min-width: 104px;
-  height: 38px;
-  border: 0;
+  min-width: 132px;
+  height: 44px;
+  border: 1px solid #eceef2;
   border-radius: 16px;
   background: #fff;
-  padding: 0 14px;
-  color: #23008d;
+  padding: 0 12px;
+  color: #646f7c;
   font-size: 14px;
-  font-weight: 700;
-  line-height: 20px;
+  font-weight: 600;
+  line-height: 18px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
   cursor: pointer;
+}
+
+.sort-button:hover,
+.sort-button:focus-visible,
+.sort-button[aria-expanded='true'] {
+  background: #f3f0ff;
+  color: #23008d;
 }
 
 .sort-button img {

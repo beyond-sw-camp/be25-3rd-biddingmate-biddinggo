@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getAuctionList } from '../api/auctions'
 import { getCategoryList } from '../api/categories'
@@ -18,10 +18,8 @@ const expandedCategoryIds = ref(new Set())
 const items = ref([])
 const loading = ref(false)
 const selectedCategoryId = ref(readCategoryIdFromQuery())
-const selectedSortKey = ref('latest')
 const wishlistProcessingIds = ref(new Set())
 
-const categories = computed(() => buildCategoryTreeItems(categoryRows.value, selectedCategoryId.value, expandedCategoryIds.value))
 const sortOptions = [
   { key: 'wishlist', label: '관심순', sortBy: 'WISH_COUNT', order: 'DESC' },
   { key: 'popularity', label: '인기순', sortBy: 'POPULARITY', order: 'DESC' },
@@ -30,6 +28,9 @@ const sortOptions = [
   { key: 'price-low', label: '가격 낮은 순', sortBy: 'PRICE', order: 'ASC' },
   { key: 'price-high', label: '가격 높은 순', sortBy: 'PRICE', order: 'DESC' },
 ]
+const selectedSortKey = ref(readSortKeyFromQuery())
+
+const categories = computed(() => buildCategoryTreeItems(categoryRows.value, selectedCategoryId.value, expandedCategoryIds.value))
 const selectedSortOption = computed(() => (
   sortOptions.find((option) => option.key === selectedSortKey.value) || sortOptions[2]
 ))
@@ -39,6 +40,26 @@ function readCategoryIdFromQuery() {
   const categoryId = Number(route.query.categoryId)
 
   return Number.isFinite(categoryId) && categoryId > 0 ? categoryId : null
+}
+
+function readSortKeyFromQuery() {
+  const sortKey = String(route.query.sort || '')
+
+  return sortOptions.some((option) => option.key === sortKey) ? sortKey : 'latest'
+}
+
+function buildListQuery({ categoryId = selectedCategoryId.value, sortKey = selectedSortKey.value } = {}) {
+  const query = {}
+
+  if (categoryId) {
+    query.categoryId = categoryId
+  }
+
+  if (sortKey && sortKey !== 'latest') {
+    query.sort = sortKey
+  }
+
+  return query
 }
 
 function updateAuctionWishlistState(auctionId, patch) {
@@ -120,7 +141,11 @@ function openDetail(item) {
     return
   }
 
-  router.push(`/auctions/${item.auctionId}`)
+  router.push({
+    name: 'auction-detail',
+    params: { id: item.auctionId },
+    query: buildListQuery(),
+  })
 }
 
 function selectCategory(category) {
@@ -132,7 +157,7 @@ function selectCategory(category) {
   selectedCategoryId.value = Number(category?.id || 0) || null
   router.replace({
     name: 'auction-list',
-    query: selectedCategoryId.value ? { categoryId: selectedCategoryId.value } : {},
+    query: buildListQuery(),
   })
   loadAuctionList()
 }
@@ -160,6 +185,10 @@ function selectSort(option) {
   }
 
   selectedSortKey.value = option.key
+  router.replace({
+    name: 'auction-list',
+    query: buildListQuery(),
+  })
   loadAuctionList()
 }
 
@@ -217,6 +246,22 @@ onMounted(async () => {
   await loadCategories()
   await loadAuctionList()
 })
+
+watch(
+  () => [route.query.categoryId, route.query.sort],
+  () => {
+    const nextCategoryId = readCategoryIdFromQuery()
+    const nextSortKey = readSortKeyFromQuery()
+
+    if (selectedCategoryId.value === nextCategoryId && selectedSortKey.value === nextSortKey) {
+      return
+    }
+
+    selectedCategoryId.value = nextCategoryId
+    selectedSortKey.value = nextSortKey
+    loadAuctionList()
+  },
+)
 </script>
 
 <template>

@@ -100,11 +100,21 @@ async function toggleWishlist() {
 }
 
 function backToList() {
-  const categoryId = item.value?.categoryId
+  const categoryId = item.value?.categoryId || Number(route.query.categoryId) || null
+  const sortKey = String(route.query.sort || '')
+  const query = {}
+
+  if (categoryId) {
+    query.categoryId = categoryId
+  }
+
+  if (sortKey) {
+    query.sort = sortKey
+  }
 
   router.push({
     name: 'auction-list',
-    query: categoryId ? { categoryId } : {},
+    query,
   })
 }
 
