@@ -112,8 +112,37 @@ export function normalizeSellerReviews(rows = []) {
   }))
 }
 
+const PRICE_PREDICTION_REASON_LABELS = {
+  PREDICTION_AVAILABLE: '예상 가격을 조회했습니다.',
+  NOT_ENOUGH_REFERENCES: '유사 낙찰 데이터가 부족합니다.',
+  EMBEDDING_NOT_FOUND: '상품 분석 데이터가 아직 준비되지 않았습니다.',
+  CATEGORY_NOT_FOUND: '카테고리 정보를 찾을 수 없습니다.',
+  INVALID_CONDITION: '상품 상태 정보가 올바르지 않습니다.',
+  SUPABASE_TIMEOUT: '예상가 조회 시간이 초과되었습니다.',
+  SUPABASE_UNAVAILABLE: '예상가 조회 서비스를 사용할 수 없습니다.',
+  OUTLIER_FILTERED_ALL: '참고 가격 데이터가 모두 이상치로 제외되었습니다.',
+  FALLBACK_APPLIED: '대체 예측값을 적용했습니다.',
+}
+
 function normalizeEnumValue(value) {
   return String(value || '').trim().toUpperCase()
+}
+
+function normalizePricePrediction(pricePrediction = null) {
+  if (!pricePrediction) {
+    return ''
+  }
+
+  const predictedPrice = pricePrediction.predictedPrice ?? pricePrediction.predicted_price
+
+  if (predictedPrice !== null && predictedPrice !== undefined) {
+    return `예상 가격 ${formatPrice(predictedPrice)}원`
+  }
+
+  const reasonCode = normalizeEnumValue(pricePrediction.reasonCode ?? pricePrediction.reason_code)
+  const reasonLabel = PRICE_PREDICTION_REASON_LABELS[reasonCode] || '예상 가격을 조회하지 못했습니다.'
+
+  return `예상 가격 조회 실패: ${reasonLabel}`
 }
 
 export function normalizeAuctionDetail(
@@ -143,6 +172,7 @@ export function normalizeAuctionDetail(
     brand: detail.item?.brand || '브랜드 미정',
     price: formatPrice(currentPrice),
     startPrice: formatPrice(detail.startPrice),
+    pricePredictionLabel: normalizePricePrediction(detail.pricePrediction ?? detail.price_prediction),
     bids: `입찰 ${detail.bidCount ?? 0}회`,
     wishCount: Number(detail.wishCount || 0),
     isWished: Boolean(wishlistStatus?.wished),

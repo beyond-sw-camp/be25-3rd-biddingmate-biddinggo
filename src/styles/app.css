@@ -2096,12 +2096,18 @@ img {
 }
 
 .detail-price-meta,
+.detail-price-prediction,
 .detail-time-left {
   margin: 10px 0 0;
 }
 
 .detail-price-meta {
   color: #64748b;
+  font-size: 14px;
+}
+
+.detail-price-prediction {
+  color: #ef4444;
   font-size: 14px;
 }
 

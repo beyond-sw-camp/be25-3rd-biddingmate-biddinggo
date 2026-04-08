@@ -55,6 +55,7 @@ defineEmits(['open-bid', 'toggle-wishlist'])
     </div>
 
     <p class="detail-price-meta">{{ item.bids }} | 시작가 {{ item.startPrice || item.price }}</p>
+    <p v-if="item.pricePredictionLabel" class="detail-price-prediction">{{ item.pricePredictionLabel }}</p>
     <p class="detail-time-left">{{ item.time }}</p>
 
     <div class="detail-bid-box">
