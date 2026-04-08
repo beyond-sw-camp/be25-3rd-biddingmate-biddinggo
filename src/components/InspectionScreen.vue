@@ -7,7 +7,7 @@ import InspectionShippingModal from './inspection/InspectionShippingModal.vue'
 import InspectionSummaryGrid from './inspection/InspectionSummaryGrid.vue'
 import InspectionToolbar from './inspection/InspectionToolbar.vue'
 
-const emit = defineEmits(['open-register', 'submit-shipping'])
+const emit = defineEmits(['open-register', 'open-auction-register', 'submit-shipping'])
 
 const props = defineProps({
   assets: {
@@ -47,6 +47,7 @@ const {
   shippingForm,
   submitShippingInfo,
 } = useInspectionState(toRef(props, 'items'), {
+  onAuctionRegister: (item) => emit('open-auction-register', item),
   onShippingSubmit: (item, form) => emit('submit-shipping', { item, form }),
 })
 </script>

@@ -16,6 +16,10 @@ const infoBullet = 'https://www.figma.com/api/mcp/asset/f9c860bc-f862-4836-b1e9-
 const inspectionProductImage = 'https://www.figma.com/api/mcp/asset/32f14895-b803-4f5e-ae62-afb42f566620'
 
 const props = defineProps({
+  initialInspectionId: {
+    type: Number,
+    default: null,
+  },
   initialMode: {
     type: String,
     default: 'select',
@@ -92,7 +96,7 @@ const {
   toggleAuctionField,
   uploadInProgress,
   uploadedImages,
-} = useRegisterFlow(toRef(props, 'initialMode'))
+} = useRegisterFlow(toRef(props, 'initialMode'), toRef(props, 'initialInspectionId'))
 
 async function handleSubmit() {
   const result = await submitForm()

@@ -37,6 +37,21 @@ function openRegister(mode = 'inspection') {
   })
 }
 
+function openAuctionRegister(item) {
+  if (!item?.inspectionId) {
+    errorMessage.value = '경매 등록할 검수 상품을 찾을 수 없습니다.'
+    return
+  }
+
+  router.push({
+    path: '/register',
+    query: {
+      mode: 'direct-auction',
+      inspectionId: String(item.inspectionId),
+    },
+  })
+}
+
 async function submitShipping({ item, form }) {
   if (!item?.inspectionId) {
     errorMessage.value = '배송 정보를 등록할 검수 상품을 찾을 수 없습니다.'
@@ -57,7 +72,7 @@ async function submitShipping({ item, form }) {
       trackingNumber,
     })
 
-    await loadInspections()
+    window.location.reload()
     return true
   } catch (error) {
     errorMessage.value = error?.message || '배송 정보 등록에 실패했습니다.'
@@ -75,6 +90,7 @@ onMounted(loadInspections)
     :items="inspectionItems"
     :loading="loading"
     :summary="inspectionSummary"
+    @open-auction-register="openAuctionRegister"
     @open-register="openRegister"
     @submit-shipping="submitShipping"
   />

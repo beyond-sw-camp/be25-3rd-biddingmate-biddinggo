@@ -97,7 +97,7 @@ function toLocalDateTimeString(value) {
   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
 }
 
-export function useRegisterFlow(initialMode) {
+export function useRegisterFlow(initialMode, initialInspectionId) {
   const allowedModes = ['select', 'inspection', 'inspection-pick', 'direct', 'direct-auction']
   const currentMode = ref(allowedModes.includes(initialMode.value) ? initialMode.value : 'select')
   const registrationType = ref(
@@ -207,11 +207,29 @@ export function useRegisterFlow(initialMode) {
           displayId: index,
         }))
       selectedInspectionDetail.value = null
-      selectedInspectionId.value = inspectionPickItems.value[0]?.displayId || 0
+
+      const requestedInspectionId = Number(initialInspectionId?.value)
+      const preselectedItem = Number.isFinite(requestedInspectionId) && requestedInspectionId > 0
+        ? inspectionPickItems.value.find((item) => item.inspectionId === requestedInspectionId)
+        : null
+
+      selectedInspectionId.value = preselectedItem?.displayId || inspectionPickItems.value[0]?.displayId || 0
+
+      if (preselectedItem) {
+        registrationType.value = 'inspection'
+        currentMode.value = 'direct-auction'
+        syncAuctionSchedule()
+
+        try {
+          selectedInspectionDetail.value = await getInspectionDetail(preselectedItem.inspectionId)
+        } catch {
+          // 상세 조회 실패 시 목록 응답 기반 정보로만 진행한다.
+        }
+      }
     } catch (error) {
       inspectionPickItems.value = []
 
-      if (currentMode.value === 'inspection-pick') {
+      if (currentMode.value === 'inspection-pick' || currentMode.value === 'direct-auction') {
         errorMessage.value = error?.message || '검수 완료 상품을 불러오지 못했습니다.'
       }
     }
@@ -552,7 +570,7 @@ export function useRegisterFlow(initialMode) {
       registrationType.value = mode === 'inspection' || mode === 'inspection-pick' ? 'inspection' : 'direct'
       clearMessages()
 
-      if (currentMode.value === 'inspection-pick') {
+      if (currentMode.value === 'inspection-pick' || (currentMode.value === 'direct-auction' && initialInspectionId?.value)) {
         loadInspectionPickItems()
       }
     },

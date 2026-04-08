@@ -2,7 +2,7 @@ import { computed, ref } from 'vue'
 import { getInspectionDetail } from '../api/inspections'
 import { mergeInspectionItemDetail } from '../utils/marketplace'
 
-export function useInspectionState(items, { onShippingSubmit } = {}) {
+export function useInspectionState(items, { onShippingSubmit, onAuctionRegister } = {}) {
   const activeFilter = ref('전체')
   const selectedItem = ref(null)
   const isShippingModalOpen = ref(false)
@@ -59,11 +59,24 @@ export function useInspectionState(items, { onShippingSubmit } = {}) {
     if (!selectedItem.value) return
 
     if (selectedItem.value.status === 'PENDING') {
+      if (selectedItem.value.carrier && selectedItem.value.trackingNumber) {
+        window.alert('배송 정보가 이미 등록된 상품입니다.')
+        return
+      }
+
       shippingForm.value = {
         company: selectedItem.value.carrier || '',
         invoiceNumber: selectedItem.value.trackingNumber || '',
       }
       isShippingModalOpen.value = true
+      return
+    }
+
+    if (selectedItem.value.status === 'PASSED') {
+      if (typeof onAuctionRegister === 'function') {
+        onAuctionRegister(selectedItem.value)
+      }
+      closeDetail()
       return
     }
 
