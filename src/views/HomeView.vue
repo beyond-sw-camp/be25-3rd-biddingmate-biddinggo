@@ -55,7 +55,7 @@ async function loadHomeAuctions() {
     const page = await getAuctionList({
       page: 1,
       size: 4,
-      sortBy: 'CREATED_AT',
+      sortBy: 'POPULARITY',
       status: 'ON_GOING',
       order: 'DESC',
     })
