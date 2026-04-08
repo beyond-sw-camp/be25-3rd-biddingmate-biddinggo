@@ -46,7 +46,6 @@ const {
   selectedItem,
   shippingForm,
   submitShippingInfo,
-  summaryIcon,
 } = useInspectionState(toRef(props, 'items'), {
   onShippingSubmit: (item, form) => emit('submit-shipping', { item, form }),
 })
@@ -65,7 +64,7 @@ const {
       </button>
     </div>
 
-    <InspectionSummaryGrid :summary="summary" :summary-icon="summaryIcon" />
+    <InspectionSummaryGrid :summary="summary" />
 
     <InspectionToolbar
       :active-filter="activeFilter"

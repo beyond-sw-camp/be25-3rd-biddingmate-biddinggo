@@ -58,10 +58,10 @@ defineEmits(['close-detail', 'open-inspection-request', 'select-item', 'start-au
       >
         <div class="inspection-product-image-wrap">
           <img :src="item.image || inspectionProductImage" :alt="item.title" class="inspection-product-image" />
-          <span class="inspection-badge is-passed">검수 통과</span>
         </div>
 
         <div class="inspection-product-body">
+          <span class="register-inspection-status">검수 통과</span>
           <h3>{{ item.title }}</h3>
           <div class="inspection-product-meta">
             <div>

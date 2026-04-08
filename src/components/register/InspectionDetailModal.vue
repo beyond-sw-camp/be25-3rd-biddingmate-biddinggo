@@ -26,36 +26,49 @@ defineEmits(['close', 'start-auction'])
         </div>
 
         <div class="inspection-detail-summary">
-          <p class="inspection-detail-category">{{ item.categoryLabel || '카테고리 정보 없음' }}</p>
-          <span class="inspection-badge is-passed">검수 통과</span>
+          <p class="inspection-detail-kicker">사전 검수 상품</p>
+          <div class="inspection-detail-heading">
+            <span class="inspection-detail-status">검수 통과</span>
+            <p class="inspection-detail-category">{{ item.categoryLabel || '카테고리 정보 없음' }}</p>
+          </div>
           <h3>{{ item.title }}</h3>
 
           <div class="inspection-detail-meta">
-            <div>
+            <article class="inspection-detail-meta-card">
               <span>브랜드</span>
               <strong>{{ item.brand }}</strong>
-            </div>
-            <div>
+            </article>
+            <article class="inspection-detail-meta-card">
               <span>검수일</span>
               <strong>{{ item.inspectionDate }}</strong>
-            </div>
-            <div>
+            </article>
+            <article class="inspection-detail-meta-card">
               <span>검수 등급</span>
               <strong class="is-grade">{{ item.inspectionGrade }}</strong>
-            </div>
+            </article>
           </div>
         </div>
+      </div>
 
-        <div class="inspection-detail-section">
+      <div class="inspection-detail-info-grid">
+        <article class="inspection-detail-section inspection-detail-section--copy">
           <h4>상품 설명</h4>
           <p>{{ item.description }}</p>
-        </div>
+        </article>
 
-        <div class="inspection-detail-section">
+        <article class="inspection-detail-section inspection-detail-section--shipping">
           <h4>배송 정보</h4>
-          <p>{{ item.carrier || '배송 정보 미등록' }}</p>
-          <p>{{ item.trackingNumber || '-' }}</p>
-        </div>
+          <div class="inspection-detail-shipping-list">
+            <div>
+              <span>택배사</span>
+              <strong>{{ item.carrier || '배송 정보 미등록' }}</strong>
+            </div>
+            <div>
+              <span>송장 번호</span>
+              <strong>{{ item.trackingNumber || '-' }}</strong>
+            </div>
+          </div>
+        </article>
       </div>
 
       <div class="inspection-detail-actions">

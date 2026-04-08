@@ -38,7 +38,7 @@ defineEmits(['close', 'handle-action'])
 
         <div class="inspection-status-summary">
           <p class="inspection-status-category">{{ item.categoryLabel || '카테고리 정보 없음' }}</p>
-          <span class="inspection-badge" :class="badgeClass(item.status)">
+          <span class="inspection-status-badge" :class="badgeClass(item.status)">
             {{ item.statusLabel || item.status }}
           </span>
           <h3>{{ item.title }}</h3>

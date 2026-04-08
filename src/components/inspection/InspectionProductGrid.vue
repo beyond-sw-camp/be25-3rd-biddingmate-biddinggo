@@ -27,12 +27,12 @@ defineEmits(['open-detail'])
     >
       <div class="inspection-product-image-wrap">
         <img :src="item.image || assets.listWatchImage" :alt="item.title" class="inspection-product-image" />
-        <span class="inspection-badge" :class="badgeClass(item.status)">
-          {{ item.statusLabel || item.status }}
-        </span>
       </div>
 
       <div class="inspection-product-body">
+        <span class="inspection-card-status" :class="badgeClass(item.status)">
+          {{ item.statusLabel || item.status }}
+        </span>
         <h3>{{ item.title }}</h3>
         <div class="inspection-product-meta">
           <div>

@@ -2,9 +2,9 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { createAuction, createAuctionFromInspectionItem } from '../api/auctions'
 import { getCategoryList } from '../api/categories'
 import { requestPresignedUpload, uploadToPresignedUrl, deleteUploadedFile } from '../api/files'
-import { createInspection, getInspectionList } from '../api/inspections'
+import { createInspection, getInspectionDetail, getInspectionList } from '../api/inspections'
 import { normalizeCategoryRows, getFallbackCategories } from '../utils/category'
-import { normalizeInspectionPickItem } from '../utils/marketplace'
+import { mergeInspectionItemDetail, normalizeInspectionPickItem } from '../utils/marketplace'
 
 function createEmptyForm() {
   return {
@@ -110,6 +110,7 @@ export function useRegisterFlow(initialMode) {
   const selectedBidUnit = ref('10,000')
   const selectedDuration = ref('5일')
   const selectedInspectionId = ref(0)
+  const selectedInspectionDetail = ref(null)
   const isInspectionDetailOpen = ref(false)
   const categoryOptions = ref([])
   const inspectionPickItems = ref([])
@@ -149,9 +150,19 @@ export function useRegisterFlow(initialMode) {
       ? ['4시간', '8시간', '12시간', '16시간', '20시간', '24시간', '28시간', '32시간', '36시간', '40시간', '44시간', '48시간']
       : ['3일', '4일', '5일', '6일', '7일', '8일', '9일', '10일'],
   )
-  const selectedInspectionItem = computed(() =>
-    inspectionPickItems.value.find((item) => item.displayId === selectedInspectionId.value) || null,
-  )
+  const selectedInspectionItem = computed(() => {
+    const baseItem = inspectionPickItems.value.find((item) => item.displayId === selectedInspectionId.value) || null
+
+    if (!baseItem) {
+      return null
+    }
+
+    if (selectedInspectionDetail.value?.inspectionId !== baseItem.inspectionId) {
+      return baseItem
+    }
+
+    return mergeInspectionItemDetail(baseItem, selectedInspectionDetail.value)
+  })
 
   function clearMessages() {
     submitted.value = false
@@ -195,6 +206,7 @@ export function useRegisterFlow(initialMode) {
           ...item,
           displayId: index,
         }))
+      selectedInspectionDetail.value = null
       selectedInspectionId.value = inspectionPickItems.value[0]?.displayId || 0
     } catch (error) {
       inspectionPickItems.value = []
@@ -290,6 +302,7 @@ export function useRegisterFlow(initialMode) {
     auctionForm.value = createEmptyAuctionForm()
     selectedBidUnit.value = '10,000'
     selectedDuration.value = '5일'
+    selectedInspectionDetail.value = null
     syncAuctionSchedule()
     clearMessages()
   }
@@ -498,9 +511,22 @@ export function useRegisterFlow(initialMode) {
     }
   }
 
-  function selectInspectionItem(index) {
+  async function selectInspectionItem(index) {
     selectedInspectionId.value = index
+    selectedInspectionDetail.value = null
     isInspectionDetailOpen.value = true
+
+    const item = inspectionPickItems.value.find((candidate) => candidate.displayId === index)
+
+    if (!item?.inspectionId) {
+      return
+    }
+
+    try {
+      selectedInspectionDetail.value = await getInspectionDetail(item.inspectionId)
+    } catch {
+      // 상세 조회 실패 시 목록 응답으로만 모달을 표시한다.
+    }
   }
 
   function closeInspectionDetail() {

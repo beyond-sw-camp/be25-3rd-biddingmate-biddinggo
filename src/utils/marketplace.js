@@ -238,6 +238,23 @@ export function normalizeInspectionPickItem(result = {}) {
   }
 }
 
+export function mergeInspectionItemDetail(item = {}, detail = {}) {
+  const detailItem = detail.item || {}
+  const detailCategory = detailItem.category || {}
+  const detailImage = detailItem.images?.[0]?.url || ''
+
+  return {
+    ...item,
+    brand: detailItem.brand || item.brand,
+    title: detailItem.name || item.title,
+    description: detailItem.description || item.description,
+    categoryLabel: detailCategory.name || item.categoryLabel,
+    image: detailImage || item.image,
+    carrier: detail.carrier || item.carrier,
+    trackingNumber: detail.trackingNumber || item.trackingNumber,
+  }
+}
+
 export function normalizeInspectionListItem(result = {}) {
   const status = normalizeEnumValue(result.inspectionStatus ?? result.status)
   const item = result.item || {}

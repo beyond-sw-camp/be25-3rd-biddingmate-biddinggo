@@ -1,4 +1,6 @@
 import { computed, ref } from 'vue'
+import { getInspectionDetail } from '../api/inspections'
+import { mergeInspectionItemDetail } from '../utils/marketplace'
 
 export function useInspectionState(items, { onShippingSubmit } = {}) {
   const activeFilter = ref('전체')
@@ -26,15 +28,19 @@ export function useInspectionState(items, { onShippingSubmit } = {}) {
     return 'is-pending'
   }
 
-  function summaryIcon(label) {
-    if (label === '총 검수 완료') return '✓'
-    if (label === '검수 대기') return '👜'
-    if (label === '검수 승인') return '⌛'
-    return '▣'
-  }
-
-  function openDetail(item) {
+  async function openDetail(item) {
     selectedItem.value = item
+
+    if (!item?.inspectionId) {
+      return
+    }
+
+    try {
+      const detail = await getInspectionDetail(item.inspectionId)
+      selectedItem.value = mergeInspectionItemDetail(item, detail)
+    } catch {
+      // 상세 조회 실패 시 목록 응답 기반 정보로만 모달을 유지한다.
+    }
   }
 
   function closeDetail() {
@@ -94,6 +100,5 @@ export function useInspectionState(items, { onShippingSubmit } = {}) {
     selectedItem,
     shippingForm,
     submitShippingInfo,
-    summaryIcon,
   }
 }
