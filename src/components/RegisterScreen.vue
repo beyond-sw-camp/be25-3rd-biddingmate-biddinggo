@@ -86,6 +86,8 @@ const {
   selectedInspectionId,
   selectedInspectionItem,
   selectInspectionItem,
+  setAuctionStartDate,
+  setAuctionStartTime,
   setPrimaryImage,
   showStepper,
   startAuctionFromInspection,
@@ -179,6 +181,8 @@ async function handleSubmit() {
       @cancel="returnFromAuctionStep"
       @select-bid-unit="selectedBidUnit = $event"
       @select-duration="selectedDuration = $event"
+      @set-start-date="setAuctionStartDate"
+      @set-start-time="setAuctionStartTime"
       @submit="handleSubmit"
       @toggle-field="toggleAuctionField"
     />

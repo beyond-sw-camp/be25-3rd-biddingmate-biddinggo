@@ -22,6 +22,8 @@ function createEmptyAuctionForm() {
     timeDeal: false,
     startPrice: '',
     buyNowPrice: '',
+    startDateInput: '',
+    startTimeInput: '',
     startDate: '',
     startTime: '',
     endDate: '',
@@ -97,6 +99,21 @@ function toLocalDateTimeString(value) {
   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
 }
 
+function toDateInputValue(value) {
+  const year = value.getFullYear()
+  const month = String(value.getMonth() + 1).padStart(2, '0')
+  const day = String(value.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
+function toTimeInputValue(value) {
+  const hours = String(value.getHours()).padStart(2, '0')
+  const minutes = String(value.getMinutes()).padStart(2, '0')
+
+  return `${hours}:${minutes}`
+}
+
 export function useRegisterFlow(initialMode, initialInspectionId) {
   const allowedModes = ['select', 'inspection', 'inspection-pick', 'direct', 'direct-auction']
   const currentMode = ref(allowedModes.includes(initialMode.value) ? initialMode.value : 'select')
@@ -170,8 +187,34 @@ export function useRegisterFlow(initialMode, initialInspectionId) {
     errorMessage.value = ''
   }
 
+  function getAuctionStartDate() {
+    if (!auctionForm.value.timeDeal) {
+      return new Date()
+    }
+
+    const { startDateInput, startTimeInput } = auctionForm.value
+
+    if (!startDateInput || !startTimeInput) {
+      return null
+    }
+
+    const startDate = new Date(`${startDateInput}T${startTimeInput}:00`)
+
+    return Number.isNaN(startDate.getTime()) ? null : startDate
+  }
+
   function syncAuctionSchedule() {
-    const startDate = new Date()
+    let startDate = getAuctionStartDate()
+
+    if (!startDate) {
+      startDate = new Date()
+
+      if (auctionForm.value.timeDeal) {
+        auctionForm.value.startDateInput = toDateInputValue(startDate)
+        auctionForm.value.startTimeInput = toTimeInputValue(startDate)
+      }
+    }
+
     const endDate = computeEndDate(startDate, selectedDuration.value)
 
     auctionForm.value.startDate = formatDatePart(startDate)
@@ -376,6 +419,10 @@ export function useRegisterFlow(initialMode, initialInspectionId) {
     if (!selectedBidUnit.value) {
       throw new Error('입찰 단위를 선택해주세요.')
     }
+
+    if (auctionForm.value.timeDeal && (!auctionForm.value.startDateInput || !auctionForm.value.startTimeInput)) {
+      throw new Error('타임딜 시작 일시를 선택해주세요.')
+    }
   }
 
   function buildImagePayload() {
@@ -386,7 +433,12 @@ export function useRegisterFlow(initialMode, initialInspectionId) {
   }
 
   function buildAuctionPayload(type) {
-    const startDate = new Date()
+    const startDate = getAuctionStartDate()
+
+    if (!startDate) {
+      throw new Error('유효한 경매 시작 일시를 선택해주세요.')
+    }
+
     const endDate = computeEndDate(startDate, selectedDuration.value)
 
     return {
@@ -526,7 +578,18 @@ export function useRegisterFlow(initialMode, initialInspectionId) {
 
     if (field === 'timeDeal') {
       selectedDuration.value = auctionForm.value.timeDeal ? '12시간' : '5일'
+      syncAuctionSchedule()
     }
+  }
+
+  function setAuctionStartDate(value) {
+    auctionForm.value.startDateInput = value
+    syncAuctionSchedule()
+  }
+
+  function setAuctionStartTime(value) {
+    auctionForm.value.startTimeInput = value
+    syncAuctionSchedule()
   }
 
   async function selectInspectionItem(index) {
@@ -628,6 +691,8 @@ export function useRegisterFlow(initialMode, initialInspectionId) {
     selectedInspectionId,
     selectedInspectionItem,
     selectInspectionItem,
+    setAuctionStartDate,
+    setAuctionStartTime,
     setPrimaryImage,
     showStepper,
     startAuctionFromInspection,
