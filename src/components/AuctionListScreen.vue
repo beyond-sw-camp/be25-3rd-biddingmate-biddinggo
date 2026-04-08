@@ -1,7 +1,8 @@
 <script setup>
+import { computed, ref } from 'vue'
 import AuctionCard from './AuctionCard.vue'
 
-defineProps({
+const props = defineProps({
   assets: {
     type: Object,
     required: true,
@@ -26,13 +27,33 @@ defineProps({
     type: String,
     default: '최신순',
   },
+  selectedSortKey: {
+    type: String,
+    default: 'latest',
+  },
+  sortOptions: {
+    type: Array,
+    default: () => [],
+  },
   wishlistProcessingIds: {
     type: Object,
     default: () => new Set(),
   },
 })
 
-defineEmits(['openDetail', 'selectCategory', 'toggleCategory', 'toggleSort', 'toggleWishlist'])
+const emit = defineEmits(['openDetail', 'selectCategory', 'selectSort', 'toggleCategory', 'toggleWishlist'])
+const isSortMenuOpen = ref(false)
+
+const effectiveSortOptions = computed(() => (
+  props.sortOptions.length
+    ? props.sortOptions
+    : [{ key: 'latest', label: props.selectedSortLabel }]
+))
+
+function selectSort(option) {
+  isSortMenuOpen.value = false
+  emit('selectSort', option)
+}
 </script>
 
 <template>
@@ -74,10 +95,32 @@ defineEmits(['openDetail', 'selectCategory', 'toggleCategory', 'toggleSort', 'to
           <span>상품명, 브랜드 검색</span>
         </div>
 
-        <button type="button" class="sort-button" @click="$emit('toggleSort')">
-          {{ selectedSortLabel }}
-          <img :src="assets.sortChevronIcon" alt="" />
-        </button>
+        <div class="sort-dropdown" @keydown.escape="isSortMenuOpen = false">
+          <button
+            type="button"
+            class="sort-button"
+            :aria-expanded="isSortMenuOpen"
+            aria-haspopup="listbox"
+            @click="isSortMenuOpen = !isSortMenuOpen"
+          >
+            {{ selectedSortLabel }}
+            <img :src="assets.sortChevronIcon" alt="" :class="{ 'is-open': isSortMenuOpen }" />
+          </button>
+          <div v-if="isSortMenuOpen" class="sort-menu" role="listbox">
+            <button
+              v-for="option in effectiveSortOptions"
+              :key="option.key"
+              type="button"
+              class="sort-menu-option"
+              :class="{ 'is-active': option.key === selectedSortKey }"
+              role="option"
+              :aria-selected="option.key === selectedSortKey"
+              @click="selectSort(option)"
+            >
+              {{ option.label }}
+            </button>
+          </div>
+        </div>
       </div>
 
       <p v-if="errorMessage" class="feedback-strip is-error">{{ errorMessage }}</p>

@@ -18,11 +18,22 @@ const expandedCategoryIds = ref(new Set())
 const items = ref([])
 const loading = ref(false)
 const selectedCategoryId = ref(readCategoryIdFromQuery())
-const selectedSort = ref('CREATED_AT')
+const selectedSortKey = ref('latest')
 const wishlistProcessingIds = ref(new Set())
 
 const categories = computed(() => buildCategoryTreeItems(categoryRows.value, selectedCategoryId.value, expandedCategoryIds.value))
-const selectedSortLabel = computed(() => (selectedSort.value === 'WISH_COUNT' ? '인기순' : '최신순'))
+const sortOptions = [
+  { key: 'wishlist', label: '관심순', sortBy: 'WISH_COUNT', order: 'DESC' },
+  { key: 'popularity', label: '인기순', sortBy: 'POPULARITY', order: 'DESC' },
+  { key: 'latest', label: '최신순', sortBy: 'CREATED_AT', order: 'DESC' },
+  { key: 'oldest', label: '오래된 순', sortBy: 'CREATED_AT', order: 'ASC' },
+  { key: 'price-low', label: '가격 낮은 순', sortBy: 'PRICE', order: 'ASC' },
+  { key: 'price-high', label: '가격 높은 순', sortBy: 'PRICE', order: 'DESC' },
+]
+const selectedSortOption = computed(() => (
+  sortOptions.find((option) => option.key === selectedSortKey.value) || sortOptions[2]
+))
+const selectedSortLabel = computed(() => selectedSortOption.value.label)
 
 function readCategoryIdFromQuery() {
   const categoryId = Number(route.query.categoryId)
@@ -87,9 +98,9 @@ async function loadAuctionList() {
     const page = await getAuctionList({
       page: 1,
       size: 12,
-      sortBy: selectedSort.value,
+      sortBy: selectedSortOption.value.sortBy,
       status: 'ON_GOING',
-      order: 'DESC',
+      order: selectedSortOption.value.order,
       categoryId: selectedCategoryId.value,
     })
 
@@ -143,8 +154,12 @@ function toggleCategory(category) {
   expandedCategoryIds.value = next
 }
 
-function toggleSort() {
-  selectedSort.value = selectedSort.value === 'CREATED_AT' ? 'WISH_COUNT' : 'CREATED_AT'
+function selectSort(option) {
+  if (!option?.key || selectedSortKey.value === option.key) {
+    return
+  }
+
+  selectedSortKey.value = option.key
   loadAuctionList()
 }
 
@@ -211,12 +226,14 @@ onMounted(async () => {
     :error-message="errorMessage"
     :items="items"
     :loading="loading"
+    :selected-sort-key="selectedSortKey"
     :selected-sort-label="selectedSortLabel"
+    :sort-options="sortOptions"
     :wishlist-processing-ids="wishlistProcessingIds"
     @open-detail="openDetail"
     @select-category="selectCategory"
+    @select-sort="selectSort"
     @toggle-category="toggleCategory"
-    @toggle-sort="toggleSort"
     @toggle-wishlist="toggleWishlist"
   />
 </template>
