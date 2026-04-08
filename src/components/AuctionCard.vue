@@ -34,7 +34,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['select', 'toggleWishlist'])
+const emit = defineEmits(['select', 'toggleWishlist', 'toggle-wishlist'])
 
 function handleSelect() {
   emit('select', props.item)
@@ -42,6 +42,7 @@ function handleSelect() {
 
 function handleToggleWishlist() {
   emit('toggleWishlist', props.item)
+  emit('toggle-wishlist', props.item)
 }
 </script>
 

@@ -51,6 +51,71 @@ export async function getUserWishlists(params = {}) {
   return unwrap(data)
 }
 
+export async function getUserPurchases(params = {}) {
+  const suffix = buildQueryString(params)
+  const data = await request(`/api/v1/winner-deals/purchases${suffix}`, {
+    auth: true,
+    method: 'GET',
+  })
+
+  return unwrap(data)
+}
+
+export async function getUserSales(params = {}) {
+  const suffix = buildQueryString(params)
+  const data = await request(`/api/v1/winner-deals/sales${suffix}`, {
+    auth: true,
+    method: 'GET',
+  })
+
+  return unwrap(data)
+}
+
+export async function getWinnerDealDetail(winnerDealId) {
+  const data = await request(`/api/v1/winner-deals/${winnerDealId}`, {
+    auth: true,
+    method: 'GET',
+  })
+
+  return unwrap(data)
+}
+
+export async function updateWinnerDealShippingAddress(winnerDealId, payload) {
+  const data = await request(`/api/v1/winner-deals/${winnerDealId}/shipping-address`, {
+    auth: true,
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  })
+
+  return unwrap(data)
+}
+
+export async function getUserAuctionInquiries(params = {}) {
+  const suffix = buildQueryString(params)
+  const data = await request(`/api/v1/members/me/auction-inquiries${suffix}`, {
+    auth: true,
+    method: 'GET',
+  })
+
+  return unwrap(data)
+}
+
+export async function createAuctionInquiryAnswer(inquiryId, payload) {
+  const data = await request(`/api/v1/inquiries/${inquiryId}`, {
+    auth: true,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  })
+
+  return unwrap(data)
+}
+
 export async function getUserAddresses(params = {}) {
   const suffix = buildQueryString(params)
   const data = await request(`/api/v1/addresses${suffix}`, {

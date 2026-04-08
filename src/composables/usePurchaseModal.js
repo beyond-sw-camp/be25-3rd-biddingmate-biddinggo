@@ -1,50 +1,83 @@
 import { reactive, ref } from 'vue'
 
-export function usePurchaseModal() {
+export function usePurchaseModal({ onSaveAddress } = {}) {
   const selectedItem = ref(null)
   const modalMode = ref('detail')
+  const savingAddress = ref(false)
+  const modalErrorMessage = ref('')
   const shippingForm = reactive({
-    name: '김다정',
-    phone: '010-1111-2222',
-    zip: '06234',
-    address1: '서울특별시 강남구 테헤란로 123',
-    address2: '아크로타워 1502호',
+    name: '',
+    phone: '',
+    zip: '',
+    address1: '',
+    address2: '',
   })
+
+  function syncShippingForm(address = {}) {
+    shippingForm.name = address.name || address.recipient || ''
+    shippingForm.phone = address.phone || address.tel || ''
+    shippingForm.zip = address.zip || address.zipcode || ''
+    shippingForm.address1 = address.address1 || address.address || ''
+    shippingForm.address2 = address.address2 || address.detailAddress || ''
+  }
 
   function openModal(item) {
     selectedItem.value = item
     modalMode.value = 'detail'
+    modalErrorMessage.value = ''
+    syncShippingForm(item?.shippingAddress || {})
   }
 
   function closeModal() {
     selectedItem.value = null
     modalMode.value = 'detail'
+    modalErrorMessage.value = ''
   }
 
   function selectAddress(address) {
-    shippingForm.zip = address.zip
-    shippingForm.address1 = address.address1
-    shippingForm.address2 = address.address2
+    syncShippingForm(address)
     modalMode.value = 'shipping-form'
   }
 
-  function saveAddress() {
-    if (!selectedItem.value) return
+  function updateForm(field, value) {
+    if (field in shippingForm) {
+      shippingForm[field] = value
+    }
+  }
 
-    selectedItem.value.shippingAddress = {
+  async function saveAddress() {
+    if (!selectedItem.value || savingAddress.value) return
+
+    const nextAddress = {
       name: shippingForm.name,
       phone: shippingForm.phone,
       zip: shippingForm.zip,
       address1: shippingForm.address1,
       address2: shippingForm.address2,
     }
-    modalMode.value = 'detail'
+
+    savingAddress.value = true
+    modalErrorMessage.value = ''
+
+    try {
+      if (onSaveAddress) {
+        await onSaveAddress(selectedItem.value, nextAddress)
+      }
+
+      selectedItem.value.shippingAddress = nextAddress
+      selectedItem.value.modalType = 'readonly'
+      modalMode.value = 'detail'
+    } catch (error) {
+      modalErrorMessage.value = error?.message || '배송지 정보를 등록하지 못했습니다.'
+    } finally {
+      savingAddress.value = false
+    }
   }
 
   function confirmPurchase() {
     if (!selectedItem.value) return
 
-    selectedItem.value.status = '구매 확정'
+    selectedItem.value.status = '거래 완료'
     selectedItem.value.modalType = 'readonly'
     closeModal()
   }
@@ -53,9 +86,12 @@ export function usePurchaseModal() {
     selectedItem,
     modalMode,
     shippingForm,
+    savingAddress,
+    modalErrorMessage,
     openModal,
     closeModal,
     selectAddress,
+    updateForm,
     saveAddress,
     confirmPurchase,
   }

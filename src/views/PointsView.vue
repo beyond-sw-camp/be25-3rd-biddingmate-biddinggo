@@ -29,15 +29,11 @@ const page = ref(1)
 const pageSize = 10
 const showIssuedVirtualAccount = ref(false)
 
-const typeLabels = {
-  BID: '입찰',
-  CANCEL_BID: '입찰 취소',
-  CHARGE: '충전',
-  EXCHANGE: '인출',
-  POINT_EXCHANGE: '인출',
-  WITHDRAW: '인출',
-  REFUND: '환불',
-  PAYMENT: '결제',
+const pointTypeMeta = {
+  CHARGE: { label: '충전', tone: 'plus' },
+  BID: { label: '입찰', tone: 'minus' },
+  EXCHANGE: { label: '인출', tone: 'minus' },
+  REFUND: { label: '환불', tone: 'plus' },
 }
 
 function formatDate(date) {
@@ -53,16 +49,16 @@ function formatAmount(value) {
 }
 
 function normalizePointHistory(item = {}) {
-  const amount = Number(item.amount ?? 0)
-  const tone = amount < 0 ? 'minus' : 'plus'
-  const absoluteAmount = Math.abs(amount)
+  const type = String(item.type || '').trim().toUpperCase()
+  const meta = pointTypeMeta[type] || { label: item.type || '포인트', tone: Number(item.amount ?? 0) < 0 ? 'minus' : 'plus' }
+  const absoluteAmount = Math.abs(Number(item.amount ?? 0))
 
   return {
     id: item.id,
-    title: typeLabels[item.type] || item.type || '포인트',
+    title: meta.label,
     date: formatDate(item.createdAt),
-    amount: `${tone === 'minus' ? '-' : '+'}${absoluteAmount.toLocaleString('ko-KR')} 원`,
-    tone,
+    amount: `${meta.tone === 'minus' ? '-' : '+'}${absoluteAmount.toLocaleString('ko-KR')} 원`,
+    tone: meta.tone,
   }
 }
 

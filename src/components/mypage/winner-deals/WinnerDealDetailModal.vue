@@ -8,7 +8,7 @@
       <img :src="item.image || watchImage" :alt="item.name" class="purchase-modal__image" />
 
       <div class="purchase-modal__summary">
-        <p class="purchase-modal__category">{{ item.category || '손목시계 > 세계 > 남성용 시계' }}</p>
+        <p class="purchase-modal__category">{{ item.category || '낙찰 거래' }}</p>
         <StatusBadge :status="item.status" />
         <h2>{{ item.name }}</h2>
         <div class="purchase-price-box">
@@ -44,13 +44,14 @@
       <div class="purchase-info-block">
         <h3>배송 정보</h3>
         <div v-if="item.shippingInfo" class="purchase-info-card">
-          <strong>{{ item.shippingInfo.courier }}</strong>
-          <strong>{{ item.shippingInfo.trackingNumber }}</strong>
+          <strong>{{ item.shippingInfo.courier || '-' }}</strong>
+          <strong>{{ item.shippingInfo.trackingNumber || '-' }}</strong>
         </div>
 
         <div
           v-else-if="variant === 'sale' && item.modalType === 'seller-needs-shipping-info'"
-          class="purchase-info-card purchase-info-card--alert winnerdeal-info-card--alert">
+          class="purchase-info-card purchase-info-card--alert winnerdeal-info-card--alert"
+        >
           <p>배송 정보를 등록해 주세요.</p>
         </div>
       </div>
@@ -58,11 +59,13 @@
 
     <div v-if="showActions" class="purchase-modal__actions">
       <button class="secondary-button purchase-modal__action" type="button" @click="$emit('close')">취소</button>
+      <p v-if="errorMessage" class="purchase-modal__error">{{ errorMessage }}</p>
 
       <button
         v-if="variant === 'purchase' && item.modalType === 'pending-no-address'"
         class="primary-button purchase-modal__action"
         type="button"
+        :disabled="saving"
         @click="$emit('next', 'shipping-form')"
       >
         배송지 정보 등록
@@ -72,6 +75,7 @@
         v-else-if="variant === 'purchase' && item.modalType === 'delivery-complete-awaiting-confirm'"
         class="primary-button purchase-modal__action"
         type="button"
+        :disabled="saving"
         @click="$emit('confirm-purchase')"
       >
         구매 확정
@@ -81,6 +85,7 @@
         v-else-if="variant === 'sale' && item.modalType === 'seller-needs-shipping-info'"
         class="primary-button purchase-modal__action"
         type="button"
+        :disabled="saving"
         @click="$emit('next', 'shipping-form')"
       >
         배송 정보 등록
@@ -100,17 +105,27 @@
     <div class="purchase-form">
       <label>
         <span>이름 <em>*</em></span>
-        <input :value="form.name" readonly type="text" />
+        <input
+          :value="form.name"
+          type="text"
+          placeholder="수령인을 입력해 주세요"
+          @input="emitForm('name', $event.target.value)"
+        />
       </label>
       <label>
         <span>전화번호 <em>*</em></span>
-        <input :value="form.phone" readonly type="text" />
+        <input
+          :value="form.phone"
+          type="text"
+          placeholder="연락처를 입력해 주세요"
+          @input="emitForm('phone', $event.target.value)"
+        />
       </label>
       <label>
         <span>주소 <em>*</em></span>
         <div class="purchase-address-preview">
           <div>
-            <strong>{{ form.zip }}</strong>
+            <strong>{{ form.zip || '배송지를 선택해 주세요' }}</strong>
             <p>{{ form.address1 }}</p>
             <p>{{ form.address2 }}</p>
           </div>
@@ -119,8 +134,9 @@
       </label>
     </div>
 
-    <button class="primary-button purchase-form__submit" type="button" @click="$emit('save-address')">
-      배송지 정보 등록
+    <p v-if="errorMessage" class="purchase-modal__error">{{ errorMessage }}</p>
+    <button class="primary-button purchase-form__submit" type="button" :disabled="saving" @click="$emit('save-address')">
+      {{ saving ? '등록 중...' : '배송지 정보 등록' }}
     </button>
   </BaseModal>
 
@@ -178,18 +194,19 @@
       </label>
 
       <label>
-        <span>송장 번호 <em>*</em></span>
+        <span>운장 번호 <em>*</em></span>
         <input
           :value="form.trackingNumber"
           type="text"
-          placeholder="송장 번호를 입력해 주세요."
+          placeholder="운송장 번호를 입력해 주세요"
           @input="emitForm('trackingNumber', $event.target.value)"
         />
       </label>
     </div>
 
-    <button class="primary-button purchase-form__submit" type="button" @click="$emit('save-shipping')">
-      등록하기
+    <p v-if="errorMessage" class="purchase-modal__error">{{ errorMessage }}</p>
+    <button class="primary-button purchase-form__submit" type="button" :disabled="saving" @click="$emit('save-shipping')">
+      {{ saving ? '등록 중...' : '등록하기' }}
     </button>
   </BaseModal>
 </template>
@@ -202,6 +219,14 @@ import { modalAddressBook, watchImage } from '../../../data/mypage'
 import { courierOptions } from '../../../data/salesHistory'
 
 const props = defineProps({
+  errorMessage: {
+    type: String,
+    default: '',
+  },
+  form: {
+    type: Object,
+    required: true,
+  },
   item: {
     type: Object,
     required: true,
@@ -210,9 +235,9 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  form: {
-    type: Object,
-    required: true,
+  saving: {
+    type: Boolean,
+    default: false,
   },
   variant: {
     type: String,

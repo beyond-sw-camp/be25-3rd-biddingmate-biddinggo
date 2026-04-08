@@ -3,17 +3,25 @@
     :has-next="hasNext"
     :items="wishlistItems"
     :loading="loading"
+    :wishlist-processing-ids="wishlistProcessingIds"
     @load-more="loadMoreWishlists"
+    @open-detail="openAuctionDetail"
+    @toggle-wishlist="toggleWishlist"
   />
 </template>
 
 <script setup>
 import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { createWishlist, deleteWishlist } from '../api/wishlists'
 import { getUserWishlists } from '../api/users'
 import noImage from '../assets/no-image.svg'
 import WishlistScreen from '../components/mypage/wishlists/WishlistScreen.vue'
+import { authState } from '../lib/authSession'
 
+const router = useRouter()
 const wishlistItems = ref([])
+const wishlistProcessingIds = ref(new Set())
 const hasNext = ref(true)
 const loading = ref(false)
 const page = ref(1)
@@ -69,26 +77,43 @@ function formatRemainingTime(endDate) {
 
 function normalizeWishlistItem(item = {}) {
   const price = item.buyNowPrice || item.startPrice
+  const title = [item.brand, item.name].filter(Boolean).join(' ') || `상품 #${item.itemId}`
+  const bidCount = `입찰 ${Number(item.bidCount || 0).toLocaleString('ko-KR')}건`
+  const auctionType = String(item.type || '').toUpperCase()
 
   return {
     id: item.auctionId,
     auctionId: item.auctionId,
-    bidCount: `입찰 ${Number(item.bidCount || 0).toLocaleString('ko-KR')}회`,
+    bidCount,
+    bids: bidCount,
     brand: item.brand || '',
     currentPrice: formatAmount(price),
     createdAt: item.createdAt,
     deadlineMinutes: Number.MAX_SAFE_INTEGER,
     highlighted: item.status === 'ON_GOING',
+    highlight: item.status === 'ON_GOING',
     image: item.representativeImageUrl || noImage,
     interestCount: Number(item.wishCount || 0),
+    isInspected: auctionType === 'INSPECTION',
+    isTimeDeal: auctionType === 'TIME_DEAL',
+    isWished: true,
     itemId: item.itemId,
-    name: [item.brand, item.name].filter(Boolean).join(' ') || `상품 #${item.itemId}`,
+    name: title,
     numericPrice: Number(price || 0),
+    price: formatAmount(price),
     status: item.status,
     tag: statusLabels[item.status] || item.status || '',
     time: formatRemainingTime(item.endDate),
+    title,
     type: item.type,
+    wishCount: Number(item.wishCount || 0),
   }
+}
+
+function updateWishlistState(auctionId, patch) {
+  wishlistItems.value = wishlistItems.value.map((item) => (
+    item.auctionId === auctionId ? { ...item, ...patch } : item
+  ))
 }
 
 async function loadMoreWishlists() {
@@ -119,6 +144,63 @@ async function loadMoreWishlists() {
     hasNext.value = false
   } finally {
     loading.value = false
+  }
+}
+
+async function toggleWishlist(item) {
+  if (!item?.auctionId) {
+    return
+  }
+
+  if (!authState.isAuthenticated) {
+    router.push('/login')
+    return
+  }
+
+  const auctionId = item.auctionId
+  const nextProcessing = new Set(wishlistProcessingIds.value)
+
+  if (nextProcessing.has(auctionId)) {
+    return
+  }
+
+  nextProcessing.add(auctionId)
+  wishlistProcessingIds.value = nextProcessing
+
+  const previousItems = [...wishlistItems.value]
+  const previousState = {
+    isWished: Boolean(item.isWished),
+    wishCount: Number(item.wishCount || 0),
+    interestCount: Number(item.interestCount || item.wishCount || 0),
+  }
+
+  try {
+    if (item.isWished) {
+      wishlistItems.value = wishlistItems.value.filter((entry) => entry.auctionId !== auctionId)
+      await deleteWishlist(auctionId)
+      return
+    }
+
+    updateWishlistState(auctionId, {
+      isWished: true,
+      wishCount: previousState.wishCount + 1,
+      interestCount: previousState.interestCount + 1,
+    })
+    await createWishlist(auctionId)
+  } catch {
+    wishlistItems.value = previousItems
+  } finally {
+    const doneProcessing = new Set(wishlistProcessingIds.value)
+    doneProcessing.delete(auctionId)
+    wishlistProcessingIds.value = doneProcessing
+  }
+}
+
+function openAuctionDetail(item) {
+  const auctionId = item?.auctionId || item?.id
+
+  if (auctionId) {
+    router.push(`/auctions/${auctionId}`)
   }
 }
 

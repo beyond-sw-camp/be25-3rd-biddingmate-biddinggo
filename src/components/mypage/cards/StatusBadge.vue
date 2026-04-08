@@ -16,6 +16,8 @@ const normalizedStatusMap = {
   거래완료: '거래 완료',
   판매완료: '판매 완료',
   배송중: '배송 중',
+  배송완료: '배송 완료',
+  발송대기: '발송 대기',
 }
 
 const statusToneMap = {
@@ -34,8 +36,14 @@ const statusToneMap = {
   '구매 확정': 'success',
   '정산 완료': 'success',
   '답변 완료': 'success',
+  '취소': 'danger',
 }
 
-const normalizedLabel = computed(() => normalizedStatusMap[props.status] ?? props.status)
+const normalizedLabel = computed(() => {
+  const rawStatus = String(props.status || '').trim()
+  const compactStatus = rawStatus.replace(/\s+/g, '')
+
+  return normalizedStatusMap[compactStatus] ?? rawStatus
+})
 const tone = computed(() => statusToneMap[normalizedLabel.value] ?? 'default')
 </script>
