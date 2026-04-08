@@ -15,13 +15,43 @@ const items = ref([])
 const loading = ref(false)
 const wishlistProcessingIds = ref(new Set())
 
-const sortOptions = [{ key: 'latest', label: '최신순' }]
-const selectedSortKey = ref('latest')
-const selectedSortLabel = computed(() => sortOptions[0].label)
+const sortOptions = [
+  { key: 'wishlist', label: '관심순', sortBy: 'WISH_COUNT', order: 'DESC' },
+  { key: 'popularity', label: '인기순', sortBy: 'POPULARITY', order: 'DESC' },
+  { key: 'latest', label: '최신순', sortBy: 'CREATED_AT', order: 'DESC' },
+  { key: 'oldest', label: '오래된 순', sortBy: 'CREATED_AT', order: 'ASC' },
+  { key: 'price-low', label: '가격 낮은 순', sortBy: 'PRICE', order: 'ASC' },
+  { key: 'price-high', label: '가격 높은 순', sortBy: 'PRICE', order: 'DESC' },
+]
+const selectedSortKey = ref(readSortKeyFromQuery())
+const selectedSortOption = computed(() => (
+  sortOptions.find((option) => option.key === selectedSortKey.value) || sortOptions[2]
+))
+const selectedSortLabel = computed(() => selectedSortOption.value.label)
 const searchQuery = computed(() => String(route.query.q || '').trim())
 const toolbarSearchText = computed(() => (
   searchQuery.value ? `"${searchQuery.value}" 검색 결과` : '검색 결과'
 ))
+
+function readSortKeyFromQuery() {
+  const sortKey = String(route.query.sort || '')
+
+  return sortOptions.some((option) => option.key === sortKey) ? sortKey : 'latest'
+}
+
+function buildSearchQuery({ q = searchQuery.value, sortKey = selectedSortKey.value } = {}) {
+  const query = {}
+
+  if (q) {
+    query.q = q
+  }
+
+  if (sortKey && sortKey !== 'latest') {
+    query.sort = sortKey
+  }
+
+  return query
+}
 
 function updateAuctionWishlistState(auctionId, patch) {
   items.value = items.value.map((item) => (
@@ -70,6 +100,8 @@ async function loadSearchResults() {
     const page = await searchAuctions(searchQuery.value, {
       page: 1,
       size: 12,
+      sortBy: selectedSortOption.value.sortBy,
+      order: selectedSortOption.value.order,
     })
     const nextItems = (page?.content || []).map(normalizeAuctionCard)
     items.value = nextItems
@@ -93,6 +125,7 @@ function openDetail(item) {
     query: {
       from: 'search',
       q: searchQuery.value,
+      sort: selectedSortKey.value !== 'latest' ? selectedSortKey.value : '',
     },
   })
 }
@@ -147,17 +180,33 @@ async function toggleWishlist(item) {
   }
 }
 
-function noop() {}
+function selectSort(option) {
+  if (!option?.key || selectedSortKey.value === option.key) {
+    return
+  }
+
+  selectedSortKey.value = option.key
+  router.replace({
+    name: 'auction-search',
+    query: buildSearchQuery(),
+  })
+}
 
 onMounted(loadSearchResults)
 
 watch(
-  () => route.query.q,
-  (next, previous) => {
-    if (String(next || '') === String(previous || '')) {
+  () => [route.query.q, route.query.sort],
+  () => {
+    const nextSortKey = readSortKeyFromQuery()
+
+    if (selectedSortKey.value === nextSortKey) {
+      if (searchQuery.value) {
+        loadSearchResults()
+      }
       return
     }
 
+    selectedSortKey.value = nextSortKey
     loadSearchResults()
   },
 )
@@ -177,9 +226,9 @@ watch(
     :toolbar-search-text="toolbarSearchText"
     :wishlist-processing-ids="wishlistProcessingIds"
     @open-detail="openDetail"
-    @select-category="noop"
-    @select-sort="noop"
-    @toggle-category="noop"
+    @select-category="() => {}"
+    @select-sort="selectSort"
+    @toggle-category="() => {}"
     @toggle-wishlist="toggleWishlist"
   />
 </template>

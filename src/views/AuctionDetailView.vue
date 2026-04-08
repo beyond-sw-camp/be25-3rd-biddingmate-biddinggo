@@ -101,9 +101,15 @@ async function toggleWishlist() {
 
 function backToList() {
   if (route.query.from === 'search' && String(route.query.q || '').trim()) {
+    const query = { q: String(route.query.q || '').trim() }
+
+    if (String(route.query.sort || '').trim()) {
+      query.sort = String(route.query.sort || '').trim()
+    }
+
     router.push({
       name: 'auction-search',
-      query: { q: String(route.query.q || '').trim() },
+      query,
     })
     return
   }
