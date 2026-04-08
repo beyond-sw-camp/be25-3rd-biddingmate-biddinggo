@@ -9,6 +9,10 @@ const state = reactive({
   type: 'Bearer',
   memberId: null,
   username: '',
+  name: '',
+  nickname: '',
+  imageUrl: '',
+  status: '',
   authorities: [],
   issuedAt: 0,
   expiredAt: 0,
@@ -63,6 +67,7 @@ function readJwtTimeClaims(accessToken) {
     return {
       issuedAt: Number(claims.iat || 0) * 1000,
       expiredAt: Number(claims.exp || 0) * 1000,
+      status: String(claims.status || ''),
     }
   } catch {
     return {}
@@ -86,6 +91,10 @@ function persistSession() {
       type: state.type,
       memberId: state.memberId,
       username: state.username,
+      name: state.name,
+      nickname: state.nickname,
+      imageUrl: state.imageUrl,
+      status: state.status,
       authorities: state.authorities,
       issuedAt: state.issuedAt,
       expiredAt: state.expiredAt,
@@ -102,6 +111,10 @@ function applySession(snapshot = {}) {
   state.type = String(source.type || 'Bearer')
   state.memberId = source.memberId === null || source.memberId === undefined ? null : Number(source.memberId)
   state.username = String(source.username || '')
+  state.name = String(source.name || '')
+  state.nickname = String(source.nickname || '')
+  state.imageUrl = String(source.imageUrl || '')
+  state.status = String(source.status || jwtTimeClaims.status || '')
   state.authorities = normalizeAuthorities(source.authorities)
   state.issuedAt = Number(source.issuedAt || jwtTimeClaims.issuedAt || 0)
   state.expiredAt = Number(source.expiredAt || jwtTimeClaims.expiredAt || 0)
@@ -134,6 +147,10 @@ export function setSession(loginResponse = {}) {
     type: loginResponse.type ?? state.type,
     memberId: loginResponse.memberId ?? state.memberId,
     username: loginResponse.username ?? state.username,
+    name: loginResponse.name ?? state.name,
+    nickname: loginResponse.nickname ?? state.nickname,
+    imageUrl: loginResponse.imageUrl ?? state.imageUrl,
+    status: loginResponse.status ?? state.status,
     authorities: loginResponse.authorities ?? state.authorities,
     issuedAt: loginResponse.issuedAt ?? state.issuedAt,
     expiredAt: loginResponse.expiredAt ?? state.expiredAt,
@@ -145,6 +162,10 @@ export function setSession(loginResponse = {}) {
 export function setUserInfo(userInfo = {}) {
   state.memberId = userInfo.memberId === null || userInfo.memberId === undefined ? state.memberId : Number(userInfo.memberId)
   state.username = String(userInfo.username || state.username || '')
+  state.name = String(userInfo.name || state.name || '')
+  state.nickname = String(userInfo.nickname || state.nickname || '')
+  state.imageUrl = String(userInfo.imageUrl || state.imageUrl || '')
+  state.status = String(userInfo.status || state.status || '')
   state.authorities = normalizeAuthorities(userInfo.role ?? state.authorities)
   state.isAuthenticated = Boolean(state.accessToken)
   state.initialized = true

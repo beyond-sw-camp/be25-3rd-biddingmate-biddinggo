@@ -83,7 +83,7 @@ defineEmits(['navigate', 'open-login', 'open-mypage', 'logout'])
 
 const isNotificationOpen = ref(false)
 const displayUsername = computed(() => {
-  const username = String(props.auth.username || '').trim()
+  const username = String(props.auth.nickname || props.auth.name || props.auth.username || '').trim()
 
   return username ? username.slice(0, 10) : '로그인됨'
 })

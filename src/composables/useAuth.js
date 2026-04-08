@@ -27,7 +27,7 @@ async function restoreSessionFromRefresh() {
 }
 
 export function useAuth() {
-  const displayName = computed(() => authState.username || '회원')
+  const displayName = computed(() => authState.nickname || authState.name || authState.username || '회원')
 
   async function initializeAuth() {
     if (authState.initialized) {
@@ -81,7 +81,7 @@ export function useAuth() {
         // refresh 쿠키가 아직 없더라도 access token만으로 즉시 테스트는 가능하다.
       }
 
-      return true
+      return authState
     } catch (error) {
       clearSession()
       throw error

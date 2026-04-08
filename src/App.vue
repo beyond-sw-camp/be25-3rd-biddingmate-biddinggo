@@ -30,8 +30,19 @@ const { auth, initializeAuth, logout } = useAuth()
 const currentNavKey = computed(() => String(route.meta.navKey ?? ''))
 const currentScreen = computed(() => String(route.name ?? ''))
 
-onMounted(() => {
-  initializeAuth()
+onMounted(async () => {
+  await initializeAuth()
+
+  if (
+    auth.isAuthenticated
+    && auth.status === 'PENDING'
+    && !['profile-setup', 'auth-callback', 'login'].includes(String(route.name || ''))
+  ) {
+    router.replace({
+      name: 'profile-setup',
+      query: { redirect: route.fullPath },
+    })
+  }
 })
 
 function navigate(path) {
@@ -55,9 +66,6 @@ function openMyPage() {
 
 async function handleLogout() {
   await logout()
-
-  if (String(route.path).startsWith('/mypage')) {
-    router.push('/')
-  }
+  window.location.reload()
 }
 </script>
