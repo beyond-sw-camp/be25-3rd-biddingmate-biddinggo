@@ -4,11 +4,13 @@
     :auth="auth"
     :current-nav-key="currentNavKey"
     :current-screen="currentScreen"
+    :initial-search-query="currentSearchQuery"
     :navigation-items="navigationItems"
     @navigate="navigate"
     @open-login="openLogin"
     @open-mypage="openMyPage"
     @logout="handleLogout"
+    @search="searchAuctions"
   >
     <RouterView />
   </AppShell>
@@ -32,15 +34,40 @@ const { auth, initializeAuth, logout } = useAuth()
 
 const currentNavKey = computed(() => String(route.meta.navKey ?? ''))
 const currentScreen = computed(() => String(route.name ?? ''))
+const currentSearchQuery = computed(() => String(route.query.q || ''))
 
-onMounted(() => {
-  initializeAuth()
+onMounted(async () => {
+  await initializeAuth()
+
+  if (
+    auth.isAuthenticated
+    && auth.status === 'PENDING'
+    && !['profile-setup', 'auth-callback', 'login'].includes(String(route.name || ''))
+  ) {
+    router.replace({
+      name: 'profile-setup',
+      query: { redirect: route.fullPath },
+    })
+  }
 })
 
 function navigate(path) {
   if (typeof path === 'string' && path) {
     router.push(path)
   }
+}
+
+function searchAuctions(query) {
+  const keyword = String(query || '').trim()
+
+  if (!keyword) {
+    return
+  }
+
+  router.push({
+    name: 'auction-search',
+    query: { q: keyword },
+  })
 }
 
 function openLogin() {
@@ -58,9 +85,6 @@ function openMyPage() {
 
 async function handleLogout() {
   await logout()
-
-  if (String(route.path).startsWith('/mypage')) {
-    router.push('/')
-  }
+  window.location.reload()
 }
 </script>

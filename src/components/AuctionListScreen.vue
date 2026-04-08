@@ -1,7 +1,8 @@
 <script setup>
+import { computed, ref, watch } from 'vue'
 import AuctionCard from './AuctionCard.vue'
 
-defineProps({
+const props = defineProps({
   assets: {
     type: Object,
     required: true,
@@ -9,6 +10,10 @@ defineProps({
   categories: {
     type: Array,
     required: true,
+  },
+  showCategories: {
+    type: Boolean,
+    default: true,
   },
   errorMessage: {
     type: String,
@@ -26,43 +31,125 @@ defineProps({
     type: String,
     default: '최신순',
   },
+  selectedSortKey: {
+    type: String,
+    default: 'latest',
+  },
+  sortOptions: {
+    type: Array,
+    default: () => [],
+  },
+  wishlistProcessingIds: {
+    type: Object,
+    default: () => new Set(),
+  },
+  toolbarSearchText: {
+    type: String,
+    default: '상품명, 브랜드 검색',
+  },
+  toolbarSearchValue: {
+    type: String,
+    default: '',
+  },
 })
 
-defineEmits(['openDetail', 'selectCategory', 'toggleSort'])
+const emit = defineEmits(['openDetail', 'selectCategory', 'selectSort', 'submitSearch', 'toggleCategory', 'toggleWishlist'])
+const isSortMenuOpen = ref(false)
+const searchKeyword = ref(props.toolbarSearchValue)
+
+const effectiveSortOptions = computed(() => (
+  props.sortOptions.length
+    ? props.sortOptions
+    : [{ key: 'latest', label: props.selectedSortLabel }]
+))
+
+watch(
+  () => props.toolbarSearchValue,
+  (value) => {
+    searchKeyword.value = value
+  },
+)
+
+function selectSort(option) {
+  isSortMenuOpen.value = false
+  emit('selectSort', option)
+}
+
+function submitSearch() {
+  emit('submitSearch', searchKeyword.value.trim())
+}
 </script>
 
 <template>
-  <section class="list-screen">
-    <div class="category-column">
+  <section class="list-screen" :class="{ 'is-search-mode': !showCategories }">
+    <div v-if="showCategories" class="category-column">
       <button
-        v-for="(item, index) in categories"
-        :key="`${item.label}-${index}`"
+        v-for="item in categories"
+        :key="item.id"
         type="button"
         class="category-button"
         :class="[
           { 'is-active': item.active },
-          { 'is-disabled': !item.selectable },
-          item.indent === 1 ? 'is-indent-1' : '',
-          item.indent === 2 ? 'is-indent-2' : '',
+          { 'is-disabled': !item.selectable && !item.hasChildren },
+          { 'is-branch': item.hasChildren },
+          { 'is-expanded': item.hasChildren && item.expanded },
+          item.depth === 1 ? 'is-indent-1' : '',
+          item.depth === 2 ? 'is-indent-2' : '',
         ]"
-        :disabled="!item.selectable"
-        @click="$emit('selectCategory', item)"
+        :disabled="!item.selectable && !item.hasChildren"
+        :aria-expanded="item.hasChildren ? item.expanded : undefined"
+        @click="item.hasChildren ? $emit('toggleCategory', item) : $emit('selectCategory', item)"
       >
-        {{ item.label }}
+        <span>{{ item.label }}</span>
+        <span
+          v-if="item.hasChildren"
+          class="category-toggle-icon"
+          :class="{ 'is-expanded': item.expanded }"
+          aria-hidden="true"
+        >
+          ›
+        </span>
       </button>
     </div>
 
-    <div class="list-column">
+    <div class="list-column" :class="{ 'is-full': !showCategories }">
       <div class="list-toolbar">
-        <div class="list-search">
+        <form class="list-search" role="search" @submit.prevent="submitSearch">
           <img :src="assets.listSearchIcon" alt="" class="list-search-icon" />
-          <span>상품명, 브랜드 검색</span>
-        </div>
+          <input
+            v-model="searchKeyword"
+            type="search"
+            class="list-search-input"
+            :placeholder="toolbarSearchText"
+          />
+        </form>
 
-        <button type="button" class="sort-button" @click="$emit('toggleSort')">
-          {{ selectedSortLabel }}
-          <img :src="assets.sortChevronIcon" alt="" />
-        </button>
+        <div class="sort-dropdown" @keydown.escape="isSortMenuOpen = false">
+          <button
+            type="button"
+            class="sort-button"
+            :aria-expanded="isSortMenuOpen"
+            aria-haspopup="listbox"
+            @click="isSortMenuOpen = !isSortMenuOpen"
+          >
+            {{ selectedSortLabel }}
+            <img :src="assets.sortChevronIcon" alt="" :class="{ 'is-open': isSortMenuOpen }" />
+          </button>
+          <div v-if="isSortMenuOpen" class="sort-menu" role="listbox">
+            <button
+              v-for="option in effectiveSortOptions"
+              :key="option.key"
+              type="button"
+              class="sort-menu-option"
+              :class="{ 'is-active': option.key === selectedSortKey }"
+              role="option"
+              :aria-selected="option.key === selectedSortKey"
+              @click="selectSort(option)"
+            >
+              {{ option.label }}
+            </button>
+          </div>
+        </div>
       </div>
 
       <p v-if="errorMessage" class="feedback-strip is-error">{{ errorMessage }}</p>
@@ -75,7 +162,9 @@ defineEmits(['openDetail', 'selectCategory', 'toggleSort'])
           :heart-icon="assets.heartIcon"
           :image-src="assets.listWatchImage"
           :item="item"
+          :wishlist-processing="wishlistProcessingIds.has(item.auctionId)"
           @select="$emit('openDetail', $event)"
+          @toggle-wishlist="$emit('toggleWishlist', $event)"
         />
       </div>
       <p v-else class="feedback-strip">조건에 맞는 경매가 없습니다.</p>

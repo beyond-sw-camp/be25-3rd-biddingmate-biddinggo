@@ -1,5 +1,6 @@
 <script setup>
 import { toRef } from 'vue'
+import { useRouter } from 'vue-router'
 import { assets } from '../data/marketplaceData'
 import { useRegisterFlow } from '../composables/useRegisterFlow'
 import AuctionSetupForm from './register/AuctionSetupForm.vue'
@@ -15,11 +16,17 @@ const infoBullet = 'https://www.figma.com/api/mcp/asset/f9c860bc-f862-4836-b1e9-
 const inspectionProductImage = 'https://www.figma.com/api/mcp/asset/32f14895-b803-4f5e-ae62-afb42f566620'
 
 const props = defineProps({
+  initialInspectionId: {
+    type: Number,
+    default: null,
+  },
   initialMode: {
     type: String,
     default: 'select',
   },
 })
+
+const router = useRouter()
 
 const registrationMethods = [
   {
@@ -61,12 +68,14 @@ const {
   durationOptions,
   errorMessage,
   firstStepLabel,
+  filteredInspectionPickItems,
   form,
   goBackToSelect,
   handleFiles,
   headerDescription,
   headerTitle,
   inspectionPickItems,
+  isInspectionAuctionRegistration,
   isAuctionStep,
   isInspectionDetailOpen,
   openInspectionRequest,
@@ -78,7 +87,12 @@ const {
   selectedDuration,
   selectedInspectionId,
   selectedInspectionItem,
+  inspectionSearchQuery,
   selectInspectionItem,
+  setInspectionSearchQuery,
+  setAuctionStartDate,
+  setAuctionStartTime,
+  setPrimaryImage,
   showStepper,
   startAuctionFromInspection,
   submitted,
@@ -88,7 +102,20 @@ const {
   toggleAuctionField,
   uploadInProgress,
   uploadedImages,
-} = useRegisterFlow(toRef(props, 'initialMode'))
+} = useRegisterFlow(toRef(props, 'initialMode'), toRef(props, 'initialInspectionId'))
+
+async function handleSubmit() {
+  const result = await submitForm()
+
+  if (result?.type === 'auction' && result.auctionId) {
+    await router.replace(`/auctions/${result.auctionId}`)
+    return
+  }
+
+  if (result?.type === 'inspection') {
+    await router.replace('/inspection')
+  }
+}
 </script>
 
 <template>
@@ -114,14 +141,16 @@ const {
       v-else-if="currentMode === 'inspection-pick'"
       :assets="assets"
       :error-message="errorMessage"
-      :inspection-pick-items="inspectionPickItems"
+      :inspection-pick-items="filteredInspectionPickItems"
       :inspection-product-image="inspectionProductImage"
+      :inspection-search-query="inspectionSearchQuery"
       :is-inspection-detail-open="isInspectionDetailOpen"
       :selected-inspection-id="selectedInspectionId"
       :selected-inspection-item="selectedInspectionItem"
       @close-detail="closeInspectionDetail"
       @open-inspection-request="openInspectionRequest"
       @select-item="selectInspectionItem"
+      @update:inspection-search-query="setInspectionSearchQuery"
       @start-auction="startAuctionFromInspection"
     />
 
@@ -140,13 +169,15 @@ const {
       @cancel="goBackToSelect"
       @files-selected="handleFiles"
       @remove-image="removeImage"
-      @submit="submitForm"
+      @set-primary-image="setPrimaryImage"
+      @submit="handleSubmit"
     />
 
     <AuctionSetupForm
       v-else
       :auction-form="auctionForm"
       :bid-unit-options="bidUnitOptions"
+      :can-use-time-deal="!isInspectionAuctionRegistration"
       :duration-options="durationOptions"
       :error-message="errorMessage"
       :processing="processing"
@@ -157,7 +188,9 @@ const {
       @cancel="returnFromAuctionStep"
       @select-bid-unit="selectedBidUnit = $event"
       @select-duration="selectedDuration = $event"
-      @submit="submitForm"
+      @set-start-date="setAuctionStartDate"
+      @set-start-time="setAuctionStartTime"
+      @submit="handleSubmit"
       @toggle-field="toggleAuctionField"
     />
   </section>

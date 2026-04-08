@@ -6,7 +6,7 @@
         <span>BIDDINGMATE</span>
       </button>
 
-      <nav class="sidebar-nav app-shell__nav" aria-label="메인 메뉴">
+      <nav class="sidebar-nav app-shell__nav" aria-label="주요 메뉴">
         <button
           v-for="item in navigationItems"
           :key="item.label"
@@ -15,7 +15,11 @@
           :class="{ active: currentNavKey === item.key || (!currentNavKey && currentScreen === item.key) }"
           @click="$emit('navigate', item.route ?? item.key)"
         >
-          <img :src="item.icon" :alt="item.label" class="app-shell__nav-icon" />
+          <span
+            class="app-shell__nav-icon"
+            :style="{ '--nav-icon-url': `url(${item.icon})` }"
+            aria-hidden="true"
+          ></span>
           <span>{{ item.label }}</span>
         </button>
       </nav>
@@ -23,14 +27,15 @@
 
     <div class="content-shell">
       <header class="topbar">
-        <v-text-field
-          class="topbar-search-field"
-          density="comfortable"
-          hide-details
-          placeholder="어떤 경매를 찾으시나요?"
-          prepend-inner-icon="mdi-magnify"
-          variant="solo"
-        />
+        <form class="topbar-search-field topbar-search" role="search" @submit.prevent="submitSearch">
+          <img :src="searchIcon" alt="" class="topbar-search__icon" />
+          <input
+            v-model.trim="searchQuery"
+            type="search"
+            placeholder="상품명, 브랜드를 검색해보세요"
+            aria-label="상품 검색어"
+          />
+        </form>
 
         <div class="topbar-links">
           <button class="topbar-link-button" type="button" @click="$emit('open-mypage')">마이페이지</button>
@@ -38,7 +43,7 @@
             <span>알림</span>
           </button>
           <template v-if="auth.isAuthenticated">
-            <span class="topbar-auth-label">{{ auth.nickname || auth.username || '회원' }}</span>
+            <span class="topbar-auth-label">{{ displayUsername }}</span>
             <button class="topbar-link-button" type="button" @click="$emit('logout')">로그아웃</button>
           </template>
           <button v-else class="topbar-link-button" type="button" @click="$emit('open-login')">로그인/회원가입</button>
@@ -55,10 +60,12 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import NotificationModal from './NotificationModal.vue'
 
-defineProps({
+const searchIcon = 'https://www.figma.com/api/mcp/asset/43c34f06-dced-42d0-9368-8ac16f87d2f7'
+
+const props = defineProps({
   currentScreen: {
     type: String,
     required: true,
@@ -75,9 +82,35 @@ defineProps({
     type: Object,
     required: true,
   },
+  initialSearchQuery: {
+    type: String,
+    default: '',
+  },
 })
 
-defineEmits(['navigate', 'open-login', 'open-mypage', 'logout'])
+const emit = defineEmits(['navigate', 'open-login', 'open-mypage', 'logout', 'search'])
 
 const isNotificationOpen = ref(false)
+const searchQuery = ref(String(props.initialSearchQuery || ''))
+const displayUsername = computed(() => {
+  const username = String(props.auth.nickname || props.auth.name || props.auth.username || '').trim()
+
+  return username ? username.slice(0, 10) : '로그인됨'
+})
+
+function submitSearch() {
+  if (!searchQuery.value) {
+    return
+  }
+
+  emit('search', searchQuery.value)
+}
+
+watch(
+  () => props.initialSearchQuery,
+  (next) => {
+    searchQuery.value = String(next || '')
+  },
+  { immediate: true },
+)
 </script>

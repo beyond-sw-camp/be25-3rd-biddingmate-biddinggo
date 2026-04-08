@@ -9,6 +9,18 @@ export async function getAuctionList(params = {}) {
   return unwrap(data)
 }
 
+export async function searchAuctions(query, params = {}) {
+  const suffix = buildQueryString({
+    q: query,
+    ...params,
+  })
+  const data = await request(`/api/v1/auctions/search/semantic${suffix}`, {
+    method: 'GET',
+  })
+
+  return unwrap(data)
+}
+
 export async function getAuctionDetail(auctionId) {
   const data = await request(`/api/v1/auctions/${auctionId}`, {
     method: 'GET',
@@ -21,6 +33,19 @@ export async function createAuction(payload) {
   const data = await request('/api/v1/auctions', {
     auth: true,
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  })
+
+  return unwrap(data)
+}
+
+export async function updateAuction(auctionId, payload) {
+  const data = await request(`/api/v1/auctions/${auctionId}`, {
+    auth: true,
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },

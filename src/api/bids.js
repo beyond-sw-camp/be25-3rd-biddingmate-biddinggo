@@ -18,6 +18,7 @@ export async function createBid(memberId, payload) {
 export async function getAuctionBids(auctionId, params = {}) {
   const suffix = buildQueryString({ auctionId, ...params })
   const data = await request(`/api/v1/bids${suffix}`, {
+    auth: true,
     method: 'GET',
   })
 

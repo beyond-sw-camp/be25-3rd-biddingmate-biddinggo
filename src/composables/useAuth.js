@@ -27,7 +27,7 @@ async function restoreSessionFromRefresh() {
 }
 
 export function useAuth() {
-  const displayName = computed(() => authState.nickname || authState.username || '회원')
+  const displayName = computed(() => authState.nickname || authState.name || authState.username || '?뚯썝')
 
   async function initializeAuth() {
     if (authState.initialized) {
@@ -66,7 +66,7 @@ export function useAuth() {
 
   async function completeLoginFromCallback(accessToken) {
     if (!accessToken) {
-      throw new Error('로그인 토큰이 없습니다. 다시 시도해주세요.')
+      throw new Error('濡쒓렇???좏겙???놁뒿?덈떎. ?ㅼ떆 ?쒕룄?댁＜?몄슂.')
     }
 
     setSession({ accessToken, type: 'Bearer' })
@@ -78,10 +78,10 @@ export function useAuth() {
         const loginResponse = await refreshAccessToken()
         setSession(loginResponse)
       } catch {
-        // refresh 쿠키가 아직 없더라도 access token만으로 즉시 테스트는 가능하다.
+        // refresh 荑좏궎媛 ?꾩쭅 ?녿뜑?쇰룄 access token留뚯쑝濡?利됱떆 ?뚯뒪?몃뒗 媛?ν븯??
       }
 
-      return true
+      return authState
     } catch (error) {
       clearSession()
       throw error
@@ -110,3 +110,4 @@ export function useAuth() {
     logout,
   }
 }
+

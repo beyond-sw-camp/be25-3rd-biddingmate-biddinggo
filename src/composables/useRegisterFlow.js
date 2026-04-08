@@ -2,9 +2,9 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { createAuction, createAuctionFromInspectionItem } from '../api/auctions'
 import { getCategoryList } from '../api/categories'
 import { requestPresignedUpload, uploadToPresignedUrl, deleteUploadedFile } from '../api/files'
-import { createInspection, getInspectionList } from '../api/inspections'
-import { buildLeafCategoryOptions, getFallbackCategories } from '../utils/category'
-import { normalizeInspectionPickItem } from '../utils/marketplace'
+import { createInspection, getInspectionDetail, getInspectionList } from '../api/inspections'
+import { normalizeCategoryRows, getFallbackCategories } from '../utils/category'
+import { mergeInspectionItemDetail, normalizeInspectionPickItem } from '../utils/marketplace'
 
 function createEmptyForm() {
   return {
@@ -22,6 +22,8 @@ function createEmptyAuctionForm() {
     timeDeal: false,
     startPrice: '',
     buyNowPrice: '',
+    startDateInput: '',
+    startTimeInput: '',
     startDate: '',
     startTime: '',
     endDate: '',
@@ -57,6 +59,22 @@ function normalizeBidUnit(option) {
   return parseMoney(option)
 }
 
+function getAuctionId(result) {
+  return result?.auctionId
+    ?? result?.id
+    ?? result?.auction?.auctionId
+    ?? result?.auction?.id
+    ?? null
+}
+
+function getInspectionId(result) {
+  return result?.inspectionId
+    ?? result?.id
+    ?? result?.inspection?.inspectionId
+    ?? result?.inspection?.id
+    ?? null
+}
+
 function computeEndDate(startDate, durationLabel) {
   const endDate = new Date(startDate)
   const value = Number.parseInt(String(durationLabel || '').replace(/[^\d]/g, ''), 10) || 0
@@ -81,7 +99,22 @@ function toLocalDateTimeString(value) {
   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
 }
 
-export function useRegisterFlow(initialMode) {
+function toDateInputValue(value) {
+  const year = value.getFullYear()
+  const month = String(value.getMonth() + 1).padStart(2, '0')
+  const day = String(value.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
+function toTimeInputValue(value) {
+  const hours = String(value.getHours()).padStart(2, '0')
+  const minutes = String(value.getMinutes()).padStart(2, '0')
+
+  return `${hours}:${minutes}`
+}
+
+export function useRegisterFlow(initialMode, initialInspectionId) {
   const allowedModes = ['select', 'inspection', 'inspection-pick', 'direct', 'direct-auction']
   const currentMode = ref(allowedModes.includes(initialMode.value) ? initialMode.value : 'select')
   const registrationType = ref(
@@ -94,9 +127,11 @@ export function useRegisterFlow(initialMode) {
   const selectedBidUnit = ref('10,000')
   const selectedDuration = ref('5일')
   const selectedInspectionId = ref(0)
+  const selectedInspectionDetail = ref(null)
   const isInspectionDetailOpen = ref(false)
   const categoryOptions = ref([])
   const inspectionPickItems = ref([])
+  const inspectionSearchQuery = ref('')
   const successMessage = ref('')
   const errorMessage = ref('')
 
@@ -124,6 +159,9 @@ export function useRegisterFlow(initialMode) {
     currentMode.value === 'inspection-pick' || currentMode.value === 'direct' || currentMode.value === 'direct-auction',
   )
   const isAuctionStep = computed(() => currentMode.value === 'direct-auction')
+  const isInspectionAuctionRegistration = computed(
+    () => currentMode.value === 'direct-auction' && registrationType.value === 'inspection',
+  )
   const firstStepLabel = computed(() =>
     registrationType.value === 'inspection' ? '사전 검수 상품 등록' : '직접 상품 등록',
   )
@@ -133,9 +171,41 @@ export function useRegisterFlow(initialMode) {
       ? ['4시간', '8시간', '12시간', '16시간', '20시간', '24시간', '28시간', '32시간', '36시간', '40시간', '44시간', '48시간']
       : ['3일', '4일', '5일', '6일', '7일', '8일', '9일', '10일'],
   )
-  const selectedInspectionItem = computed(() =>
-    inspectionPickItems.value.find((item) => item.displayId === selectedInspectionId.value) || null,
-  )
+  const selectedInspectionItem = computed(() => {
+    const baseItem = inspectionPickItems.value.find((item) => item.displayId === selectedInspectionId.value) || null
+
+    if (!baseItem) {
+      return null
+    }
+
+    if (selectedInspectionDetail.value?.inspectionId !== baseItem.inspectionId) {
+      return baseItem
+    }
+
+    return mergeInspectionItemDetail(baseItem, selectedInspectionDetail.value)
+  })
+  const filteredInspectionPickItems = computed(() => {
+    const keyword = inspectionSearchQuery.value.trim().toLowerCase()
+
+    if (!keyword) {
+      return inspectionPickItems.value
+    }
+
+    return inspectionPickItems.value.filter((item) => {
+      const haystack = [
+        item.title,
+        item.brand,
+        item.description,
+        item.categoryLabel,
+        item.inspectionGrade,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+
+      return haystack.includes(keyword)
+    })
+  })
 
   function clearMessages() {
     submitted.value = false
@@ -143,8 +213,38 @@ export function useRegisterFlow(initialMode) {
     errorMessage.value = ''
   }
 
+  function setInspectionSearchQuery(value) {
+    inspectionSearchQuery.value = String(value || '')
+  }
+
+  function getAuctionStartDate() {
+    if (!auctionForm.value.timeDeal) {
+      return new Date()
+    }
+
+    const { startDateInput, startTimeInput } = auctionForm.value
+
+    if (!startDateInput || !startTimeInput) {
+      return null
+    }
+
+    const startDate = new Date(`${startDateInput}T${startTimeInput}:00`)
+
+    return Number.isNaN(startDate.getTime()) ? null : startDate
+  }
+
   function syncAuctionSchedule() {
-    const startDate = new Date()
+    let startDate = getAuctionStartDate()
+
+    if (!startDate) {
+      startDate = new Date()
+
+      if (auctionForm.value.timeDeal) {
+        auctionForm.value.startDateInput = toDateInputValue(startDate)
+        auctionForm.value.startTimeInput = toTimeInputValue(startDate)
+      }
+    }
+
     const endDate = computeEndDate(startDate, selectedDuration.value)
 
     auctionForm.value.startDate = formatDatePart(startDate)
@@ -157,9 +257,9 @@ export function useRegisterFlow(initialMode) {
     try {
       const response = await getCategoryList()
       const rows = response?.categories || response || []
-      categoryOptions.value = buildLeafCategoryOptions(Array.isArray(rows) ? rows : [])
+      categoryOptions.value = normalizeCategoryRows(Array.isArray(rows) ? rows : [])
     } catch {
-      categoryOptions.value = buildLeafCategoryOptions(getFallbackCategories())
+      categoryOptions.value = normalizeCategoryRows(getFallbackCategories())
     }
   }
 
@@ -172,15 +272,38 @@ export function useRegisterFlow(initialMode) {
         order: 'DESC',
       })
 
-      inspectionPickItems.value = (page?.content || []).map((item, index) => ({
-        ...normalizeInspectionPickItem(item),
-        displayId: index,
-      }))
-      selectedInspectionId.value = inspectionPickItems.value[0]?.displayId || 0
+      inspectionPickItems.value = (page?.content || [])
+        .map((item) => normalizeInspectionPickItem(item))
+        .filter((item) => item.inspectionStatus === 'PASSED' && item.auctionItemStatus === 'PENDING')
+        .map((item, index) => ({
+          ...item,
+          displayId: index,
+        }))
+      selectedInspectionDetail.value = null
+
+      const requestedInspectionId = Number(initialInspectionId?.value)
+      const preselectedItem = Number.isFinite(requestedInspectionId) && requestedInspectionId > 0
+        ? inspectionPickItems.value.find((item) => item.inspectionId === requestedInspectionId)
+        : null
+
+      selectedInspectionId.value = preselectedItem?.displayId || inspectionPickItems.value[0]?.displayId || 0
+
+      if (preselectedItem) {
+        registrationType.value = 'inspection'
+        currentMode.value = 'direct-auction'
+        auctionForm.value.timeDeal = false
+        syncAuctionSchedule()
+
+        try {
+          selectedInspectionDetail.value = await getInspectionDetail(preselectedItem.inspectionId)
+        } catch {
+          // 상세 조회 실패 시 목록 응답 기반 정보로만 진행한다.
+        }
+      }
     } catch (error) {
       inspectionPickItems.value = []
 
-      if (currentMode.value === 'inspection-pick') {
+      if (currentMode.value === 'inspection-pick' || currentMode.value === 'direct-auction') {
         errorMessage.value = error?.message || '검수 완료 상품을 불러오지 못했습니다.'
       }
     }
@@ -247,6 +370,18 @@ export function useRegisterFlow(initialMode) {
     }
   }
 
+  function setPrimaryImage(index) {
+    if (index <= 0 || index >= uploadedImages.value.length) {
+      return
+    }
+
+    const [image] = uploadedImages.value.splice(index, 1)
+
+    if (image) {
+      uploadedImages.value.unshift(image)
+    }
+  }
+
   function resetForm() {
     uploadedImages.value.forEach((image) => {
       if (image.previewUrl) {
@@ -259,6 +394,8 @@ export function useRegisterFlow(initialMode) {
     auctionForm.value = createEmptyAuctionForm()
     selectedBidUnit.value = '10,000'
     selectedDuration.value = '5일'
+    inspectionSearchQuery.value = ''
+    selectedInspectionDetail.value = null
     syncAuctionSchedule()
     clearMessages()
   }
@@ -266,6 +403,7 @@ export function useRegisterFlow(initialMode) {
   function openMode(mode) {
     registrationType.value = mode === 'inspection' || mode === 'inspection-pick' ? 'inspection' : 'direct'
     currentMode.value = mode
+    inspectionSearchQuery.value = ''
     clearMessages()
 
     if (mode === 'inspection-pick') {
@@ -276,6 +414,7 @@ export function useRegisterFlow(initialMode) {
   function openInspectionRequest() {
     registrationType.value = 'inspection'
     currentMode.value = 'inspection'
+    inspectionSearchQuery.value = ''
     clearMessages()
   }
 
@@ -314,6 +453,10 @@ export function useRegisterFlow(initialMode) {
     if (!selectedBidUnit.value) {
       throw new Error('입찰 단위를 선택해주세요.')
     }
+
+    if (auctionForm.value.timeDeal && (!auctionForm.value.startDateInput || !auctionForm.value.startTimeInput)) {
+      throw new Error('타임딜 시작 일시를 선택해주세요.')
+    }
   }
 
   function buildImagePayload() {
@@ -324,7 +467,12 @@ export function useRegisterFlow(initialMode) {
   }
 
   function buildAuctionPayload(type) {
-    const startDate = new Date()
+    const startDate = getAuctionStartDate()
+
+    if (!startDate) {
+      throw new Error('유효한 경매 시작 일시를 선택해주세요.')
+    }
+
     const endDate = computeEndDate(startDate, selectedDuration.value)
 
     return {
@@ -357,8 +505,11 @@ export function useRegisterFlow(initialMode) {
     }
 
     const result = await createInspection(payload)
-    submitted.value = true
-    successMessage.value = `검수 등록이 완료되었습니다. (검수 ID: ${result?.inspectionId ?? '-'})`
+    const inspectionId = getInspectionId(result)
+
+    resetForm()
+    currentMode.value = 'select'
+    return { type: 'inspection', inspectionId }
   }
 
   async function submitDirectAuctionRegistration() {
@@ -378,8 +529,17 @@ export function useRegisterFlow(initialMode) {
     }
 
     const result = await createAuction(payload)
+    const auctionId = getAuctionId(result)
+
+    if (auctionId) {
+      resetForm()
+      currentMode.value = 'select'
+      return { type: 'auction', auctionId }
+    }
+
     submitted.value = true
-    successMessage.value = `경매 등록이 완료되었습니다. (경매 ID: ${result?.auctionId ?? '-'})`
+    successMessage.value = '경매 등록이 완료되었습니다.'
+    return { type: 'auction', auctionId: null }
   }
 
   async function submitInspectionAuctionRegistration() {
@@ -391,12 +551,21 @@ export function useRegisterFlow(initialMode) {
 
     const payload = {
       itemId: selectedInspectionItem.value.itemId,
-      auction: buildAuctionPayload(auctionForm.value.timeDeal ? 'TIME_DEAL' : 'INSPECTION'),
+      auction: buildAuctionPayload('INSPECTION'),
     }
 
     const result = await createAuctionFromInspectionItem(payload)
+    const auctionId = getAuctionId(result)
+
+    if (auctionId) {
+      resetForm()
+      currentMode.value = 'select'
+      return { type: 'auction', auctionId }
+    }
+
     submitted.value = true
-    successMessage.value = `검수 완료 상품 경매 등록이 완료되었습니다. (경매 ID: ${result?.auctionId ?? '-'})`
+    successMessage.value = '검수 완료 상품 경매 등록이 완료되었습니다.'
+    return { type: 'auction', auctionId: null }
   }
 
   async function submitForm() {
@@ -407,6 +576,7 @@ export function useRegisterFlow(initialMode) {
         validateProductForm({ requireCondition: true })
         currentMode.value = 'direct-auction'
         syncAuctionSchedule()
+        return { type: 'step', mode: 'direct-auction' }
       } catch (error) {
         errorMessage.value = error?.message || '입력값을 확인해주세요.'
       }
@@ -417,13 +587,13 @@ export function useRegisterFlow(initialMode) {
 
     try {
       if (currentMode.value === 'inspection') {
-        await submitInspectionRegistration()
+        return await submitInspectionRegistration()
       } else if (currentMode.value === 'direct-auction') {
         if (registrationType.value === 'inspection') {
-          await submitInspectionAuctionRegistration()
-        } else {
-          await submitDirectAuctionRegistration()
+          return await submitInspectionAuctionRegistration()
         }
+
+        return await submitDirectAuctionRegistration()
       }
     } catch (error) {
       errorMessage.value = error?.message || '등록 처리 중 오류가 발생했습니다.'
@@ -441,13 +611,42 @@ export function useRegisterFlow(initialMode) {
     auctionForm.value[field] = !auctionForm.value[field]
 
     if (field === 'timeDeal') {
+      if (registrationType.value === 'inspection') {
+        auctionForm.value.timeDeal = false
+        return
+      }
+
       selectedDuration.value = auctionForm.value.timeDeal ? '12시간' : '5일'
+      syncAuctionSchedule()
     }
   }
 
-  function selectInspectionItem(index) {
+  function setAuctionStartDate(value) {
+    auctionForm.value.startDateInput = value
+    syncAuctionSchedule()
+  }
+
+  function setAuctionStartTime(value) {
+    auctionForm.value.startTimeInput = value
+    syncAuctionSchedule()
+  }
+
+  async function selectInspectionItem(index) {
     selectedInspectionId.value = index
+    selectedInspectionDetail.value = null
     isInspectionDetailOpen.value = true
+
+    const item = inspectionPickItems.value.find((candidate) => candidate.displayId === index)
+
+    if (!item?.inspectionId) {
+      return
+    }
+
+    try {
+      selectedInspectionDetail.value = await getInspectionDetail(item.inspectionId)
+    } catch {
+      // 상세 조회 실패 시 목록 응답으로만 모달을 표시한다.
+    }
   }
 
   function closeInspectionDetail() {
@@ -462,6 +661,7 @@ export function useRegisterFlow(initialMode) {
 
     isInspectionDetailOpen.value = false
     currentMode.value = 'direct-auction'
+    auctionForm.value.timeDeal = false
     clearMessages()
     syncAuctionSchedule()
   }
@@ -473,7 +673,7 @@ export function useRegisterFlow(initialMode) {
       registrationType.value = mode === 'inspection' || mode === 'inspection-pick' ? 'inspection' : 'direct'
       clearMessages()
 
-      if (currentMode.value === 'inspection-pick') {
+      if (currentMode.value === 'inspection-pick' || (currentMode.value === 'direct-auction' && initialInspectionId?.value)) {
         loadInspectionPickItems()
       }
     },
@@ -513,12 +713,14 @@ export function useRegisterFlow(initialMode) {
     durationOptions,
     errorMessage,
     firstStepLabel,
+    filteredInspectionPickItems,
     form,
     goBackToSelect,
     handleFiles,
     headerDescription,
     headerTitle,
     inspectionPickItems,
+    isInspectionAuctionRegistration,
     isAuctionStep,
     isInspectionDetailOpen,
     openInspectionRequest,
@@ -530,7 +732,12 @@ export function useRegisterFlow(initialMode) {
     selectedDuration,
     selectedInspectionId,
     selectedInspectionItem,
+    inspectionSearchQuery,
     selectInspectionItem,
+    setInspectionSearchQuery,
+    setAuctionStartDate,
+    setAuctionStartTime,
+    setPrimaryImage,
     showStepper,
     startAuctionFromInspection,
     submitted,

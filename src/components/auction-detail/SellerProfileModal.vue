@@ -31,7 +31,12 @@ defineEmits(['close'])
         <img :src="sellerProfile.avatar" :alt="item.seller" class="detail-seller-avatar" />
         <div class="detail-seller-copy">
           <div class="detail-seller-name-row">
-            <img :src="sellerProfile.badge" alt="" class="detail-seller-badge" />
+            <img
+              v-if="sellerProfile.badge"
+              :src="sellerProfile.badge"
+              :alt="`${item.sellerGrade} 등급`"
+              class="detail-seller-badge"
+            />
             <strong>{{ item.seller }}</strong>
           </div>
 
@@ -67,6 +72,10 @@ defineEmits(['close'])
       <div class="detail-seller-reviews">
         <h3>구매자 리뷰 ({{ sellerProfile.reviewCount }})</h3>
 
+        <p v-if="!sellerProfile.reviews.length" class="detail-seller-empty-review">
+          아직 등록된 구매자 리뷰가 없습니다.
+        </p>
+
         <article
           v-for="review in sellerProfile.reviews"
           :key="`${review.author}-${review.date}`"
@@ -88,7 +97,6 @@ defineEmits(['close'])
             </div>
           </div>
 
-          <img :src="assets.listWatchImage" :alt="item.title" class="detail-seller-review-image" />
           <p>{{ review.content }}</p>
         </article>
       </div>

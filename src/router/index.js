@@ -1,8 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import AddressBookView from '../views/AddressBookView.vue'
 import AuctionDetailView from '../views/AuctionDetailView.vue'
+import AuctionEditView from '../views/AuctionEditView.vue'
 import AuctionInquiryView from '../views/AuctionInquiryView.vue'
 import AuctionListView from '../views/AuctionListView.vue'
+import AuctionSearchView from '../views/AuctionSearchView.vue'
 import AuctionManagementView from '../views/AuctionManagementView.vue'
 import AdminInquiriesView from '../views/AdminInquiriesView.vue'
 import AdminInspectionsView from '../views/AdminInspectionsView.vue'
@@ -18,6 +20,7 @@ import InspectionView from '../views/InspectionView.vue'
 import LoginView from '../views/LoginView.vue'
 import MyPageLayout from '../components/layout/MyPageLayout.vue'
 import PointsView from '../views/PointsView.vue'
+import ProfileSetupView from '../views/ProfileSetupView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import PurchaseHistoryView from '../views/PurchaseHistoryView.vue'
 import RegisterView from '../views/RegisterView.vue'
@@ -46,9 +49,27 @@ const routes = [
     },
   },
   {
+    path: '/auctions/search',
+    name: 'auction-search',
+    component: AuctionSearchView,
+    meta: {
+      navSection: 'main',
+      navKey: 'list',
+    },
+  },
+  {
     path: '/auctions/:id',
     name: 'auction-detail',
     component: AuctionDetailView,
+    meta: {
+      navSection: 'main',
+      navKey: 'list',
+    },
+  },
+  {
+    path: '/auctions/:id/edit',
+    name: 'auction-edit',
+    component: AuctionEditView,
     meta: {
       navSection: 'main',
       navKey: 'list',
@@ -76,15 +97,16 @@ const routes = [
     path: '/login',
     name: 'login',
     component: LoginView,
-    meta: {
-      navSection: 'main',
-      navKey: '',
-    },
   },
   {
     path: '/auth/callback',
     name: 'auth-callback',
     component: AuthCallbackView,
+  },
+  {
+    path: '/profile/setup',
+    name: 'profile-setup',
+    component: ProfileSetupView,
   },
   {
     path: '/mypage',
@@ -265,6 +287,8 @@ const router = createRouter({
 })
 
 router.beforeEach((to) => {
+  const publicAuthRoutes = new Set(['login', 'auth-callback', 'profile-setup'])
+
   if (to.matched.some((route) => route.meta.requiresAuth) && !authState.isAuthenticated) {
     return {
       path: '/login',
@@ -272,6 +296,21 @@ router.beforeEach((to) => {
         redirect: to.fullPath,
       },
     }
+  }
+
+  if (
+    authState.isAuthenticated
+    && authState.status === 'PENDING'
+    && !publicAuthRoutes.has(String(to.name || ''))
+  ) {
+    return {
+      name: 'profile-setup',
+      query: { redirect: to.fullPath },
+    }
+  }
+
+  if (authState.isAuthenticated && authState.status === 'ACTIVE' && to.name === 'profile-setup') {
+    return { name: 'home' }
   }
 
   return true

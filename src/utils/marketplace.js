@@ -52,29 +52,34 @@ export function getCountdownLabel(value) {
 }
 
 export function normalizeAuctionCard(result = {}) {
+  const auctionType = normalizeEnumValue(result.type ?? result.auctionType)
+  const inspectionYn = normalizeEnumValue(result.inspectionYn ?? result.inspection_yn)
+
   return {
     id: result.auctionId ? `auction-${result.auctionId}` : `auction-${result.item?.itemId || 'unknown'}`,
     auctionId: result.auctionId,
+    auctionType,
     title: result.item?.name || result.name || '등록 상품',
     brand: result.item?.brand || result.brand || '브랜드 미정',
     price: formatPrice(result.startPrice),
     bids: `입찰 ${result.bidCount ?? 0}회`,
+    wishCount: Number(result.wishCount || 0),
+    isWished: Boolean(result.isWished ?? result.wished ?? false),
     time: getCountdownLabel(result.endDate),
     highlight: result.status === 'ON_GOING',
+    isTimeDeal: auctionType === 'TIME_DEAL',
+    isInspected: auctionType === 'INSPECTION' || inspectionYn === 'YES',
     image: result.item?.images?.[0]?.url || result.representativeImageUrl || '',
   }
 }
 
 export function normalizeBidHistory(rows = []) {
   if (!rows.length) {
-    return [
-      { bidder: '아직 입찰 없음', amount: '-', date: '-' },
-      { bidder: '대기 중', amount: '-', date: '-' },
-      { bidder: '대기 중', amount: '-', date: '-' },
-    ]
+    return []
   }
 
   return rows.map((row) => ({
+    id: row.id,
     bidder: `${row.bidderId ?? '-'}번 회원`,
     amount: `${formatPrice(row.amount)}원`,
     date: formatDateTime(row.createdAt),
@@ -87,39 +92,112 @@ export function normalizeInquiries(rows = []) {
   }
 
   return rows.map((row) => ({
+    id: row.id,
     status: row.answer ? '답변 완료' : '답변 대기',
     title: row.title || '문의',
     meta: `${row.writerName || '익명'} | ${formatDateTime(row.createdAt)}`,
     question: row.content || '',
+    answeredAt: formatDateTime(row.answeredAt),
     answer: row.answer || '아직 답변이 등록되지 않았습니다.',
   }))
 }
 
-export function normalizeAuctionDetail(detail = {}, { bidHistory = [], inquiries = [] } = {}) {
+export function normalizeSellerReviews(rows = []) {
+  return rows.map((row) => ({
+    author: row.buyerNickname || '구매자',
+    date: formatDateTime(row.reviewDate),
+    rating: Math.round(Number(row.rating || 0)),
+    content: row.reviewText || '리뷰 내용이 없습니다.',
+  }))
+}
+
+const PRICE_PREDICTION_REASON_LABELS = {
+  PREDICTION_AVAILABLE: '예상 가격을 조회했습니다.',
+  NOT_ENOUGH_REFERENCES: '유사 낙찰 데이터가 부족합니다.',
+  EMBEDDING_NOT_FOUND: '상품 분석 데이터가 아직 준비되지 않았습니다.',
+  CATEGORY_NOT_FOUND: '카테고리 정보를 찾을 수 없습니다.',
+  INVALID_CONDITION: '상품 상태 정보가 올바르지 않습니다.',
+  SUPABASE_TIMEOUT: '예상가 조회 시간이 초과되었습니다.',
+  SUPABASE_UNAVAILABLE: '예상가 조회 서비스를 사용할 수 없습니다.',
+  OUTLIER_FILTERED_ALL: '참고 가격 데이터가 모두 이상치로 제외되었습니다.',
+  FALLBACK_APPLIED: '대체 예측값을 적용했습니다.',
+}
+
+function normalizeEnumValue(value) {
+  return String(value || '').trim().toUpperCase()
+}
+
+function normalizePricePrediction(pricePrediction = null) {
+  if (!pricePrediction) {
+    return ''
+  }
+
+  const predictedPrice = pricePrediction.predictedPrice ?? pricePrediction.predicted_price
+
+  if (predictedPrice !== null && predictedPrice !== undefined) {
+    return `예상 가격: ${formatPrice(predictedPrice)}원`
+  }
+
+  const reasonCode = normalizeEnumValue(pricePrediction.reasonCode ?? pricePrediction.reason_code)
+  const reasonLabel = PRICE_PREDICTION_REASON_LABELS[reasonCode] || '예상 가격을 조회하지 못했습니다.'
+
+  return `예상 가격 조회 실패: ${reasonLabel}`
+}
+
+export function normalizeAuctionDetail(
+  detail = {},
+  { bidHistory = [], categoryPathLabel = '', inquiries = [], isAuthenticated = false, sellerReviews = [], wishlistStatus = {} } = {},
+) {
+  const currentPrice = detail.vickreyPrice ?? detail.vickrey_price ?? detail.startPrice
+  const sellerName = detail.sellerNickname || (detail.sellerId ? `판매자 ${detail.sellerId}` : '판매자')
+  const sellerRating = Number(detail.sellerRating || 0)
+  const sellerReviewCount = Number(detail.sellerReviewCount || 0)
+  const auctionType = normalizeEnumValue(detail.type ?? detail.auctionType)
+  const inspectionYn = normalizeEnumValue(detail.inspectionYn ?? detail.inspection_yn)
+  const isInspected = auctionType === 'INSPECTION' || inspectionYn === 'YES'
+  const category = detail.item?.category || {}
+  const history = normalizeBidHistory(bidHistory)
+
   return {
     id: detail.auctionId ? `auction-${detail.auctionId}` : 'auction-detail',
     auctionId: detail.auctionId,
+    auctionType,
+    categoryId: category.id,
+    categoryPathLabel: categoryPathLabel || category.name || '',
     itemId: detail.item?.itemId,
     sellerId: detail.sellerId,
+    sellerAvatar: detail.sellerImageUrl || '',
+    sellerJoinedAt: formatShortDate(detail.sellerCreatedAt),
+    sellerRating: sellerRating ? sellerRating.toFixed(1) : '0.0',
+    sellerReviewCount,
+    sellerReviews: normalizeSellerReviews(sellerReviews),
     title: detail.item?.name || '상품명 없음',
     brand: detail.item?.brand || '브랜드 미정',
-    price: formatPrice(detail.startPrice),
+    price: formatPrice(currentPrice),
+    startPrice: formatPrice(detail.startPrice),
+    pricePredictionLabel: normalizePricePrediction(detail.pricePrediction ?? detail.price_prediction),
     bids: `입찰 ${detail.bidCount ?? 0}회`,
+    wishCount: Number(detail.wishCount || 0),
+    isWished: Boolean(wishlistStatus?.wished),
     time: getCountdownLabel(detail.endDate),
     highlight: detail.status === 'ON_GOING',
-    seller: `SELLER ${detail.sellerId || ''}`.trim(),
-    sellerGrade: detail.inspectionYn === 'YES' ? 'CERTIFIED' : 'STANDARD',
+    isTimeDeal: auctionType === 'TIME_DEAL',
+    isInspected,
+    seller: sellerName,
+    sellerGrade: detail.sellerGrade || (isInspected ? 'CERTIFIED' : 'STANDARD'),
     description: detail.item?.description || '상품 설명이 없습니다.',
-    inspectionLabel: detail.inspectionYn === 'YES' ? '검수 완료 상품' : '일반 등록 상품',
+    inspectionLabel: isInspected ? '검수 완료 상품' : '일반 등록 상품',
     inspectionDescription:
-      detail.inspectionYn === 'YES'
+      isInspected
         ? '전문가 검수를 통과한 상품입니다.'
         : '판매자가 직접 등록한 상품입니다.',
     buyNowPrice: `${formatPrice(detail.buyNowPrice)}원`,
     bidUnit: `${formatPrice(detail.bidUnit)}원`,
     startDate: formatDateTime(detail.startDate),
     endDate: formatDateTime(detail.endDate),
-    history: normalizeBidHistory(bidHistory),
+    bidHistoryRequiresLogin: !isAuthenticated,
+    history,
+    historyPreview: history.slice(0, 3),
     inquiries: normalizeInquiries(inquiries),
     images: detail.item?.images || [],
     image: detail.item?.images?.[0]?.url || detail.representativeImageUrl || '',
@@ -142,17 +220,99 @@ export function formatShortDate(value) {
 }
 
 export function normalizeInspectionPickItem(result = {}) {
+  const inspectionStatus = normalizeEnumValue(result.inspectionStatus ?? result.status)
+  const auctionItemStatus = normalizeEnumValue(result.auctionItemStatus ?? result.itemStatus)
+  const images = Array.isArray(result.images)
+    ? result.images
+    : Array.isArray(result.item?.images)
+      ? result.item.images
+      : []
+  const representativeImage = result.representativeImageUrl || images[0]?.url || ''
+
   return {
     inspectionId: result.inspectionId,
     itemId: result.itemId,
+    inspectionStatus,
+    auctionItemStatus,
     title: result.name || '검수 상품',
     brand: result.brand || '브랜드 미정',
     inspectionGrade: result.quality || '-',
     inspectionDate: formatShortDate(result.createdAt),
     description: `${result.brand || '브랜드 미정'} ${result.name || ''}`.trim(),
-    image: result.representativeImageUrl || '',
+    image: representativeImage,
+    images: images.length ? images : (representativeImage ? [{ url: representativeImage }] : []),
     carrier: result.carrier || '',
     trackingNumber: result.trackingNumber || '',
     categoryLabel: '',
   }
+}
+
+export function mergeInspectionItemDetail(item = {}, detail = {}) {
+  const detailItem = detail.item || {}
+  const detailCategory = detailItem.category || {}
+  const detailImage = detailItem.images?.[0]?.url || ''
+  const detailImages = Array.isArray(detailItem.images) ? detailItem.images : []
+  const baseImages = Array.isArray(item.images) ? item.images : []
+
+  return {
+    ...item,
+    brand: detailItem.brand || item.brand,
+    title: detailItem.name || item.title,
+    description: detailItem.description || item.description,
+    categoryLabel: detailCategory.name || item.categoryLabel,
+    image: detailImage || item.image,
+    images: detailImages.length ? detailImages : baseImages,
+    carrier: detail.carrier || item.carrier,
+    trackingNumber: detail.trackingNumber || item.trackingNumber,
+  }
+}
+
+export function normalizeInspectionListItem(result = {}) {
+  const status = normalizeEnumValue(result.inspectionStatus ?? result.status)
+  const item = result.item || {}
+  const category = item.category || result.category || {}
+  const categoryLabel = category.name ? `${category.name}` : ''
+  const images = Array.isArray(item.images) ? item.images : []
+  const representativeImage = result.representativeImageUrl || images[0]?.url || ''
+
+  return {
+    inspectionId: result.inspectionId,
+    itemId: result.itemId ?? item.itemId,
+    title: result.name || item.name || '검수 상품',
+    brand: result.brand || item.brand || '브랜드 미정',
+    status,
+    statusLabel: INSPECTION_STATUS_LABELS[status] || '검수 상태 없음',
+    inspectionGrade: result.quality || item.quality || '-',
+    inspectionDate: formatShortDate(result.createdAt),
+    description: item.description || `${result.brand || item.brand || '브랜드 미정'} ${result.name || item.name || ''}`.trim(),
+    image: representativeImage,
+    images: images.length ? images : (representativeImage ? [{ url: representativeImage }] : []),
+    carrier: result.carrier || '',
+    trackingNumber: result.trackingNumber || '',
+    categoryLabel,
+  }
+}
+
+export function buildInspectionSummary(items = []) {
+  const counts = items.reduce(
+    (acc, item) => {
+      acc.total += 1
+      acc[item.status] = (acc[item.status] || 0) + 1
+      return acc
+    },
+    { total: 0 },
+  )
+
+  return [
+    { label: '총 검수 신청', value: formatNumber(counts.total), tone: 'total' },
+    { label: '검수 대기', value: formatNumber(counts.PENDING || 0), tone: 'review' },
+    { label: '검수 통과', value: formatNumber(counts.PASSED || 0), tone: 'approve' },
+    { label: '검수 반려', value: formatNumber(counts.FAILED || 0), tone: 'auction' },
+  ]
+}
+
+export const INSPECTION_STATUS_LABELS = {
+  PENDING: '검수 대기',
+  PASSED: '검수 통과',
+  FAILED: '검수 반려',
 }

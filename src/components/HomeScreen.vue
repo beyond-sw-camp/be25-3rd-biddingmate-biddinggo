@@ -18,9 +18,13 @@ defineProps({
     type: Boolean,
     default: false,
   },
+  wishlistProcessingIds: {
+    type: Object,
+    default: () => new Set(),
+  },
 })
 
-defineEmits(['openDetail', 'openList'])
+defineEmits(['openDetail', 'openList', 'toggleWishlist'])
 </script>
 
 <template>
@@ -58,7 +62,9 @@ defineEmits(['openDetail', 'openList'])
           :heart-icon="assets.heartIcon"
           :image-src="assets.watchImage"
           :item="item"
+          :wishlist-processing="wishlistProcessingIds.has(item.auctionId)"
           @select="$emit('openDetail', $event)"
+          @toggle-wishlist="$emit('toggleWishlist', $event)"
         />
       </div>
       <p v-else class="feedback-strip">현재 노출할 경매가 없습니다.</p>

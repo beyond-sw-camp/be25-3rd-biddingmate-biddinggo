@@ -18,13 +18,13 @@ import { useAuth } from '../composables/useAuth'
 
 const route = useRoute()
 const router = useRouter()
-const { completeLoginFromCallback } = useAuth()
+const { auth, completeLoginFromCallback } = useAuth()
 const errorMessage = ref('')
 
 onMounted(async () => {
   try {
     await completeLoginFromCallback(String(route.query.accessToken || '').trim())
-    await router.replace('/')
+    await router.replace(auth.status === 'PENDING' ? '/profile/setup' : '/')
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : '로그인 처리에 실패했습니다.'
   }

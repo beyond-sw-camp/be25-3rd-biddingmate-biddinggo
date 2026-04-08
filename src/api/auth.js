@@ -25,6 +25,20 @@ export async function refreshAccessToken() {
 
 export async function logoutAuth() {
   return request('/api/v1/auth/logout', {
+    auth: true,
     method: 'POST',
   })
+}
+
+export async function registerRequiredUserInfo(payload) {
+  return unwrap(
+    await request('/api/v1/auth/register', {
+      auth: true,
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    }),
+  )
 }

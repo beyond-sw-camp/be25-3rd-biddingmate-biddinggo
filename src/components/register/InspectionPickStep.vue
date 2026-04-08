@@ -14,6 +14,10 @@ defineProps({
     type: Array,
     required: true,
   },
+  inspectionSearchQuery: {
+    type: String,
+    default: '',
+  },
   inspectionProductImage: {
     type: String,
     required: true,
@@ -32,7 +36,7 @@ defineProps({
   },
 })
 
-defineEmits(['close-detail', 'open-inspection-request', 'select-item', 'start-auction'])
+defineEmits(['close-detail', 'open-inspection-request', 'select-item', 'start-auction', 'update:inspection-search-query'])
 </script>
 
 <template>
@@ -40,7 +44,13 @@ defineEmits(['close-detail', 'open-inspection-request', 'select-item', 'start-au
     <div class="inspection-toolbar register-inspection-toolbar">
       <div class="inspection-search">
         <img :src="assets.listSearchIcon" alt="" class="inspection-search-icon" />
-        <span>상품명, 브랜드 검색</span>
+        <input
+          :value="inspectionSearchQuery"
+          type="search"
+          class="inspection-search-input"
+          placeholder="상품명, 브랜드 검색"
+          @input="$emit('update:inspection-search-query', $event.target.value)"
+        />
       </div>
     </div>
 
@@ -58,10 +68,10 @@ defineEmits(['close-detail', 'open-inspection-request', 'select-item', 'start-au
       >
         <div class="inspection-product-image-wrap">
           <img :src="item.image || inspectionProductImage" :alt="item.title" class="inspection-product-image" />
-          <span class="inspection-badge is-passed">검수 통과</span>
         </div>
 
         <div class="inspection-product-body">
+          <span class="register-inspection-status">검수 통과</span>
           <h3>{{ item.title }}</h3>
           <div class="inspection-product-meta">
             <div>
