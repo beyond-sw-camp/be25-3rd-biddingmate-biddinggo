@@ -68,6 +68,7 @@ const {
   durationOptions,
   errorMessage,
   firstStepLabel,
+  filteredInspectionPickItems,
   form,
   goBackToSelect,
   handleFiles,
@@ -85,7 +86,9 @@ const {
   selectedDuration,
   selectedInspectionId,
   selectedInspectionItem,
+  inspectionSearchQuery,
   selectInspectionItem,
+  setInspectionSearchQuery,
   setAuctionStartDate,
   setAuctionStartTime,
   setPrimaryImage,
@@ -137,14 +140,16 @@ async function handleSubmit() {
       v-else-if="currentMode === 'inspection-pick'"
       :assets="assets"
       :error-message="errorMessage"
-      :inspection-pick-items="inspectionPickItems"
+      :inspection-pick-items="filteredInspectionPickItems"
       :inspection-product-image="inspectionProductImage"
+      :inspection-search-query="inspectionSearchQuery"
       :is-inspection-detail-open="isInspectionDetailOpen"
       :selected-inspection-id="selectedInspectionId"
       :selected-inspection-item="selectedInspectionItem"
       @close-detail="closeInspectionDetail"
       @open-inspection-request="openInspectionRequest"
       @select-item="selectInspectionItem"
+      @update:inspection-search-query="setInspectionSearchQuery"
       @start-auction="startAuctionFromInspection"
     />
 

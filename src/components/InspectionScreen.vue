@@ -43,6 +43,7 @@ const {
   handleDetailAction,
   isShippingModalOpen,
   openDetail,
+  searchQuery,
   selectedItem,
   shippingForm,
   submitShippingInfo,
@@ -71,7 +72,9 @@ const {
       :active-filter="activeFilter"
       :assets="assets"
       :filter-options="filterOptions"
+      :search-query="searchQuery"
       @update:active-filter="activeFilter = $event"
+      @update:search-query="searchQuery = $event"
     />
 
     <div v-if="errorMessage" class="feedback-strip is-error">{{ errorMessage }}</div>

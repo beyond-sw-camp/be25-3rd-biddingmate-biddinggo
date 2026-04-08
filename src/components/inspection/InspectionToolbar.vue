@@ -12,9 +12,13 @@ defineProps({
     type: Array,
     required: true,
   },
+  searchQuery: {
+    type: String,
+    default: '',
+  },
 })
 
-defineEmits(['update:activeFilter'])
+defineEmits(['update:activeFilter', 'update:searchQuery'])
 </script>
 
 <template>
@@ -34,7 +38,13 @@ defineEmits(['update:activeFilter'])
 
     <div class="inspection-search">
       <img :src="assets.listSearchIcon" alt="" class="inspection-search-icon" />
-      <span>상품명, 브랜드 검색</span>
+      <input
+        :value="searchQuery"
+        type="search"
+        class="inspection-search-input"
+        placeholder="상품명, 브랜드 검색"
+        @input="$emit('update:searchQuery', $event.target.value)"
+      />
     </div>
   </div>
 </template>

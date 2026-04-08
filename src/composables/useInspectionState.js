@@ -4,6 +4,7 @@ import { mergeInspectionItemDetail } from '../utils/marketplace'
 
 export function useInspectionState(items, { onShippingSubmit, onAuctionRegister } = {}) {
   const activeFilter = ref('전체')
+  const searchQuery = ref('')
   const selectedItem = ref(null)
   const isShippingModalOpen = ref(false)
   const shippingForm = ref({
@@ -14,11 +15,32 @@ export function useInspectionState(items, { onShippingSubmit, onAuctionRegister 
   const filterOptions = ['전체', '검수 대기', '검수 통과', '검수 반려']
 
   const filteredItems = computed(() => {
-    if (activeFilter.value === '전체') {
-      return items.value
-    }
+    const keyword = searchQuery.value.trim().toLowerCase()
 
-    return items.value.filter((item) => item.statusLabel === activeFilter.value)
+    return items.value.filter((item) => {
+      const matchesFilter = activeFilter.value === '전체' || item.statusLabel === activeFilter.value
+
+      if (!matchesFilter) {
+        return false
+      }
+
+      if (!keyword) {
+        return true
+      }
+
+      const haystack = [
+        item.title,
+        item.brand,
+        item.description,
+        item.categoryLabel,
+        item.inspectionGrade,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+
+      return haystack.includes(keyword)
+    })
   })
 
   function badgeClass(status) {
@@ -110,6 +132,7 @@ export function useInspectionState(items, { onShippingSubmit, onAuctionRegister 
     handleDetailAction,
     isShippingModalOpen,
     openDetail,
+    searchQuery,
     selectedItem,
     shippingForm,
     submitShippingInfo,

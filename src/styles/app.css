@@ -3523,6 +3523,20 @@ img {
   font-size: 14px;
 }
 
+.inspection-search-input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #191c1e;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.inspection-search-input::placeholder {
+  color: #94a3b8;
+}
+
 .inspection-search-icon {
   width: 18px;
   height: 24px;
@@ -3538,6 +3552,19 @@ img {
   width: 100%;
   grid-template-columns: repeat(4, 216px);
   gap: 22px 31px;
+}
+
+.register-inspection-empty-state {
+  display: grid;
+  place-items: center;
+  min-height: 216px;
+  border: 1px dashed #d7dee7;
+  border-radius: 20px;
+  background: #fff;
+  color: #94a3b8;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
 }
 
 .inspection-product-card {

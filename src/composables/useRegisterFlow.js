@@ -131,6 +131,7 @@ export function useRegisterFlow(initialMode, initialInspectionId) {
   const isInspectionDetailOpen = ref(false)
   const categoryOptions = ref([])
   const inspectionPickItems = ref([])
+  const inspectionSearchQuery = ref('')
   const successMessage = ref('')
   const errorMessage = ref('')
 
@@ -180,11 +181,37 @@ export function useRegisterFlow(initialMode, initialInspectionId) {
 
     return mergeInspectionItemDetail(baseItem, selectedInspectionDetail.value)
   })
+  const filteredInspectionPickItems = computed(() => {
+    const keyword = inspectionSearchQuery.value.trim().toLowerCase()
+
+    if (!keyword) {
+      return inspectionPickItems.value
+    }
+
+    return inspectionPickItems.value.filter((item) => {
+      const haystack = [
+        item.title,
+        item.brand,
+        item.description,
+        item.categoryLabel,
+        item.inspectionGrade,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+
+      return haystack.includes(keyword)
+    })
+  })
 
   function clearMessages() {
     submitted.value = false
     successMessage.value = ''
     errorMessage.value = ''
+  }
+
+  function setInspectionSearchQuery(value) {
+    inspectionSearchQuery.value = String(value || '')
   }
 
   function getAuctionStartDate() {
@@ -363,6 +390,7 @@ export function useRegisterFlow(initialMode, initialInspectionId) {
     auctionForm.value = createEmptyAuctionForm()
     selectedBidUnit.value = '10,000'
     selectedDuration.value = '5일'
+    inspectionSearchQuery.value = ''
     selectedInspectionDetail.value = null
     syncAuctionSchedule()
     clearMessages()
@@ -371,6 +399,7 @@ export function useRegisterFlow(initialMode, initialInspectionId) {
   function openMode(mode) {
     registrationType.value = mode === 'inspection' || mode === 'inspection-pick' ? 'inspection' : 'direct'
     currentMode.value = mode
+    inspectionSearchQuery.value = ''
     clearMessages()
 
     if (mode === 'inspection-pick') {
@@ -381,6 +410,7 @@ export function useRegisterFlow(initialMode, initialInspectionId) {
   function openInspectionRequest() {
     registrationType.value = 'inspection'
     currentMode.value = 'inspection'
+    inspectionSearchQuery.value = ''
     clearMessages()
   }
 
@@ -673,6 +703,7 @@ export function useRegisterFlow(initialMode, initialInspectionId) {
     durationOptions,
     errorMessage,
     firstStepLabel,
+    filteredInspectionPickItems,
     form,
     goBackToSelect,
     handleFiles,
@@ -690,7 +721,9 @@ export function useRegisterFlow(initialMode, initialInspectionId) {
     selectedDuration,
     selectedInspectionId,
     selectedInspectionItem,
+    inspectionSearchQuery,
     selectInspectionItem,
+    setInspectionSearchQuery,
     setAuctionStartDate,
     setAuctionStartTime,
     setPrimaryImage,
