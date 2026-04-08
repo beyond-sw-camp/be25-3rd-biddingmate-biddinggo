@@ -4,11 +4,13 @@
     :auth="auth"
     :current-nav-key="currentNavKey"
     :current-screen="currentScreen"
+    :initial-search-query="currentSearchQuery"
     :navigation-items="navigationItems"
     @navigate="navigate"
     @open-login="openLogin"
     @open-mypage="openMyPage"
     @logout="handleLogout"
+    @search="searchAuctions"
   >
     <RouterView />
   </AppShell>
@@ -29,6 +31,7 @@ const { auth, initializeAuth, logout } = useAuth()
 
 const currentNavKey = computed(() => String(route.meta.navKey ?? ''))
 const currentScreen = computed(() => String(route.name ?? ''))
+const currentSearchQuery = computed(() => String(route.query.q || ''))
 
 onMounted(async () => {
   await initializeAuth()
@@ -49,6 +52,19 @@ function navigate(path) {
   if (typeof path === 'string' && path) {
     router.push(path)
   }
+}
+
+function searchAuctions(query) {
+  const keyword = String(query || '').trim()
+
+  if (!keyword) {
+    return
+  }
+
+  router.push({
+    name: 'auction-search',
+    query: { q: keyword },
+  })
 }
 
 function openLogin() {

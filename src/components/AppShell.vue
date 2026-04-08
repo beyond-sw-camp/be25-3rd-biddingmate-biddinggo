@@ -27,9 +27,14 @@
 
     <div class="content-shell">
       <header class="topbar">
-        <form class="topbar-search-field topbar-search" role="search" @submit.prevent>
+        <form class="topbar-search-field topbar-search" role="search" @submit.prevent="submitSearch">
           <img :src="searchIcon" alt="" class="topbar-search__icon" />
-          <input type="search" placeholder="어떤 경매를 찾으시나요?" aria-label="경매 검색" />
+          <input
+            v-model.trim="searchQuery"
+            type="search"
+            placeholder="어떤 경매를 찾으시나요?"
+            aria-label="경매 검색"
+          />
         </form>
 
         <div class="topbar-links">
@@ -55,7 +60,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import NotificationModal from './NotificationModal.vue'
 
 const searchIcon = 'https://www.figma.com/api/mcp/asset/43c34f06-dced-42d0-9368-8ac16f87d2f7'
@@ -77,14 +82,35 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  initialSearchQuery: {
+    type: String,
+    default: '',
+  },
 })
 
-defineEmits(['navigate', 'open-login', 'open-mypage', 'logout'])
+const emit = defineEmits(['navigate', 'open-login', 'open-mypage', 'logout', 'search'])
 
 const isNotificationOpen = ref(false)
+const searchQuery = ref(String(props.initialSearchQuery || ''))
 const displayUsername = computed(() => {
   const username = String(props.auth.nickname || props.auth.name || props.auth.username || '').trim()
 
   return username ? username.slice(0, 10) : '로그인됨'
 })
+
+function submitSearch() {
+  if (!searchQuery.value) {
+    return
+  }
+
+  emit('search', searchQuery.value)
+}
+
+watch(
+  () => props.initialSearchQuery,
+  (next) => {
+    searchQuery.value = String(next || '')
+  },
+  { immediate: true },
+)
 </script>

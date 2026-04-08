@@ -11,6 +11,10 @@ const props = defineProps({
     type: Array,
     required: true,
   },
+  showCategories: {
+    type: Boolean,
+    default: true,
+  },
   errorMessage: {
     type: String,
     default: '',
@@ -39,6 +43,10 @@ const props = defineProps({
     type: Object,
     default: () => new Set(),
   },
+  toolbarSearchText: {
+    type: String,
+    default: '상품명, 브랜드 검색',
+  },
 })
 
 const emit = defineEmits(['openDetail', 'selectCategory', 'selectSort', 'toggleCategory', 'toggleWishlist'])
@@ -57,8 +65,8 @@ function selectSort(option) {
 </script>
 
 <template>
-  <section class="list-screen">
-    <div class="category-column">
+  <section class="list-screen" :class="{ 'is-search-mode': !showCategories }">
+    <div v-if="showCategories" class="category-column">
       <button
         v-for="item in categories"
         :key="item.id"
@@ -88,11 +96,11 @@ function selectSort(option) {
       </button>
     </div>
 
-    <div class="list-column">
+    <div class="list-column" :class="{ 'is-full': !showCategories }">
       <div class="list-toolbar">
         <div class="list-search">
           <img :src="assets.listSearchIcon" alt="" class="list-search-icon" />
-          <span>상품명, 브랜드 검색</span>
+          <span>{{ toolbarSearchText }}</span>
         </div>
 
         <div class="sort-dropdown" @keydown.escape="isSortMenuOpen = false">

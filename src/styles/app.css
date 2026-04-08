@@ -519,6 +519,10 @@ img {
   gap: 10px;
 }
 
+.list-screen.is-search-mode {
+  grid-template-columns: 1fr;
+}
+
 .category-column {
   min-height: 568px;
   border-right: 1px solid #f2f4f6;
@@ -589,6 +593,10 @@ img {
   display: flex;
   flex-direction: column;
   gap: 30px;
+}
+
+.list-column.is-full {
+  width: 100%;
 }
 
 .list-toolbar {

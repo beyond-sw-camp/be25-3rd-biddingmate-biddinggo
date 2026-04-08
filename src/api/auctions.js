@@ -9,6 +9,18 @@ export async function getAuctionList(params = {}) {
   return unwrap(data)
 }
 
+export async function searchAuctions(query, params = {}) {
+  const suffix = buildQueryString({
+    q: query,
+    ...params,
+  })
+  const data = await request(`/api/v1/auctions/search/semantic${suffix}`, {
+    method: 'GET',
+  })
+
+  return unwrap(data)
+}
+
 export async function getAuctionDetail(auctionId) {
   const data = await request(`/api/v1/auctions/${auctionId}`, {
     method: 'GET',

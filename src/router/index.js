@@ -4,6 +4,7 @@ import AuctionDetailView from '../views/AuctionDetailView.vue'
 import AuctionEditView from '../views/AuctionEditView.vue'
 import AuctionInquiryView from '../views/AuctionInquiryView.vue'
 import AuctionListView from '../views/AuctionListView.vue'
+import AuctionSearchView from '../views/AuctionSearchView.vue'
 import AuctionManagementView from '../views/AuctionManagementView.vue'
 import AdminInquiriesView from '../views/AdminInquiriesView.vue'
 import AdminInspectionsView from '../views/AdminInspectionsView.vue'
@@ -41,6 +42,15 @@ const routes = [
     path: '/auctions',
     name: 'auction-list',
     component: AuctionListView,
+    meta: {
+      navSection: 'main',
+      navKey: 'list',
+    },
+  },
+  {
+    path: '/auctions/search',
+    name: 'auction-search',
+    component: AuctionSearchView,
     meta: {
       navSection: 'main',
       navKey: 'list',
