@@ -91,6 +91,16 @@ function backToList() {
   router.push('/auctions')
 }
 
+function openEditPage() {
+  const auctionId = item.value?.auctionId || route.params.id
+
+  if (!auctionId) {
+    return
+  }
+
+  router.push(`/auctions/${auctionId}/edit`)
+}
+
 watch(
   () => route.params.id,
   (value) => {
@@ -108,6 +118,7 @@ watch(
     :loading="loading"
     :wishlist-processing="wishlistProcessing"
     @back="backToList"
+    @edit-auction="openEditPage"
     @refresh="loadAuctionDetail(String(route.params.id || ''))"
     @toggle-wishlist="toggleWishlist"
   />

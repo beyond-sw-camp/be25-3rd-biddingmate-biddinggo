@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import AddressBookView from '../views/AddressBookView.vue'
 import AuctionDetailView from '../views/AuctionDetailView.vue'
+import AuctionEditView from '../views/AuctionEditView.vue'
 import AuctionInquiryView from '../views/AuctionInquiryView.vue'
 import AuctionListView from '../views/AuctionListView.vue'
 import AuctionManagementView from '../views/AuctionManagementView.vue'
@@ -47,6 +48,15 @@ const routes = [
     path: '/auctions/:id',
     name: 'auction-detail',
     component: AuctionDetailView,
+    meta: {
+      navSection: 'main',
+      navKey: 'list',
+    },
+  },
+  {
+    path: '/auctions/:id/edit',
+    name: 'auction-edit',
+    component: AuctionEditView,
     meta: {
       navSection: 'main',
       navKey: 'list',

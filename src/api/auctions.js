@@ -30,6 +30,19 @@ export async function createAuction(payload) {
   return unwrap(data)
 }
 
+export async function updateAuction(auctionId, payload) {
+  const data = await request(`/api/v1/auctions/${auctionId}`, {
+    auth: true,
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  })
+
+  return unwrap(data)
+}
+
 export async function createAuctionFromInspectionItem(payload) {
   const data = await request('/api/v1/auctions/inspection-items', {
     auth: true,

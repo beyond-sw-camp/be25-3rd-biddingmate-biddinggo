@@ -41,7 +41,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['back', 'refresh', 'toggle-wishlist'])
+const emit = defineEmits(['back', 'edit-auction', 'refresh', 'toggle-wishlist'])
 
 const bidAmount = ref('')
 const feedbackMessage = ref('')
@@ -315,7 +315,30 @@ function buyNow() {
     <div class="detail-title-row">
       <button type="button" class="detail-chip" @click="emit('back')">목록으로</button>
       <div v-if="feedbackMessage" class="feedback-inline">{{ feedbackMessage }}</div>
-      <button type="button" class="detail-chip detail-report-trigger" @click="openReportModal">신고하기</button>
+      <button
+        v-if="item && isOwnAuction"
+        type="button"
+        class="detail-action-chip is-edit"
+        @click="emit('edit-auction')"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4.5 19.5h4.1L18.9 9.2a2.9 2.9 0 0 0 0-4.1 2.9 2.9 0 0 0-4.1 0L4.5 15.4v4.1Z" />
+          <path d="m13.8 6.1 4.1 4.1" />
+        </svg>
+        <span>수정하기</span>
+      </button>
+      <button
+        v-else
+        type="button"
+        class="detail-action-chip is-report"
+        @click="openReportModal"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 21V4.5" />
+          <path d="M6 5h10.2c.8 0 1.2.9.7 1.5L15.6 8l1.3 1.5c.5.6.1 1.5-.7 1.5H6" />
+        </svg>
+        <span>신고</span>
+      </button>
     </div>
 
     <div v-if="errorMessage" class="feedback-strip is-error">{{ errorMessage }}</div>

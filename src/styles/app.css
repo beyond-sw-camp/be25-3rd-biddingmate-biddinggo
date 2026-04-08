@@ -835,9 +835,40 @@ img {
   cursor: pointer;
 }
 
-.detail-report-trigger {
+.detail-action-chip {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  min-width: 76px;
+  gap: 10px;
+  border: 0;
+  border-radius: 16px;
+  padding: 6px 20px;
+  font-family: 'Pretendard Variable', Pretendard, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.detail-action-chip svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.detail-action-chip.is-report {
+  background: #f9e9ea;
+  color: #bc1d25;
+}
+
+.detail-action-chip.is-edit {
+  background: #f3f6fe;
+  color: #23008d;
 }
 
 .detail-grid {

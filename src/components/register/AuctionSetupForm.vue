@@ -36,6 +36,18 @@ defineProps({
     type: String,
     required: true,
   },
+  cancelLabel: {
+    type: String,
+    default: '취소',
+  },
+  showTypeToggles: {
+    type: Boolean,
+    default: true,
+  },
+  submitLabel: {
+    type: String,
+    default: '확인',
+  },
 })
 
 defineEmits(['cancel', 'select-bid-unit', 'select-duration', 'submit', 'toggle-field'])
@@ -44,7 +56,7 @@ defineEmits(['cancel', 'select-bid-unit', 'select-duration', 'submit', 'toggle-f
 <template>
   <section class="register-form-card register-auction-card">
     <div class="auction-settings">
-      <div class="auction-toggle-grid">
+      <div v-if="showTypeToggles" class="auction-toggle-grid">
         <article class="auction-toggle-card">
           <div class="auction-toggle-copy">
             <div class="auction-toggle-icon is-extend">↻</div>
@@ -161,10 +173,10 @@ defineEmits(['cancel', 'select-bid-unit', 'select-duration', 'submit', 'toggle-f
 
       <div class="register-actions">
         <button type="button" class="register-secondary-button" :disabled="processing" @click="$emit('cancel')">
-          취소
+          {{ cancelLabel }}
         </button>
         <button type="button" class="register-primary-button" :disabled="processing" @click="$emit('submit')">
-          {{ processing ? '처리 중...' : '확인' }}
+          {{ processing ? '처리 중...' : submitLabel }}
         </button>
       </div>
     </div>
