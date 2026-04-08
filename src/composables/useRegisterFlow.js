@@ -188,10 +188,13 @@ export function useRegisterFlow(initialMode) {
         order: 'DESC',
       })
 
-      inspectionPickItems.value = (page?.content || []).map((item, index) => ({
-        ...normalizeInspectionPickItem(item),
-        displayId: index,
-      }))
+      inspectionPickItems.value = (page?.content || [])
+        .map((item) => normalizeInspectionPickItem(item))
+        .filter((item) => item.inspectionStatus === 'PASSED' && item.auctionItemStatus === 'PENDING')
+        .map((item, index) => ({
+          ...item,
+          displayId: index,
+        }))
       selectedInspectionId.value = inspectionPickItems.value[0]?.displayId || 0
     } catch (error) {
       inspectionPickItems.value = []

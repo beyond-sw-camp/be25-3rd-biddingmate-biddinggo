@@ -218,9 +218,14 @@ export function formatShortDate(value) {
 }
 
 export function normalizeInspectionPickItem(result = {}) {
+  const inspectionStatus = normalizeEnumValue(result.inspectionStatus ?? result.status)
+  const auctionItemStatus = normalizeEnumValue(result.auctionItemStatus ?? result.itemStatus)
+
   return {
     inspectionId: result.inspectionId,
     itemId: result.itemId,
+    inspectionStatus,
+    auctionItemStatus,
     title: result.name || '검수 상품',
     brand: result.brand || '브랜드 미정',
     inspectionGrade: result.quality || '-',
