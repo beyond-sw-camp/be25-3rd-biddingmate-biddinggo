@@ -2880,6 +2880,8 @@ img {
   padding: 15px;
   font-size: 14px;
   font-weight: 500;
+  line-height: 20px;
+  font-family: inherit;
 }
 
 .register-field input,
@@ -2912,6 +2914,9 @@ img {
 .register-select-wrap select {
   appearance: none;
   -webkit-appearance: none;
+  height: 44px;
+  padding-top: 12px;
+  padding-bottom: 12px;
   padding-right: 36px;
 }
 
