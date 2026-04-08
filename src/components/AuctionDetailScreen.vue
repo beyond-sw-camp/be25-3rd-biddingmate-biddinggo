@@ -110,6 +110,7 @@ const buyNowAmount = computed(() =>
 )
 
 const bidHistoryRows = computed(() => props.item?.history || [])
+const bidHistoryPreviewRows = computed(() => props.item?.historyPreview || [])
 
 const isOwnAuction = computed(() => {
   const memberId = Number(authState.memberId)
@@ -375,7 +376,7 @@ function buyNow() {
             @open-bid="openBidModal"
             @toggle-wishlist="emit('toggle-wishlist')"
           />
-          <HistoryPanel :item="item" @view-all="openBidHistoryDrawer" />
+          <HistoryPanel :item="item" :rows="bidHistoryPreviewRows" @view-all="openBidHistoryDrawer" />
         </div>
       </div>
 

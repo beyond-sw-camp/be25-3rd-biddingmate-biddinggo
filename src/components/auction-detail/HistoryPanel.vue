@@ -6,6 +6,10 @@ defineProps({
     type: Object,
     required: true,
   },
+  rows: {
+    type: Array,
+    default: () => [],
+  },
 })
 
 defineEmits(['view-all'])
@@ -21,12 +25,15 @@ defineEmits(['view-all'])
       wrapper-class="history-header"
       @action="$emit('view-all')"
     />
-    <div class="history-list">
-      <div v-for="(row, index) in item.history" :key="`${row.bidder}-${index}`" class="history-row">
+    <div v-if="rows.length" class="history-list">
+      <div v-for="(row, index) in rows" :key="row.id ?? `${row.bidder}-${index}`" class="history-row">
         <span>{{ row.bidder }}</span>
         <strong>{{ row.amount }}</strong>
         <span>{{ row.date }}</span>
       </div>
     </div>
+    <p v-else class="history-empty">
+      {{ item.bidHistoryRequiresLogin ? '입찰 기록은 로그인 후 확인할 수 있습니다.' : '아직 입찰 기록이 없습니다.' }}
+    </p>
   </div>
 </template>

@@ -1449,6 +1449,14 @@ img {
   overflow: auto;
 }
 
+.detail-history-table-empty {
+  margin: 0;
+  padding: 32px 12px;
+  color: #94a3b8;
+  font-size: 14px;
+  text-align: center;
+}
+
 .detail-history-table-row {
   min-height: 48px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.12);
@@ -2317,6 +2325,16 @@ img {
 
 .history-row strong {
   color: #191c1e;
+}
+
+.history-empty {
+  margin: 18px 0 0;
+  border-radius: 12px;
+  background: #f8fafc;
+  padding: 18px 14px;
+  color: #94a3b8;
+  font-size: 13px;
+  text-align: center;
 }
 
 .history-view-all {

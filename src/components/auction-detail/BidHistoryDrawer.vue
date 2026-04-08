@@ -42,10 +42,10 @@ defineEmits(['close', 'open-bid'])
           <span>입찰 일시</span>
         </div>
 
-        <div class="detail-history-table-body">
+        <div v-if="rows.length" class="detail-history-table-body">
           <div
             v-for="(row, index) in rows"
-            :key="`${row.bidder}-${index}`"
+            :key="row.id ?? `${row.bidder}-${index}`"
             class="detail-history-table-row"
           >
             <span>{{ row.bidder }}</span>
@@ -53,6 +53,9 @@ defineEmits(['close', 'open-bid'])
             <span>{{ row.date }}</span>
           </div>
         </div>
+        <p v-else class="detail-history-table-empty">
+          {{ item.bidHistoryRequiresLogin ? '입찰 기록은 로그인 후 확인할 수 있습니다.' : '아직 입찰 기록이 없습니다.' }}
+        </p>
       </div>
 
       <button type="button" class="detail-history-action" @click="$emit('open-bid')">

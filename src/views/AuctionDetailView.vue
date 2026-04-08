@@ -34,7 +34,7 @@ async function loadAuctionDetail(auctionId) {
     const detail = await getAuctionDetail(auctionId)
     const [categoryResponse, bidResponse, inquiryResponse, sellerReviewResponse, wishlistStatusResponse] = await Promise.allSettled([
       getCategoryList(),
-      getAuctionBids(auctionId, { page: 1, size: 20 }),
+      authState.isAuthenticated ? getAuctionBids(auctionId, { page: 1, size: 20 }) : Promise.resolve({ content: [] }),
       getAuctionInquiryList(auctionId, { page: 1, size: 20 }),
       detail?.sellerId ? getSellerReviews(detail.sellerId, { page: 1, size: 3 }) : Promise.resolve({ content: [] }),
       authState.isAuthenticated ? getWishlistStatus(auctionId) : Promise.resolve({ wished: false }),
@@ -51,6 +51,7 @@ async function loadAuctionDetail(auctionId) {
       bidHistory: bidResponse.status === 'fulfilled' ? bidResponse.value?.content || [] : [],
       categoryPathLabel,
       inquiries: inquiryResponse.status === 'fulfilled' ? inquiryResponse.value?.content || [] : [],
+      isAuthenticated: authState.isAuthenticated,
       sellerReviews: sellerReviewResponse.status === 'fulfilled' ? sellerReviewResponse.value?.content || [] : [],
       wishlistStatus: wishlistStatusResponse.status === 'fulfilled' ? wishlistStatusResponse.value : { wished: false },
     })

@@ -73,14 +73,11 @@ export function normalizeAuctionCard(result = {}) {
 
 export function normalizeBidHistory(rows = []) {
   if (!rows.length) {
-    return [
-      { bidder: '아직 입찰 없음', amount: '-', date: '-' },
-      { bidder: '대기 중', amount: '-', date: '-' },
-      { bidder: '대기 중', amount: '-', date: '-' },
-    ]
+    return []
   }
 
   return rows.map((row) => ({
+    id: row.id,
     bidder: `${row.bidderId ?? '-'}번 회원`,
     amount: `${formatPrice(row.amount)}원`,
     date: formatDateTime(row.createdAt),
@@ -147,7 +144,7 @@ function normalizePricePrediction(pricePrediction = null) {
 
 export function normalizeAuctionDetail(
   detail = {},
-  { bidHistory = [], categoryPathLabel = '', inquiries = [], sellerReviews = [], wishlistStatus = {} } = {},
+  { bidHistory = [], categoryPathLabel = '', inquiries = [], isAuthenticated = false, sellerReviews = [], wishlistStatus = {} } = {},
 ) {
   const currentPrice = detail.vickreyPrice ?? detail.vickrey_price ?? detail.startPrice
   const sellerName = detail.sellerNickname || (detail.sellerId ? `판매자 ${detail.sellerId}` : '판매자')
@@ -157,6 +154,7 @@ export function normalizeAuctionDetail(
   const inspectionYn = normalizeEnumValue(detail.inspectionYn ?? detail.inspection_yn)
   const isInspected = auctionType === 'INSPECTION' || inspectionYn === 'YES'
   const category = detail.item?.category || {}
+  const history = normalizeBidHistory(bidHistory)
 
   return {
     id: detail.auctionId ? `auction-${detail.auctionId}` : 'auction-detail',
@@ -195,7 +193,9 @@ export function normalizeAuctionDetail(
     bidUnit: `${formatPrice(detail.bidUnit)}원`,
     startDate: formatDateTime(detail.startDate),
     endDate: formatDateTime(detail.endDate),
-    history: normalizeBidHistory(bidHistory),
+    bidHistoryRequiresLogin: !isAuthenticated,
+    history,
+    historyPreview: history.slice(0, 3),
     inquiries: normalizeInquiries(inquiries),
     images: detail.item?.images || [],
     image: detail.item?.images?.[0]?.url || detail.representativeImageUrl || '',
