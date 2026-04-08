@@ -52,7 +52,7 @@ function handleToggleWishlist() {
     @click="handleSelect"
   >
     <div class="item-image-wrap">
-      <span v-if="showLiveTag && item.highlight" class="live-tag">TIME DEAL</span>
+      <span v-if="showLiveTag && item.isTimeDeal" class="live-tag">TIME DEAL</span>
       <img :src="item.image || imageSrc" :alt="item.title" class="item-image" />
 
       <button

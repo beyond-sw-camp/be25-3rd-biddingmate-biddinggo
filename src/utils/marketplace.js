@@ -52,9 +52,12 @@ export function getCountdownLabel(value) {
 }
 
 export function normalizeAuctionCard(result = {}) {
+  const auctionType = normalizeEnumValue(result.type ?? result.auctionType)
+
   return {
     id: result.auctionId ? `auction-${result.auctionId}` : `auction-${result.item?.itemId || 'unknown'}`,
     auctionId: result.auctionId,
+    auctionType,
     title: result.item?.name || result.name || '등록 상품',
     brand: result.item?.brand || result.brand || '브랜드 미정',
     price: formatPrice(result.startPrice),
@@ -63,6 +66,7 @@ export function normalizeAuctionCard(result = {}) {
     isWished: Boolean(result.isWished ?? result.wished ?? false),
     time: getCountdownLabel(result.endDate),
     highlight: result.status === 'ON_GOING',
+    isTimeDeal: auctionType === 'TIME_DEAL',
     image: result.item?.images?.[0]?.url || result.representativeImageUrl || '',
   }
 }
