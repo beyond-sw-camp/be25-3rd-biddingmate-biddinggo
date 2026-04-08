@@ -3,9 +3,12 @@
     :current-points="currentPoints"
     :has-next="hasNext"
     :history="pointHistoryItems"
+    :issued-virtual-account="issuedVirtualAccount"
     :loading="loading"
-    :charge-points="chargePoints"
+    :prepare-charge-payment="prepareChargePayment"
+    :show-issued-virtual-account="showIssuedVirtualAccount"
     :withdraw-points="withdrawPoints"
+    @close-issued-virtual-account="closeIssuedVirtualAccount"
     @load-more="loadMorePoints"
   />
 </template>
@@ -15,13 +18,16 @@ import { onMounted, ref } from 'vue'
 import { createVirtualAccount, exchangeUserPoints, getUserPoints, getUserProfile } from '../api/users'
 import PointsScreen from '../components/mypage/points/PointsScreen.vue'
 import { authState } from '../lib/authSession'
+import { getBankLabel } from '../utils/banks'
 
 const currentPoints = ref(0)
+const issuedVirtualAccount = ref(null)
 const pointHistoryItems = ref([])
 const hasNext = ref(true)
 const loading = ref(false)
 const page = ref(1)
 const pageSize = 10
+const showIssuedVirtualAccount = ref(false)
 
 const typeLabels = {
   BID: '입찰',
@@ -42,6 +48,10 @@ function formatDate(date) {
   return String(date).replace('T', ' ')
 }
 
+function formatAmount(value) {
+  return `${Number(value || 0).toLocaleString('ko-KR')} 원`
+}
+
 function normalizePointHistory(item = {}) {
   const amount = Number(item.amount ?? 0)
   const tone = amount < 0 ? 'minus' : 'plus'
@@ -51,13 +61,23 @@ function normalizePointHistory(item = {}) {
     id: item.id,
     title: typeLabels[item.type] || item.type || '포인트',
     date: formatDate(item.createdAt),
-    amount: `${tone === 'minus' ? '-' : '+'}${absoluteAmount.toLocaleString('ko-KR')} P`,
+    amount: `${tone === 'minus' ? '-' : '+'}${absoluteAmount.toLocaleString('ko-KR')} 원`,
     tone,
   }
 }
 
 function getHistoryPage(response = {}) {
   return response.histroies || response.histories || response.history || response.pointHistories || {}
+}
+
+function normalizeIssuedVirtualAccount(account = {}) {
+  return {
+    bank: account.bankName || getBankLabel(account.bankCode || account.bank),
+    accountNumber: account.bankAccount || account.accountNumber || '-',
+    accountHolder: account.accountHolderName || account.accountHolder || '-',
+    depositAmount: formatAmount(account.amount),
+    dueAt: formatDate(account.dueDate || account.dueAt),
+  }
 }
 
 async function loadMorePoints() {
@@ -99,6 +119,11 @@ async function reloadPoints() {
   await loadMorePoints()
 }
 
+function closeIssuedVirtualAccount() {
+  showIssuedVirtualAccount.value = false
+  issuedVirtualAccount.value = null
+}
+
 async function withdrawPoints(amount) {
   await exchangeUserPoints({
     amount,
@@ -121,16 +146,18 @@ function createChargeOrderId() {
   return `charge_${timestamp}`
 }
 
-async function chargePoints(amount) {
+async function prepareChargePayment(amount, details = {}) {
   const userProfile = await getUserProfile().catch(() => null)
-
-  return createVirtualAccount({
+  const virtualAccount = await createVirtualAccount({
     orderId: createChargeOrderId(),
     orderName: '포인트 충전',
     amount,
-    customerName: userProfile?.name || userProfile?.username || authState.username || '회원',
-    bank: '20',
+    customerName: details.customerName || userProfile?.name || userProfile?.username || authState.username || '회원',
+    bank: details.bank || '20',
   })
+
+  issuedVirtualAccount.value = normalizeIssuedVirtualAccount(virtualAccount)
+  showIssuedVirtualAccount.value = true
 }
 
 onMounted(() => {

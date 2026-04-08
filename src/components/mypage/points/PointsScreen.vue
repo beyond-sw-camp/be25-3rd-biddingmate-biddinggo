@@ -48,10 +48,11 @@
       :amount-label="amountLabel"
       :action-label="actionLabel"
       :virtual-account="virtualAccount"
-      @close="closeModal"
+      @close="handleModalClose"
       @preset="setPreset"
       @submit="submitModal"
-      @confirm="confirmVirtualAccount"
+      @submit-charge-details="submitChargeDetails"
+      @confirm="handleVirtualAccountConfirm"
   />
 </template>
 
@@ -74,11 +75,19 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  issuedVirtualAccount: {
+    type: Object,
+    default: null,
+  },
   loading: {
     type: Boolean,
     default: false,
   },
-  chargePoints: {
+  showIssuedVirtualAccount: {
+    type: Boolean,
+    default: false,
+  },
+  prepareChargePayment: {
     type: Function,
     default: null,
   },
@@ -88,7 +97,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['load-more'])
+const emit = defineEmits(['close-issued-virtual-account', 'load-more'])
 const modalCurrentPoints = ref(props.currentPoints)
 const modalHistory = ref([])
 const loadMoreTarget = ref(null)
@@ -106,18 +115,40 @@ const {
   modalMode,
   modalTitle,
   openChargeModal,
+  openVirtualAccountModal,
   openWithdrawModal,
   presets,
   selectedPreset,
   setPreset,
+  submitChargeDetails,
   submitModal,
   virtualAccount,
 } = usePointModal({
   currentPoints: modalCurrentPoints,
   history: modalHistory,
-  onCharge: (amount) => props.chargePoints?.(amount),
+  onCharge: (amount) => props.prepareChargePayment?.(amount),
   onWithdraw: (amount) => props.withdrawPoints?.(amount),
 })
+
+function closeIssuedVirtualAccount() {
+  emit('close-issued-virtual-account')
+}
+
+function handleModalClose() {
+  if (modalMode.value === 'virtual-account' && props.showIssuedVirtualAccount) {
+    closeIssuedVirtualAccount()
+  }
+
+  closeModal()
+}
+
+function handleVirtualAccountConfirm() {
+  confirmVirtualAccount()
+
+  if (props.showIssuedVirtualAccount) {
+    closeIssuedVirtualAccount()
+  }
+}
 
 function requestLoadMore() {
   if (props.hasNext && !props.loading) {
@@ -148,6 +179,16 @@ watch(
   () => {
     modalHistory.value = [...props.history]
     nextTick(handleScroll)
+  },
+  { immediate: true },
+)
+
+watch(
+  () => [props.showIssuedVirtualAccount, props.issuedVirtualAccount],
+  ([show, account]) => {
+    if (show && account) {
+      openVirtualAccountModal(account)
+    }
   },
   { immediate: true },
 )

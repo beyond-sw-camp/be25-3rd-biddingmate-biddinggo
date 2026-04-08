@@ -41,6 +41,16 @@ export async function getUserBids(params = {}) {
   return unwrap(data)
 }
 
+export async function getUserWishlists(params = {}) {
+  const suffix = buildQueryString(params)
+  const data = await request(`/api/v1/wishlists${suffix}`, {
+    auth: true,
+    method: 'GET',
+  })
+
+  return unwrap(data)
+}
+
 export async function getUserAddresses(params = {}) {
   const suffix = buildQueryString(params)
   const data = await request(`/api/v1/addresses${suffix}`, {
