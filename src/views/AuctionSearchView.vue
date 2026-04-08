@@ -29,10 +29,6 @@ const selectedSortOption = computed(() => (
 ))
 const selectedSortLabel = computed(() => selectedSortOption.value.label)
 const searchQuery = computed(() => String(route.query.q || '').trim())
-const toolbarSearchText = computed(() => (
-  searchQuery.value ? `"${searchQuery.value}" 검색 결과` : '검색 결과'
-))
-
 function readSortKeyFromQuery() {
   const sortKey = String(route.query.sort || '')
 
@@ -192,6 +188,17 @@ function selectSort(option) {
   })
 }
 
+function submitSearch(keyword) {
+  if (!keyword) {
+    return
+  }
+
+  router.replace({
+    name: 'auction-search',
+    query: buildSearchQuery({ q: keyword, sortKey: selectedSortKey.value }),
+  })
+}
+
 onMounted(loadSearchResults)
 
 watch(
@@ -223,11 +230,13 @@ watch(
     :selected-sort-label="selectedSortLabel"
     :show-categories="false"
     :sort-options="sortOptions"
-    :toolbar-search-text="toolbarSearchText"
+    :toolbar-search-text="'상품명, 브랜드 검색'"
+    :toolbar-search-value="searchQuery"
     :wishlist-processing-ids="wishlistProcessingIds"
     @open-detail="openDetail"
     @select-category="() => {}"
     @select-sort="selectSort"
+    @submit-search="submitSearch"
     @toggle-category="() => {}"
     @toggle-wishlist="toggleWishlist"
   />

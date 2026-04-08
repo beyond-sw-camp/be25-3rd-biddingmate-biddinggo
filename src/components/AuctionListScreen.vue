@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import AuctionCard from './AuctionCard.vue'
 
 const props = defineProps({
@@ -47,10 +47,15 @@ const props = defineProps({
     type: String,
     default: '상품명, 브랜드 검색',
   },
+  toolbarSearchValue: {
+    type: String,
+    default: '',
+  },
 })
 
-const emit = defineEmits(['openDetail', 'selectCategory', 'selectSort', 'toggleCategory', 'toggleWishlist'])
+const emit = defineEmits(['openDetail', 'selectCategory', 'selectSort', 'submitSearch', 'toggleCategory', 'toggleWishlist'])
 const isSortMenuOpen = ref(false)
+const searchKeyword = ref(props.toolbarSearchValue)
 
 const effectiveSortOptions = computed(() => (
   props.sortOptions.length
@@ -58,9 +63,20 @@ const effectiveSortOptions = computed(() => (
     : [{ key: 'latest', label: props.selectedSortLabel }]
 ))
 
+watch(
+  () => props.toolbarSearchValue,
+  (value) => {
+    searchKeyword.value = value
+  },
+)
+
 function selectSort(option) {
   isSortMenuOpen.value = false
   emit('selectSort', option)
+}
+
+function submitSearch() {
+  emit('submitSearch', searchKeyword.value.trim())
 }
 </script>
 
@@ -98,10 +114,15 @@ function selectSort(option) {
 
     <div class="list-column" :class="{ 'is-full': !showCategories }">
       <div class="list-toolbar">
-        <div class="list-search">
+        <form class="list-search" role="search" @submit.prevent="submitSearch">
           <img :src="assets.listSearchIcon" alt="" class="list-search-icon" />
-          <span>{{ toolbarSearchText }}</span>
-        </div>
+          <input
+            v-model="searchKeyword"
+            type="search"
+            class="list-search-input"
+            :placeholder="toolbarSearchText"
+          />
+        </form>
 
         <div class="sort-dropdown" @keydown.escape="isSortMenuOpen = false">
           <button

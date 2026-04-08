@@ -241,6 +241,19 @@ function selectSort(option) {
   loadAuctionList()
 }
 
+function submitSearch(keyword) {
+  if (!keyword) {
+    return
+  }
+
+  router.push({
+    name: 'auction-search',
+    query: {
+      q: keyword,
+    },
+  })
+}
+
 async function toggleWishlist(item) {
   if (!item?.auctionId) {
     return
@@ -325,10 +338,12 @@ watch(
     :selected-sort-key="selectedSortKey"
     :selected-sort-label="selectedSortLabel"
     :sort-options="sortOptions"
+    :toolbar-search-value="''"
     :wishlist-processing-ids="wishlistProcessingIds"
     @open-detail="openDetail"
     @select-category="selectCategory"
     @select-sort="selectSort"
+    @submit-search="submitSearch"
     @toggle-category="toggleCategory"
     @toggle-wishlist="toggleWishlist"
   />
