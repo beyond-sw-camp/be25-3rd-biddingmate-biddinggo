@@ -6,9 +6,17 @@ defineProps({
     type: Object,
     required: true,
   },
+  errorMessage: {
+    type: String,
+    default: '',
+  },
   inspectionPickItems: {
     type: Array,
     required: true,
+  },
+  inspectionSearchQuery: {
+    type: String,
+    default: '',
   },
   inspectionProductImage: {
     type: String,
@@ -28,7 +36,7 @@ defineProps({
   },
 })
 
-defineEmits(['close-detail', 'select-item', 'start-auction'])
+defineEmits(['close-detail', 'open-inspection-request', 'select-item', 'start-auction', 'update:inspection-search-query'])
 </script>
 
 <template>
@@ -36,8 +44,18 @@ defineEmits(['close-detail', 'select-item', 'start-auction'])
     <div class="inspection-toolbar register-inspection-toolbar">
       <div class="inspection-search">
         <img :src="assets.listSearchIcon" alt="" class="inspection-search-icon" />
-        <span>상품명, 브랜드 검색</span>
+        <input
+          :value="inspectionSearchQuery"
+          type="search"
+          class="inspection-search-input"
+          placeholder="상품명, 브랜드 검색"
+          @input="$emit('update:inspection-search-query', $event.target.value)"
+        />
       </div>
+    </div>
+
+    <div v-if="errorMessage" class="register-success-banner is-error">
+      {{ errorMessage }}
     </div>
 
     <div class="inspection-card-grid register-inspection-grid">
@@ -49,11 +67,11 @@ defineEmits(['close-detail', 'select-item', 'start-auction'])
         @click="$emit('select-item', item.displayId)"
       >
         <div class="inspection-product-image-wrap">
-          <img :src="inspectionProductImage" :alt="item.title" class="inspection-product-image" />
-          <span class="inspection-badge is-passed">검수 통과</span>
+          <img :src="item.image || inspectionProductImage" :alt="item.title" class="inspection-product-image" />
         </div>
 
         <div class="inspection-product-body">
+          <span class="register-inspection-status">검수 통과</span>
           <h3>{{ item.title }}</h3>
           <div class="inspection-product-meta">
             <div>
@@ -65,11 +83,11 @@ defineEmits(['close-detail', 'select-item', 'start-auction'])
         </div>
       </article>
 
-      <article class="register-empty-card">
+      <button type="button" class="register-empty-card" @click="$emit('open-inspection-request')">
         <div class="register-empty-icon">+</div>
         <strong>상품이 없으신가요?</strong>
         <p>신규 사전 검수 상품을 등록해보세요.</p>
-      </article>
+      </button>
     </div>
 
     <InspectionDetailModal

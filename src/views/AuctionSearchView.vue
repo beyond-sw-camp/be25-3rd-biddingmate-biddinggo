@@ -1,25 +1,18 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getAuctionList } from '../api/auctions'
-import { getCategoryList } from '../api/categories'
+import { searchAuctions } from '../api/auctions'
 import { createWishlist, deleteWishlist, getWishlistStatus } from '../api/wishlists'
 import AuctionListScreen from '../components/AuctionListScreen.vue'
 import { assets } from '../data/marketplaceData'
 import { authState } from '../lib/authSession'
-import { buildCategoryTreeItems, getFallbackCategories, normalizeCategoryRows } from '../utils/category'
 import { normalizeAuctionCard } from '../utils/marketplace'
 
-const EXPANDED_CATEGORY_STORAGE_KEY = 'biddinggo.auction-list.expanded-categories'
-
-const router = useRouter()
 const route = useRoute()
-const categoryRows = ref([])
+const router = useRouter()
 const errorMessage = ref('')
-const expandedCategoryIds = ref(new Set())
 const items = ref([])
 const loading = ref(false)
-const selectedCategoryId = ref(readCategoryIdFromQuery())
 const wishlistProcessingIds = ref(new Set())
 
 const sortOptions = [
@@ -31,79 +24,22 @@ const sortOptions = [
   { key: 'price-high', label: '가격 높은 순', sortBy: 'PRICE', order: 'DESC' },
 ]
 const selectedSortKey = ref(readSortKeyFromQuery())
-
-const categories = computed(() => buildCategoryTreeItems(categoryRows.value, selectedCategoryId.value, expandedCategoryIds.value))
 const selectedSortOption = computed(() => (
   sortOptions.find((option) => option.key === selectedSortKey.value) || sortOptions[2]
 ))
 const selectedSortLabel = computed(() => selectedSortOption.value.label)
-
-function readCategoryIdFromQuery() {
-  const categoryId = Number(route.query.categoryId)
-
-  return Number.isFinite(categoryId) && categoryId > 0 ? categoryId : null
-}
-
+const searchQuery = computed(() => String(route.query.q || '').trim())
 function readSortKeyFromQuery() {
   const sortKey = String(route.query.sort || '')
 
   return sortOptions.some((option) => option.key === sortKey) ? sortKey : 'latest'
 }
 
-function readStoredExpandedCategoryIds() {
-  if (typeof window === 'undefined') {
-    return new Set()
-  }
-
-  try {
-    const raw = window.localStorage.getItem(EXPANDED_CATEGORY_STORAGE_KEY)
-    const ids = raw ? JSON.parse(raw) : []
-
-    return new Set(
-      Array.isArray(ids)
-        ? ids.map((id) => Number(id)).filter((id) => Number.isFinite(id) && id > 0)
-        : [],
-    )
-  } catch {
-    return new Set()
-  }
-}
-
-function persistExpandedCategoryIds(nextExpandedCategoryIds) {
-  if (typeof window === 'undefined') {
-    return
-  }
-
-  window.localStorage.setItem(
-    EXPANDED_CATEGORY_STORAGE_KEY,
-    JSON.stringify(Array.from(nextExpandedCategoryIds)),
-  )
-}
-
-function includeSelectedCategoryPath(baseExpandedCategoryIds = new Set()) {
-  const selectedId = Number(selectedCategoryId.value)
-
-  if (!Number.isFinite(selectedId) || selectedId <= 0 || !categoryRows.value.length) {
-    return new Set(baseExpandedCategoryIds)
-  }
-
-  const next = new Set(baseExpandedCategoryIds)
-  const categoriesById = new Map(categoryRows.value.map((category) => [Number(category.id), category]))
-  let current = categoriesById.get(selectedId) || null
-
-  while (current?.parentId) {
-    next.add(Number(current.parentId))
-    current = categoriesById.get(Number(current.parentId)) || null
-  }
-
-  return next
-}
-
-function buildListQuery({ categoryId = selectedCategoryId.value, sortKey = selectedSortKey.value } = {}) {
+function buildSearchQuery({ q = searchQuery.value, sortKey = selectedSortKey.value } = {}) {
   const query = {}
 
-  if (categoryId) {
-    query.categoryId = categoryId
+  if (q) {
+    query.q = q
   }
 
   if (sortKey && sortKey !== 'latest') {
@@ -146,39 +82,29 @@ async function hydrateWishlistStatuses(auctionItems) {
   })
 }
 
-async function loadCategories() {
-  try {
-    const response = await getCategoryList()
-    const rows = response?.categories || response || []
-    categoryRows.value = normalizeCategoryRows(Array.isArray(rows) && rows.length ? rows : getFallbackCategories())
-  } catch {
-    categoryRows.value = normalizeCategoryRows(getFallbackCategories())
+async function loadSearchResults() {
+  if (!searchQuery.value) {
+    items.value = []
+    errorMessage.value = '검색어를 입력해주세요.'
+    return
   }
 
-  expandedCategoryIds.value = includeSelectedCategoryPath(readStoredExpandedCategoryIds())
-  persistExpandedCategoryIds(expandedCategoryIds.value)
-}
-
-async function loadAuctionList() {
   loading.value = true
   errorMessage.value = ''
 
   try {
-    const page = await getAuctionList({
+    const page = await searchAuctions(searchQuery.value, {
       page: 1,
       size: 12,
       sortBy: selectedSortOption.value.sortBy,
-      status: 'ON_GOING',
       order: selectedSortOption.value.order,
-      categoryId: selectedCategoryId.value,
     })
-
     const nextItems = (page?.content || []).map(normalizeAuctionCard)
     items.value = nextItems
     await hydrateWishlistStatuses(nextItems)
   } catch (error) {
     items.value = []
-    errorMessage.value = error?.message || '경매 목록을 불러오지 못했습니다.'
+    errorMessage.value = error?.message || '검색 결과를 불러오지 못했습니다.'
   } finally {
     loading.value = false
   }
@@ -192,64 +118,10 @@ function openDetail(item) {
   router.push({
     name: 'auction-detail',
     params: { id: item.auctionId },
-    query: buildListQuery(),
-  })
-}
-
-function selectCategory(category) {
-  if (category?.hasChildren) {
-    toggleCategory(category)
-    return
-  }
-
-  selectedCategoryId.value = Number(category?.id || 0) || null
-  router.replace({
-    name: 'auction-list',
-    query: buildListQuery(),
-  })
-  loadAuctionList()
-}
-
-function toggleCategory(category) {
-  if (!category?.hasChildren) {
-    return
-  }
-
-  const next = new Set(expandedCategoryIds.value)
-  const categoryId = Number(category.id)
-
-  if (next.has(categoryId)) {
-    next.delete(categoryId)
-  } else {
-    next.add(categoryId)
-  }
-
-  expandedCategoryIds.value = next
-  persistExpandedCategoryIds(next)
-}
-
-function selectSort(option) {
-  if (!option?.key || selectedSortKey.value === option.key) {
-    return
-  }
-
-  selectedSortKey.value = option.key
-  router.replace({
-    name: 'auction-list',
-    query: buildListQuery(),
-  })
-  loadAuctionList()
-}
-
-function submitSearch(keyword) {
-  if (!keyword) {
-    return
-  }
-
-  router.push({
-    name: 'auction-search',
     query: {
-      q: keyword,
+      from: 'search',
+      q: searchQuery.value,
+      sort: selectedSortKey.value !== 'latest' ? selectedSortKey.value : '',
     },
   })
 }
@@ -304,26 +176,45 @@ async function toggleWishlist(item) {
   }
 }
 
-onMounted(async () => {
-  await loadCategories()
-  await loadAuctionList()
-})
+function selectSort(option) {
+  if (!option?.key || selectedSortKey.value === option.key) {
+    return
+  }
+
+  selectedSortKey.value = option.key
+  router.replace({
+    name: 'auction-search',
+    query: buildSearchQuery(),
+  })
+}
+
+function submitSearch(keyword) {
+  if (!keyword) {
+    return
+  }
+
+  router.replace({
+    name: 'auction-search',
+    query: buildSearchQuery({ q: keyword, sortKey: selectedSortKey.value }),
+  })
+}
+
+onMounted(loadSearchResults)
 
 watch(
-  () => [route.query.categoryId, route.query.sort],
+  () => [route.query.q, route.query.sort],
   () => {
-    const nextCategoryId = readCategoryIdFromQuery()
     const nextSortKey = readSortKeyFromQuery()
 
-    if (selectedCategoryId.value === nextCategoryId && selectedSortKey.value === nextSortKey) {
+    if (selectedSortKey.value === nextSortKey) {
+      if (searchQuery.value) {
+        loadSearchResults()
+      }
       return
     }
 
-    selectedCategoryId.value = nextCategoryId
     selectedSortKey.value = nextSortKey
-    expandedCategoryIds.value = includeSelectedCategoryPath(expandedCategoryIds.value)
-    persistExpandedCategoryIds(expandedCategoryIds.value)
-    loadAuctionList()
+    loadSearchResults()
   },
 )
 </script>
@@ -331,20 +222,22 @@ watch(
 <template>
   <AuctionListScreen
     :assets="assets"
-    :categories="categories"
+    :categories="[]"
     :error-message="errorMessage"
     :items="items"
     :loading="loading"
     :selected-sort-key="selectedSortKey"
     :selected-sort-label="selectedSortLabel"
+    :show-categories="false"
     :sort-options="sortOptions"
-    :toolbar-search-value="''"
+    :toolbar-search-text="'상품명, 브랜드 검색'"
+    :toolbar-search-value="searchQuery"
     :wishlist-processing-ids="wishlistProcessingIds"
     @open-detail="openDetail"
-    @select-category="selectCategory"
+    @select-category="() => {}"
     @select-sort="selectSort"
     @submit-search="submitSearch"
-    @toggle-category="toggleCategory"
+    @toggle-category="() => {}"
     @toggle-wishlist="toggleWishlist"
   />
 </template>

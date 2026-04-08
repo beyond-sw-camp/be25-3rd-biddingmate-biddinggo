@@ -1,8 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import AddressBookView from '../views/AddressBookView.vue'
 import AuctionDetailView from '../views/AuctionDetailView.vue'
+import AuctionEditView from '../views/AuctionEditView.vue'
 import AuctionInquiryView from '../views/AuctionInquiryView.vue'
 import AuctionListView from '../views/AuctionListView.vue'
+import AuctionSearchView from '../views/AuctionSearchView.vue'
 import AuctionManagementView from '../views/AuctionManagementView.vue'
 import AdminInquiriesView from '../views/AdminInquiriesView.vue'
 import AdminInspectionsView from '../views/AdminInspectionsView.vue'
@@ -15,12 +17,16 @@ import DashboardView from '../views/DashboardView.vue'
 import DirectInquiryView from '../views/DirectInquiryView.vue'
 import HomeView from '../views/HomeView.vue'
 import InspectionView from '../views/InspectionView.vue'
+import LoginView from '../views/LoginView.vue'
 import PointsView from '../views/PointsView.vue'
+import ProfileSetupView from '../views/ProfileSetupView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import PurchaseHistoryView from '../views/PurchaseHistoryView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import SalesHistoryView from '../views/SalesHistoryView.vue'
 import WishlistView from '../views/WishlistView.vue'
+import AuthCallbackView from '../views/AuthCallbackView.vue'
+import { authState } from '../lib/authSession'
 
 const routes = [
   {
@@ -42,9 +48,27 @@ const routes = [
     },
   },
   {
+    path: '/auctions/search',
+    name: 'auction-search',
+    component: AuctionSearchView,
+    meta: {
+      navSection: 'main',
+      navKey: 'list',
+    },
+  },
+  {
     path: '/auctions/:id',
     name: 'auction-detail',
     component: AuctionDetailView,
+    meta: {
+      navSection: 'main',
+      navKey: 'list',
+    },
+  },
+  {
+    path: '/auctions/:id/edit',
+    name: 'auction-edit',
+    component: AuctionEditView,
     meta: {
       navSection: 'main',
       navKey: 'list',
@@ -67,6 +91,21 @@ const routes = [
       navSection: 'main',
       navKey: 'inspection',
     },
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: LoginView,
+  },
+  {
+    path: '/auth/callback',
+    name: 'auth-callback',
+    component: AuthCallbackView,
+  },
+  {
+    path: '/profile/setup',
+    name: 'profile-setup',
+    component: ProfileSetupView,
   },
   {
     path: '/mypage',
@@ -245,6 +284,27 @@ const router = createRouter({
   scrollBehavior() {
     return { top: 0 }
   },
+})
+
+router.beforeEach((to) => {
+  const publicAuthRoutes = new Set(['login', 'auth-callback', 'profile-setup'])
+
+  if (
+    authState.isAuthenticated
+    && authState.status === 'PENDING'
+    && !publicAuthRoutes.has(String(to.name || ''))
+  ) {
+    return {
+      name: 'profile-setup',
+      query: { redirect: to.fullPath },
+    }
+  }
+
+  if (authState.isAuthenticated && authState.status === 'ACTIVE' && to.name === 'profile-setup') {
+    return { name: 'home' }
+  }
+
+  return true
 })
 
 export default router

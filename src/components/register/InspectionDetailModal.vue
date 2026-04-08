@@ -1,5 +1,7 @@
 <script setup>
-defineProps({
+import { computed, ref, watch } from 'vue'
+
+const props = defineProps({
   inspectionProductImage: {
     type: String,
     required: true,
@@ -11,6 +13,46 @@ defineProps({
 })
 
 defineEmits(['close', 'start-auction'])
+
+const currentImageIndex = ref(0)
+
+const imageUrls = computed(() => {
+  const images = Array.isArray(props.item?.images) ? props.item.images : []
+  const urls = images.map((image) => image?.url).filter(Boolean)
+
+  if (urls.length) {
+    return urls
+  }
+
+  return [props.item?.image || props.inspectionProductImage].filter(Boolean)
+})
+
+const currentImage = computed(() => imageUrls.value[currentImageIndex.value] || props.inspectionProductImage)
+const canSlideImages = computed(() => imageUrls.value.length > 1)
+
+function showPreviousImage() {
+  if (!canSlideImages.value) {
+    return
+  }
+
+  currentImageIndex.value = (currentImageIndex.value - 1 + imageUrls.value.length) % imageUrls.value.length
+}
+
+function showNextImage() {
+  if (!canSlideImages.value) {
+    return
+  }
+
+  currentImageIndex.value = (currentImageIndex.value + 1) % imageUrls.value.length
+}
+
+watch(
+  () => props.item?.inspectionId,
+  () => {
+    currentImageIndex.value = 0
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -22,40 +64,71 @@ defineEmits(['close', 'start-auction'])
 
       <div class="inspection-detail-grid">
         <div class="inspection-detail-image-card">
-          <img :src="inspectionProductImage" :alt="item.title" class="inspection-detail-image" />
+          <img :src="currentImage" :alt="item.title" class="inspection-detail-image" />
+          <button
+            v-if="canSlideImages"
+            type="button"
+            class="gallery-arrow gallery-arrow-left"
+            aria-label="이전 사진"
+            @click="showPreviousImage"
+          >
+            ‹
+          </button>
+          <button
+            v-if="canSlideImages"
+            type="button"
+            class="gallery-arrow gallery-arrow-right"
+            aria-label="다음 사진"
+            @click="showNextImage"
+          >
+            ›
+          </button>
         </div>
 
         <div class="inspection-detail-summary">
-          <p class="inspection-detail-category">럭셔리 &gt; 시계 &gt; 남성용 시계</p>
-          <span class="inspection-badge is-passed">검수 통과</span>
+          <p class="inspection-detail-kicker">사전 검수 상품</p>
+          <div class="inspection-detail-heading">
+            <span class="inspection-detail-status">검수 통과</span>
+            <p class="inspection-detail-category">{{ item.categoryLabel || '카테고리 정보 없음' }}</p>
+          </div>
           <h3>{{ item.title }}</h3>
 
           <div class="inspection-detail-meta">
-            <div>
+            <article class="inspection-detail-meta-card">
               <span>브랜드</span>
               <strong>{{ item.brand }}</strong>
-            </div>
-            <div>
+            </article>
+            <article class="inspection-detail-meta-card">
               <span>검수일</span>
               <strong>{{ item.inspectionDate }}</strong>
-            </div>
-            <div>
+            </article>
+            <article class="inspection-detail-meta-card">
               <span>검수 등급</span>
               <strong class="is-grade">{{ item.inspectionGrade }}</strong>
-            </div>
+            </article>
           </div>
         </div>
+      </div>
 
-        <div class="inspection-detail-section">
+      <div class="inspection-detail-info-grid">
+        <article class="inspection-detail-section inspection-detail-section--copy">
           <h4>상품 설명</h4>
           <p>{{ item.description }}</p>
-        </div>
+        </article>
 
-        <div class="inspection-detail-section">
+        <article class="inspection-detail-section inspection-detail-section--shipping">
           <h4>배송 정보</h4>
-          <p>우체국 택배</p>
-          <p>1928391823798</p>
-        </div>
+          <div class="inspection-detail-shipping-list">
+            <div>
+              <span>택배사</span>
+              <strong>{{ item.carrier || '배송 정보 미등록' }}</strong>
+            </div>
+            <div>
+              <span>송장 번호</span>
+              <strong>{{ item.trackingNumber || '-' }}</strong>
+            </div>
+          </div>
+        </article>
       </div>
 
       <div class="inspection-detail-actions">
