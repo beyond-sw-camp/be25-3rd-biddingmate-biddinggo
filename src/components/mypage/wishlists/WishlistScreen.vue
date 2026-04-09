@@ -4,16 +4,6 @@
   </section>
 
   <section class="filter-bar wishlist-filter-bar">
-    <v-text-field
-      v-model="searchQuery"
-      class="wishlist-search-field"
-      density="comfortable"
-      hide-details
-      placeholder="상품명 또는 경매 번호 검색"
-      prepend-inner-icon="mdi-magnify"
-      variant="solo"
-    />
-
     <v-menu location="bottom end" offset="12">
       <template #activator="{ props: menuProps }">
         <button class="sort-menu__trigger" type="button" v-bind="menuProps">
@@ -27,9 +17,9 @@
           v-for="option in sortOptions"
           :key="option.value"
           class="sort-menu__item"
-          :class="{ 'sort-menu__item--active': sortOption === option.value }"
+          :class="{ 'sort-menu__item--active': selectedSort === option.value }"
           type="button"
-          @click="sortOption = option.value"
+          @click="$emit('sort-change', option.value)"
         >
           {{ option.label }}
         </button>
@@ -39,8 +29,10 @@
 
   <div class="list-grid mypage-auction-card-grid">
     <AuctionCard
-      v-for="item in filteredFavoriteItems"
+      v-for="item in items"
       :key="item.id"
+      class="wishlist-auction-card"
+      :class="{ 'wishlist-auction-card--inspection': item.isInspected }"
       :clock-icon="clockIcon"
       :heart-icon="heartIcon"
       :image-src="noImage"
@@ -77,15 +69,17 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  selectedSort: {
+    type: String,
+    default: 'latest',
+  },
   wishlistProcessingIds: {
     type: Object,
     default: () => new Set(),
   },
 })
 
-const emit = defineEmits(['load-more', 'open-detail', 'toggle-wishlist'])
-const searchQuery = ref('')
-const sortOption = ref('latest')
+const emit = defineEmits(['load-more', 'open-detail', 'sort-change', 'toggle-wishlist'])
 const loadMoreTarget = ref(null)
 const clockIcon = 'https://www.figma.com/api/mcp/asset/4ef495a0-f919-4c28-9d20-c5dfe3e99e93'
 const heartIcon = 'https://www.figma.com/api/mcp/asset/64e7d0cd-6ebd-4492-a951-2b0ca40524d2'
@@ -93,40 +87,15 @@ let observer = null
 
 const sortOptions = [
   { value: 'latest', label: '최신순' },
-  { value: 'interest', label: '관심순' },
-  { value: 'price-desc', label: '높은 가격순' },
-  { value: 'price-asc', label: '낮은 가격순' },
   { value: 'deadline', label: '마감 임박순' },
+  { value: 'interest', label: '관심순' },
+  { value: 'popularity', label: '인기순' },
+  { value: 'price-asc', label: '낮은 가격순' },
+  { value: 'price-desc', label: '높은 가격순' },
 ]
 
 const currentSortLabel = computed(() => {
-  return sortOptions.find((option) => option.value === sortOption.value)?.label ?? '최신순'
-})
-
-const filteredFavoriteItems = computed(() => {
-  const keyword = searchQuery.value.trim().toLowerCase()
-
-  const searchedItems = props.items.filter((item) => {
-    return !keyword
-      || item.title.toLowerCase().includes(keyword)
-      || String(item.auctionId || '').includes(keyword)
-  })
-
-  return [...searchedItems].sort((left, right) => {
-    switch (sortOption.value) {
-      case 'interest':
-        return right.interestCount - left.interestCount
-      case 'price-desc':
-        return right.numericPrice - left.numericPrice
-      case 'price-asc':
-        return left.numericPrice - right.numericPrice
-      case 'deadline':
-        return left.deadlineMinutes - right.deadlineMinutes
-      case 'latest':
-      default:
-        return Number(right.id || 0) - Number(left.id || 0)
-    }
-  })
+  return sortOptions.find((option) => option.value === props.selectedSort)?.label ?? '최신순'
 })
 
 function openDetail(item) {

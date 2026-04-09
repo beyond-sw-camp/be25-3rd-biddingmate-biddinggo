@@ -3,9 +3,11 @@
     :has-next="hasNext"
     :items="wishlistItems"
     :loading="loading"
+    :selected-sort="selectedSort"
     :wishlist-processing-ids="wishlistProcessingIds"
     @load-more="loadMoreWishlists"
     @open-detail="openAuctionDetail"
+    @sort-change="changeSortOption"
     @toggle-wishlist="toggleWishlist"
   />
 </template>
@@ -25,6 +27,8 @@ const wishlistProcessingIds = ref(new Set())
 const hasNext = ref(true)
 const loading = ref(false)
 const page = ref(1)
+const requestVersion = ref(0)
+const selectedSort = ref('latest')
 const pageSize = 10
 
 const statusLabels = {
@@ -32,6 +36,15 @@ const statusLabels = {
   ON_GOING: '경매 진행 중',
   ENDED: '경매 종료',
   CANCELLED: '경매 취소',
+}
+
+const sortQueryMap = {
+  latest: { sortBy: 'CREATED_AT', order: 'DESC' },
+  deadline: { sortBy: 'END_DATE', order: 'ASC' },
+  interest: { sortBy: 'WISH_COUNT', order: 'DESC' },
+  popularity: { sortBy: 'POPULARITY', order: 'DESC' },
+  'price-asc': { sortBy: 'PRICE', order: 'ASC' },
+  'price-desc': { sortBy: 'PRICE', order: 'DESC' },
 }
 
 function formatAmount(value) {
@@ -76,7 +89,7 @@ function formatRemainingTime(endDate) {
 }
 
 function normalizeWishlistItem(item = {}) {
-  const price = item.buyNowPrice || item.startPrice
+  const price = item.vickreyPrice || item.startPrice
   const title = [item.brand, item.name].filter(Boolean).join(' ') || `상품 #${item.itemId}`
   const bidCount = `입찰 ${Number(item.bidCount || 0).toLocaleString('ko-KR')}건`
   const auctionType = String(item.type || '').toUpperCase()
@@ -116,21 +129,36 @@ function updateWishlistState(auctionId, patch) {
   ))
 }
 
+function resetWishlists() {
+  wishlistItems.value = []
+  page.value = 1
+  hasNext.value = true
+  loading.value = false
+  requestVersion.value += 1
+}
+
 async function loadMoreWishlists() {
   if (loading.value || !hasNext.value) {
     return
   }
 
   const requestedPage = page.value
+  const currentRequestVersion = requestVersion.value
+  const sortQuery = sortQueryMap[selectedSort.value] || sortQueryMap.latest
   loading.value = true
 
   try {
     const response = await getUserWishlists({
       page: requestedPage,
       size: pageSize,
-      order: 'ASC',
-      sortBy: 'CREATED_AT',
+      order: sortQuery.order,
+      sortBy: sortQuery.sortBy,
     })
+
+    if (currentRequestVersion !== requestVersion.value) {
+      return
+    }
+
     const content = response?.content || []
     const existingIds = new Set(wishlistItems.value.map((item) => item.id))
     const nextItems = content.map(normalizeWishlistItem).filter((item) => !existingIds.has(item.id))
@@ -141,10 +169,24 @@ async function loadMoreWishlists() {
       ? response.hasNext
       : requestedPage < Number(response?.totalPages ?? requestedPage)
   } catch {
-    hasNext.value = false
+    if (currentRequestVersion === requestVersion.value) {
+      hasNext.value = false
+    }
   } finally {
-    loading.value = false
+    if (currentRequestVersion === requestVersion.value) {
+      loading.value = false
+    }
   }
+}
+
+function changeSortOption(sortOption) {
+  if (selectedSort.value === sortOption) {
+    return
+  }
+
+  selectedSort.value = sortOption
+  resetWishlists()
+  loadMoreWishlists()
 }
 
 async function toggleWishlist(item) {

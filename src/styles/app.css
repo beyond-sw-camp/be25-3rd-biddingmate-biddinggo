@@ -745,6 +745,20 @@ img {
   border: 2px solid #f1ff88;
 }
 
+.wishlist-auction-card.item-card,
+.wishlist-auction-card.item-card.is-highlight {
+  border: 0;
+}
+
+.wishlist-auction-card--inspection.item-card,
+.wishlist-auction-card--inspection.item-card.is-highlight {
+  border: 1px solid rgba(74, 222, 128, 0.88);
+  box-shadow:
+    0 0 0 1px rgba(187, 247, 208, 0.92),
+    0 0 18px rgba(74, 222, 128, 0.38),
+    0 14px 34px -6px rgba(25, 28, 30, 0.12);
+}
+
 .item-image-wrap {
   position: relative;
   width: 214px;

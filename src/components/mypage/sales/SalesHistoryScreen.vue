@@ -16,15 +16,6 @@
         {{ tag }}
       </button>
     </div>
-    <v-text-field
-      v-model="searchQuery"
-      class="page-search-field"
-      density="comfortable"
-      hide-details
-      placeholder="상품명으로 검색"
-      prepend-inner-icon="mdi-magnify"
-      variant="solo"
-    />
   </section>
 
   <p v-if="errorMessage" class="feedback-strip is-error">{{ errorMessage }}</p>
@@ -93,7 +84,6 @@ const emit = defineEmits(['load-more'])
 const { selectedItem, modalMode, shippingForm, openModal, closeModal, updateForm, saveShipping } = useSalesModal()
 
 const selectedTag = ref('전체')
-const searchQuery = ref('')
 const loadMoreTarget = ref(null)
 const detailLoadingId = ref(null)
 const detailErrorMessage = ref('')
@@ -102,13 +92,7 @@ let observer = null
 const filterTags = ['전체', '발송 대기', '배송 중', '배송 완료', '거래 완료', '취소']
 
 const filteredItems = computed(() => {
-  const keyword = searchQuery.value.trim().toLowerCase()
-
-  return props.items.filter((item) => {
-    const matchesTag = selectedTag.value === '전체' || item.status === selectedTag.value
-    const matchesSearch = !keyword || item.name.toLowerCase().includes(keyword)
-    return matchesTag && matchesSearch
-  })
+  return props.items.filter((item) => selectedTag.value === '전체' || item.status === selectedTag.value)
 })
 
 async function openDetailModal(item) {

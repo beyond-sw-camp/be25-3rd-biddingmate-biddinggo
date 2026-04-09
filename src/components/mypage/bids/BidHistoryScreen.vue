@@ -16,15 +16,6 @@
         {{ tag.label }}
       </button>
     </div>
-    <v-text-field
-      v-model="searchQuery"
-      class="page-search-field"
-      density="comfortable"
-      hide-details
-      placeholder="상품명으로 검색"
-      prepend-inner-icon="mdi-magnify"
-      variant="solo"
-    />
   </section>
 
   <div class="bid-history-list">
@@ -67,7 +58,6 @@ const ALL_TAG = '__ALL__'
 const statusFilterTags = ['경매 예정', '경매 진행 중', '경매 종료', '경매 취소']
 const loadMoreTarget = ref(null)
 const selectedTag = ref(ALL_TAG)
-const searchQuery = ref('')
 let observer = null
 
 const filterTags = computed(() => [
@@ -79,13 +69,7 @@ const filterTags = computed(() => [
 ])
 
 const filteredBidItems = computed(() => {
-  const keyword = searchQuery.value.trim().toLowerCase()
-
-  return props.items.filter((item) => {
-    const matchesTag = selectedTag.value === ALL_TAG || item.status === selectedTag.value
-    const matchesSearch = !keyword || item.name.toLowerCase().includes(keyword)
-    return matchesTag && matchesSearch
-  })
+  return props.items.filter((item) => selectedTag.value === ALL_TAG || item.status === selectedTag.value)
 })
 
 function requestLoadMore() {

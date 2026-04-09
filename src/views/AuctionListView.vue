@@ -26,7 +26,7 @@ const sortOptions = [
   { key: 'wishlist', label: '관심순', sortBy: 'WISH_COUNT', order: 'DESC' },
   { key: 'popularity', label: '인기순', sortBy: 'POPULARITY', order: 'DESC' },
   { key: 'latest', label: '최신순', sortBy: 'CREATED_AT', order: 'DESC' },
-  { key: 'oldest', label: '오래된 순', sortBy: 'CREATED_AT', order: 'ASC' },
+  { key: 'deadline', label: '마감 임박순', sortBy: 'END_DATE', order: 'ASC' },
   { key: 'price-low', label: '가격 낮은 순', sortBy: 'PRICE', order: 'ASC' },
   { key: 'price-high', label: '가격 높은 순', sortBy: 'PRICE', order: 'DESC' },
 ]

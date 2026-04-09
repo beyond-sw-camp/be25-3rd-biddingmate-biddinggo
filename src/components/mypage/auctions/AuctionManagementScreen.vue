@@ -27,15 +27,6 @@
         {{ tag }}
       </button>
     </div>
-    <v-text-field
-      v-model="searchQuery"
-      class="page-search-field"
-      density="comfortable"
-      hide-details
-      placeholder="상품명 또는 브랜드 검색"
-      prepend-inner-icon="mdi-magnify"
-      variant="solo"
-    />
   </section>
 
   <div class="list-grid mypage-auction-card-grid">
@@ -58,10 +49,9 @@ import SurfaceCard from '../../SurfaceCard.vue'
 import { auctionItems, auctionSummary } from '../../../data/mypage'
 
 const selectedTag = ref('전체')
-const searchQuery = ref('')
 const clockIcon = 'https://www.figma.com/api/mcp/asset/4ef495a0-f919-4c28-9d20-c5dfe3e99e93'
 const heartIcon = 'https://www.figma.com/api/mcp/asset/64e7d0cd-6ebd-4492-a951-2b0ca40524d2'
-const filterTags = ['전체', '경매 진행 중', '낙찰', '유찰']
+const filterTags = ['전체', '경매 진행 중', '입찰', '유찰']
 
 const auctionItemsWithStatus = auctionItems.map((item, index) => {
   const auctionStatus = filterTags[(index % 3) + 1]
@@ -79,12 +69,6 @@ const auctionItemsWithStatus = auctionItems.map((item, index) => {
 })
 
 const filteredItems = computed(() => {
-  const keyword = searchQuery.value.trim().toLowerCase()
-
-  return auctionItemsWithStatus.filter((item) => {
-    const matchesTag = selectedTag.value === '전체' || item.auctionStatus === selectedTag.value
-    const matchesSearch = !keyword || item.title.toLowerCase().includes(keyword) || String(item.brand || '').toLowerCase().includes(keyword)
-    return matchesTag && matchesSearch
-  })
+  return auctionItemsWithStatus.filter((item) => selectedTag.value === '전체' || item.auctionStatus === selectedTag.value)
 })
 </script>
