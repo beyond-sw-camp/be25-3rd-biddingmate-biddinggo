@@ -1,18 +1,32 @@
 <template>
   <PurchaseHistoryScreen
+    :create-address="createAddress"
+    :delete-address="deleteAddress"
     :error-message="errorMessage"
     :has-next="hasNext"
     :items="purchaseItems"
     :loading="loading"
+    :confirm-purchase="confirmPurchase"
+    :load-address-book="loadAddressBook"
     :load-detail="loadPurchaseDetail"
     :save-shipping-address="savePurchaseShippingAddress"
+    :set-default-address="setDefaultAddress"
     @load-more="loadMorePurchases"
   />
 </template>
 
 <script setup>
 import { onMounted, ref } from 'vue'
-import { getUserPurchases, getWinnerDealDetail, updateWinnerDealShippingAddress } from '../api/users'
+import {
+  createUserAddress,
+  deleteUserAddress,
+  confirmWinnerDeal,
+  getUserAddresses,
+  getUserPurchases,
+  getWinnerDealDetail,
+  setDefaultUserAddress,
+  updateWinnerDealShippingAddress,
+} from '../api/users'
 import noImage from '../assets/no-image.svg'
 import PurchaseHistoryScreen from '../components/mypage/purchases/PurchaseHistoryScreen.vue'
 
@@ -79,6 +93,66 @@ function hasShippingAddress(item = {}) {
 
 function hasShippingInfo(item = {}) {
   return Boolean(item.carrier || item.trackingNumber)
+}
+
+function getAddressRows(response) {
+  if (Array.isArray(response)) {
+    return response
+  }
+
+  if (Array.isArray(response?.content)) {
+    return response.content
+  }
+
+  if (Array.isArray(response?.addresses)) {
+    return response.addresses
+  }
+
+  if (Array.isArray(response?.addressList)) {
+    return response.addressList
+  }
+
+  return []
+}
+
+function normalizeAddressOption(address = {}, index = 0) {
+  return {
+    id: address.id ?? address.addressId ?? address.addressNo ?? `address-${index}`,
+    zip: String(
+      address.zip
+      ?? address.zipcode
+      ?? address.zipCode
+      ?? address.zonecode
+      ?? address.postalCode
+      ?? address.postCode
+      ?? '',
+    ),
+    address1: address.address
+      ?? address.address1
+      ?? address.roadAddress
+      ?? address.jibunAddress
+      ?? address.basicAddress
+      ?? '',
+    address2: address.address2
+      ?? address.detailAddress
+      ?? address.detail
+      ?? '',
+    primary: normalizeBoolean(
+      address.default_yn
+    ),
+  }
+}
+
+function normalizeBoolean(value) {
+  if (typeof value === 'boolean') {
+    return value
+  }
+
+  if (typeof value === 'string') {
+    return ['true', 'y', 'yes', '1'].includes(value.trim().toLowerCase())
+  }
+
+  return Number(value) === 1
 }
 
 function buildShippingAddress(item = {}) {
@@ -156,6 +230,36 @@ async function loadPurchaseDetail(item) {
   return normalizeWinnerDeal({ ...item, ...detail })
 }
 
+async function loadAddressBook() {
+  const response = await getUserAddresses()
+
+  return getAddressRows(response).map(normalizeAddressOption)
+}
+
+async function createAddress(payload) {
+  const createdAddress = await createUserAddress({
+    zipcode: payload.zipcode,
+    address: payload.address,
+    detailAddress: payload.detailAddress,
+  })
+
+  if (payload.primary) {
+    const createdAddressId = createdAddress?.id ?? createdAddress?.addressId ?? createdAddress?.addressNo
+
+    if (createdAddressId) {
+      await setDefaultUserAddress(createdAddressId)
+    }
+  }
+}
+
+async function setDefaultAddress(addressId) {
+  await setDefaultUserAddress(addressId)
+}
+
+async function deleteAddress(addressId) {
+  await deleteUserAddress(addressId)
+}
+
 async function savePurchaseShippingAddress(item, address) {
   await updateWinnerDealShippingAddress(item.winnerDealId, {
     zipcode: address.zip,
@@ -164,6 +268,10 @@ async function savePurchaseShippingAddress(item, address) {
     recipient: address.name,
     tel: address.phone,
   })
+}
+
+async function confirmPurchase(item) {
+  await confirmWinnerDeal(item.winnerDealId)
 }
 
 async function loadMorePurchases() {

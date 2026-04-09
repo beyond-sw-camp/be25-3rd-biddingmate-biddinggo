@@ -1,9 +1,10 @@
 import { reactive, ref } from 'vue'
 
-export function usePurchaseModal({ onSaveAddress } = {}) {
+export function usePurchaseModal({ onConfirmPurchase, onSaveAddress } = {}) {
   const selectedItem = ref(null)
   const modalMode = ref('detail')
   const savingAddress = ref(false)
+  const confirmingPurchase = ref(false)
   const modalErrorMessage = ref('')
   const shippingForm = reactive({
     name: '',
@@ -35,7 +36,11 @@ export function usePurchaseModal({ onSaveAddress } = {}) {
   }
 
   function selectAddress(address) {
-    syncShippingForm(address)
+    syncShippingForm({
+      ...address,
+      name: address?.name || address?.recipient || shippingForm.name,
+      phone: address?.phone || address?.tel || shippingForm.phone,
+    })
     modalMode.value = 'shipping-form'
   }
 
@@ -46,7 +51,9 @@ export function usePurchaseModal({ onSaveAddress } = {}) {
   }
 
   async function saveAddress() {
-    if (!selectedItem.value || savingAddress.value) return
+    if (!selectedItem.value || savingAddress.value) {
+      return
+    }
 
     const nextAddress = {
       name: shippingForm.name,
@@ -74,12 +81,27 @@ export function usePurchaseModal({ onSaveAddress } = {}) {
     }
   }
 
-  function confirmPurchase() {
-    if (!selectedItem.value) return
+  async function confirmPurchase() {
+    if (!selectedItem.value || confirmingPurchase.value) {
+      return
+    }
 
-    selectedItem.value.status = '거래 완료'
-    selectedItem.value.modalType = 'readonly'
-    closeModal()
+    confirmingPurchase.value = true
+    modalErrorMessage.value = ''
+
+    try {
+      if (onConfirmPurchase) {
+        await onConfirmPurchase(selectedItem.value)
+      }
+
+      selectedItem.value.status = '거래 완료'
+      selectedItem.value.modalType = 'readonly'
+      closeModal()
+    } catch (error) {
+      modalErrorMessage.value = error?.message || '구매 확정에 실패했습니다.'
+    } finally {
+      confirmingPurchase.value = false
+    }
   }
 
   return {
@@ -87,6 +109,7 @@ export function usePurchaseModal({ onSaveAddress } = {}) {
     modalMode,
     shippingForm,
     savingAddress,
+    confirmingPurchase,
     modalErrorMessage,
     openModal,
     closeModal,

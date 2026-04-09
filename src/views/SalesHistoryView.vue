@@ -5,13 +5,14 @@
     :items="salesItems"
     :loading="loading"
     :load-detail="loadSalesDetail"
+    :save-shipping="saveSalesShipping"
     @load-more="loadMoreSales"
   />
 </template>
 
 <script setup>
 import { onMounted, ref } from 'vue'
-import { getUserSales, getWinnerDealDetail } from '../api/users'
+import { getUserSales, getWinnerDealDetail, updateWinnerDealTrackingNumber } from '../api/users'
 import noImage from '../assets/no-image.svg'
 import SalesHistoryScreen from '../components/mypage/sales/SalesHistoryScreen.vue'
 
@@ -149,6 +150,13 @@ async function loadSalesDetail(item) {
   const detail = await getWinnerDealDetail(item.winnerDealId)
 
   return normalizeWinnerDeal({ ...item, ...detail })
+}
+
+async function saveSalesShipping(item, shippingInfo) {
+  await updateWinnerDealTrackingNumber(item.winnerDealId, {
+    carrier: shippingInfo.courier,
+    trackingNumber: shippingInfo.trackingNumber,
+  })
 }
 
 async function loadMoreSales() {

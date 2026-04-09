@@ -18,8 +18,6 @@
     </div>
   </section>
 
-  <p v-if="errorMessage" class="feedback-strip is-error">{{ errorMessage }}</p>
-
   <div class="stack-list">
     <InquiryCard
       v-for="inquiry in inquiries"
@@ -34,7 +32,7 @@
   <div ref="loadMoreTarget" class="load-more-sentinel">
     <span v-if="loading">구매/판매 문의 내역을 불러오는 중입니다.</span>
     <span v-else-if="!hasNext && inquiries.length">마지막 문의 내역입니다.</span>
-    <span v-else-if="!inquiries.length && !errorMessage">구매/판매 문의 내역이 없습니다.</span>
+    <span v-else-if="!inquiries.length">구매/판매 문의 내역이 없습니다.</span>
   </div>
 </template>
 

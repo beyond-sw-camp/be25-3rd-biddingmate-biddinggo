@@ -18,9 +18,6 @@
     </div>
   </section>
 
-  <p v-if="errorMessage" class="feedback-strip is-error">{{ errorMessage }}</p>
-  <p v-if="detailErrorMessage" class="feedback-strip is-error">{{ detailErrorMessage }}</p>
-
   <div class="winner-deal-list">
     <WinnerDealCard
       v-for="item in filteredItems"
@@ -35,22 +32,31 @@
     <span v-if="detailLoadingId">상세 내역을 불러오는 중입니다.</span>
     <span v-else-if="loading">구매 내역을 불러오는 중입니다.</span>
     <span v-else-if="!hasNext && items.length">마지막 구매 내역입니다.</span>
-    <span v-else-if="!items.length && !errorMessage">구매 내역이 없습니다.</span>
+    <span v-else-if="!items.length">구매 내역이 없습니다.</span>
   </div>
 
   <WinnerDealDetailModal
     v-if="selectedItem"
     variant="purchase"
+    :addresses="addresses"
+    :address-book-error-message="addressBookErrorMessage"
+    :address-book-loading="addressBookLoading"
+    :address-book-saving="addressBookSaving"
+    :deleting-id="addressDeletingId"
     :item="selectedItem"
     :mode="modalMode"
     :form="shippingForm"
-    :saving="savingAddress"
+    :saving="savingAddress || confirmingPurchase"
     :error-message="modalErrorMessage"
+    :setting-default-id="addressSettingDefaultId"
     @close="closeModal"
-    @next="modalMode = $event"
+    @next="handleNext"
     @back="modalMode = $event"
+    @create-address="handleCreateAddress"
+    @delete-address="handleDeleteAddress"
     @save-address="saveAddress"
     @select-address="selectAddress"
+    @set-default-address="handleSetDefaultAddress"
     @update-form="updateForm"
     @confirm-purchase="confirmPurchase"
   />
@@ -58,9 +64,10 @@
 
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useToast } from '../../../composables/useToast'
+import { usePurchaseModal } from '../../../composables/usePurchaseModal'
 import WinnerDealCard from '../cards/WinnerDealCard.vue'
 import WinnerDealDetailModal from '../winner-deals/WinnerDealDetailModal.vue'
-import { usePurchaseModal } from '../../../composables/usePurchaseModal'
 
 const props = defineProps({
   errorMessage: {
@@ -70,6 +77,22 @@ const props = defineProps({
   hasNext: {
     type: Boolean,
     default: false,
+  },
+  confirmPurchase: {
+    type: Function,
+    default: null,
+  },
+  createAddress: {
+    type: Function,
+    default: null,
+  },
+  deleteAddress: {
+    type: Function,
+    default: null,
+  },
+  loadAddressBook: {
+    type: Function,
+    default: async () => [],
   },
   items: {
     type: Array,
@@ -87,14 +110,20 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  setDefaultAddress: {
+    type: Function,
+    default: null,
+  },
 })
 
 const emit = defineEmits(['load-more'])
+const { showToast } = useToast()
 const {
   selectedItem,
   modalMode,
   shippingForm,
   savingAddress,
+  confirmingPurchase,
   modalErrorMessage,
   openModal,
   closeModal,
@@ -103,6 +132,7 @@ const {
   saveAddress,
   confirmPurchase,
 } = usePurchaseModal({
+  onConfirmPurchase: props.confirmPurchase,
   onSaveAddress: props.saveShippingAddress,
 })
 
@@ -110,13 +140,19 @@ const selectedTag = ref('전체')
 const loadMoreTarget = ref(null)
 const detailLoadingId = ref(null)
 const detailErrorMessage = ref('')
+const addresses = ref([])
+const addressBookLoading = ref(false)
+const addressBookErrorMessage = ref('')
+const addressBookSaving = ref(false)
+const addressDeletingId = ref(null)
+const addressSettingDefaultId = ref(null)
 let observer = null
 
-const filterTags = ['전체', '발송 대기', '배송 중', '배송 완료', '거래 완료', '취소']
+const filterTags = ['전체', '배송 대기', '배송 중', '배송 완료', '거래 완료', '취소']
 
-const filteredItems = computed(() => {
-  return props.items.filter((item) => selectedTag.value === '전체' || item.status === selectedTag.value)
-})
+const filteredItems = computed(() => (
+  props.items.filter((item) => selectedTag.value === '전체' || item.status === selectedTag.value)
+))
 
 async function openDetailModal(item) {
   if (detailLoadingId.value) {
@@ -130,9 +166,100 @@ async function openDetailModal(item) {
     const detailItem = await props.loadDetail(item)
     openModal(detailItem)
   } catch (error) {
-    detailErrorMessage.value = error?.message || '상세 내역을 불러오지 못했습니다.'
+    const message = error?.message || '상세 내역을 불러오지 못했습니다.'
+    detailErrorMessage.value = message
+    showToast(message, { color: 'error' })
   } finally {
     detailLoadingId.value = null
+  }
+}
+
+async function loadAddressBook() {
+  if (addressBookLoading.value) {
+    return
+  }
+
+  addressBookLoading.value = true
+  addressBookErrorMessage.value = ''
+
+  try {
+    addresses.value = await props.loadAddressBook()
+  } catch (error) {
+    const message = error?.message || '배송지 목록을 불러오지 못했습니다.'
+    addresses.value = []
+    addressBookErrorMessage.value = message
+    showToast(message, { color: 'error' })
+  } finally {
+    addressBookLoading.value = false
+  }
+}
+
+async function handleNext(mode) {
+  if (mode === 'address-book') {
+    await loadAddressBook()
+  }
+
+  modalMode.value = mode
+}
+
+async function handleCreateAddress(payload) {
+  if (!props.createAddress || addressBookSaving.value) {
+    return
+  }
+
+  addressBookSaving.value = true
+  addressBookErrorMessage.value = ''
+
+  try {
+    await props.createAddress(payload)
+    await loadAddressBook()
+    modalMode.value = 'address-book'
+  } catch (error) {
+    const message = error?.message || '배송지를 등록하지 못했습니다.'
+    addressBookErrorMessage.value = message
+    showToast(message, { color: 'error' })
+  } finally {
+    addressBookSaving.value = false
+  }
+}
+
+async function handleSetDefaultAddress(addressId) {
+  if (!props.setDefaultAddress) {
+    return
+  }
+
+  addressSettingDefaultId.value = addressId
+  addressBookErrorMessage.value = ''
+
+  try {
+    await props.setDefaultAddress(addressId)
+    await loadAddressBook()
+  } catch (error) {
+    const message = error?.message || '기본 배송지를 설정하지 못했습니다.'
+    addressBookErrorMessage.value = message
+    showToast(message, { color: 'error' })
+  } finally {
+    addressSettingDefaultId.value = null
+  }
+}
+
+async function handleDeleteAddress(addressId) {
+  if (!props.deleteAddress) {
+    return
+  }
+
+  addressDeletingId.value = addressId
+  addressBookErrorMessage.value = ''
+
+  try {
+    await props.deleteAddress(addressId)
+    await loadAddressBook()
+  } catch (error) {
+    const message = error?.message || '배송지를 삭제하지 못했습니다.'
+    addressBookErrorMessage.value = message
+    showToast(message, { color: 'error' })
+  } finally {
+    addressDeletingId.value = null
   }
 }
 
@@ -155,6 +282,15 @@ function handleScroll() {
 watch(
   () => [props.items.length, props.hasNext, props.loading],
   () => nextTick(handleScroll),
+)
+
+watch(
+  () => props.errorMessage,
+  (message) => {
+    if (message) {
+      showToast(message, { color: 'error' })
+    }
+  },
 )
 
 onMounted(() => {

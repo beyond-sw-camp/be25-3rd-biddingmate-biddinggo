@@ -67,4 +67,11 @@ export const salesHistoryItems = [
   },
 ]
 
-export const courierOptions = ['우체국 택배', 'CJ대한통운', '롯데택배', '한진택배']
+export const courierOptions = [
+  'CJ대한통운',
+  '한진택배',
+  '롯데택배',
+  '로젠택배',
+  '우체국택배',
+  '경동택배',
+]

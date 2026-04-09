@@ -15,10 +15,13 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { createAuctionInquiryAnswer, getUserAuctionInquiries } from '../api/users'
+import { answerAuctionInquiry } from '../api/auctionInquiries'
+import { useToast } from '../composables/useToast'
+import { getUserAuctionInquiries } from '../api/users'
 import AuctionInquiryScreen from '../components/mypage/auction-inquiries/AuctionInquiryScreen.vue'
 
 const router = useRouter()
+const { showToast } = useToast()
 const inquiries = ref([])
 const hasNext = ref(true)
 const loading = ref(false)
@@ -86,11 +89,10 @@ function canReply(item = {}) {
 function normalizeInquiry(item = {}, index = 0) {
   const answerStatus = normalizeAnswerStatus(item.answerStatus, item.answer)
   const inquiryType = normalizeType(item.inquiryType)
-  const inquiryId = item.inquiryId || item.id
 
   return {
-    id: inquiryId || `${item.inquiryType || 'type'}-${item.auctionId || 'auction'}-${item.createdAt || index}-${index}`,
-    inquiryId,
+    id: item.id,
+    index,
     inquiryType,
     rawInquiryType: item.inquiryType,
     status: answerStatus,
@@ -99,7 +101,7 @@ function normalizeInquiry(item = {}, index = 0) {
     date: formatDate(item.createdAt),
     question: item.content || '',
     answer: item.answer || '',
-    answerAuthor: '관리자 답변',
+    answerAuthor: '판매자 답변',
     answerDate: formatDate(item.answeredAt),
     auctionId: item.auctionId,
     action: item.auctionId ? '상품 보러가기' : '',
@@ -155,7 +157,7 @@ async function loadMoreInquiries() {
       return
     }
 
-    errorMessage.value = error?.message || '구매/판매 문의 내역을 불러오지 못했습니다.'
+    showToast(error?.message || '구매/판매 문의 내역을 불러오지 못했습니다.', { color: 'error' })
     hasNext.value = false
   } finally {
     if (currentRequestVersion === requestVersion.value) {
@@ -181,27 +183,29 @@ function openAuctionDetail(inquiry) {
 }
 
 async function submitReply(inquiry, content) {
-  const inquiryId = inquiry?.inquiryId || inquiry?.id
+  const inquiryId = inquiry?.id
+  const answer = String(content || '').trim()
 
   if (!inquiryId) {
-    errorMessage.value = '답변을 등록할 문의 ID가 없습니다.'
+    showToast('답변을 등록할 문의 ID가 없습니다.', { color: 'error' })
     return
   }
 
-  errorMessage.value = ''
+  if (!answer) {
+    showToast('답변 내용을 입력해주세요.', { color: 'error' })
+    return
+  }
 
   try {
-    const result = await createAuctionInquiryAnswer(inquiryId, {
-      answer: content,
-    })
+    const result = await answerAuctionInquiry(inquiryId, { answer })
 
     inquiries.value = inquiries.value.map((item) => (
-      item.id === inquiry.id
+      item.id === inquiryId
         ? {
             ...item,
             status: '답변 완료',
             rawAnswerStatus: 'ANSWERED',
-            answer: result?.answer || content,
+            answer: result?.answer || answer,
             answerAuthor: '판매자 답변',
             answerDate: formatDate(result?.answeredAt || new Date()),
             pendingAction: null,
@@ -209,7 +213,7 @@ async function submitReply(inquiry, content) {
         : item
     ))
   } catch (error) {
-    errorMessage.value = error?.message || '답변 등록에 실패했습니다.'
+    showToast(error?.message || '답변 등록에 실패했습니다.', { color: 'error' })
   }
 }
 

@@ -59,8 +59,6 @@
 
     <div v-if="showActions" class="purchase-modal__actions">
       <button class="secondary-button purchase-modal__action" type="button" @click="$emit('close')">취소</button>
-      <p v-if="errorMessage" class="purchase-modal__error">{{ errorMessage }}</p>
-
       <button
         v-if="variant === 'purchase' && item.modalType === 'pending-no-address'"
         class="primary-button purchase-modal__action"
@@ -129,12 +127,17 @@
             <p>{{ form.address1 }}</p>
             <p>{{ form.address2 }}</p>
           </div>
-          <button class="ghost-button" type="button" @click="$emit('next', 'address-book')">변경</button>
+          <button
+            class="ghost-button purchase-address-preview__change"
+            type="button"
+            @click="$emit('next', 'address-book')"
+          >
+            변경
+          </button>
         </div>
       </label>
     </div>
 
-    <p v-if="errorMessage" class="purchase-modal__error">{{ errorMessage }}</p>
     <button class="primary-button purchase-form__submit" type="button" :disabled="saving" @click="$emit('save-address')">
       {{ saving ? '등록 중...' : '배송지 정보 등록' }}
     </button>
@@ -151,27 +154,29 @@
       </button>
     </template>
 
-    <div class="purchase-address-list">
-      <article
-        v-for="address in addresses"
-        :key="address.zip + address.address1"
-        class="purchase-address-card"
-        :class="{ primary: address.primary }"
-        @click="$emit('select-address', address)"
-      >
-        <div class="purchase-address-card__header">
-          <strong>{{ address.zip }}</strong>
-          <span v-if="address.primary" class="primary-tag">기본 배송지</span>
-        </div>
-        <p>{{ address.address1 }}</p>
-        <p>{{ address.address2 }}</p>
-      </article>
-    </div>
-
-    <div class="purchase-address-book__actions">
-      <button class="primary-button" type="button" @click="$emit('close')">+ 배송지 추가</button>
-    </div>
+    <AddressBookPanel
+      :addresses="addresses"
+      :empty-message="'등록된 배송지가 없습니다.'"
+      :error-message="addressBookErrorMessage"
+      :loading="addressBookLoading"
+      :loading-message="'배송지 목록을 불러오는 중입니다.'"
+      :selectable="true"
+      :show-add-button="true"
+      :show-management-actions="false"
+      @add="$emit('next', 'address-add')"
+      @select="$emit('select-address', $event)"
+    />
   </BaseModal>
+
+  <AddressAddModal
+    v-else-if="variant === 'purchase' && mode === 'address-add'"
+    :error-message="addressBookErrorMessage"
+    :open="true"
+    :saving="addressBookSaving"
+    :suggest-primary="addresses.length === 0"
+    @close="$emit('back', 'address-book')"
+    @submit="$emit('create-address', $event)"
+  />
 
   <BaseModal
     v-else-if="variant === 'sale' && mode === 'shipping-form'"
@@ -185,16 +190,34 @@
     <div class="purchase-form sales-form">
       <label>
         <span>택배사 <em>*</em></span>
-        <select :value="form.courier" @change="emitForm('courier', $event.target.value)">
-          <option disabled value="">선택</option>
-          <option v-for="option in courierOptions" :key="option" :value="option">
-            {{ option }}
-          </option>
-        </select>
+        <v-menu location="bottom start" offset="8">
+          <template #activator="{ props: menuProps }">
+            <button
+              v-bind="menuProps"
+              class="winnerdeal-courier-select"
+              type="button"
+            >
+              <span>{{ form.courier || '택배사를 선택해 주세요' }}</span>
+              <v-icon icon="mdi-chevron-down" />
+            </button>
+          </template>
+
+          <div class="winnerdeal-courier-menu">
+            <button
+              v-for="option in courierOptions"
+              :key="option"
+              class="winnerdeal-courier-menu__item"
+              type="button"
+              @click="emitForm('courier', option)"
+            >
+              {{ option }}
+            </button>
+          </div>
+        </v-menu>
       </label>
 
       <label>
-        <span>운장 번호 <em>*</em></span>
+        <span>운송장 번호 <em>*</em></span>
         <input
           :value="form.trackingNumber"
           type="text"
@@ -204,7 +227,6 @@
       </label>
     </div>
 
-    <p v-if="errorMessage" class="purchase-modal__error">{{ errorMessage }}</p>
     <button class="primary-button purchase-form__submit" type="button" :disabled="saving" @click="$emit('save-shipping')">
       {{ saving ? '등록 중...' : '등록하기' }}
     </button>
@@ -212,13 +234,36 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import BaseModal from '../../BaseModal.vue'
+import AddressAddModal from '../addresses/AddressAddModal.vue'
+import AddressBookPanel from '../addresses/AddressBookPanel.vue'
 import StatusBadge from '../cards/StatusBadge.vue'
-import { modalAddressBook, watchImage } from '../../../data/mypage'
+import { useToast } from '../../../composables/useToast'
+import { watchImage } from '../../../data/mypage'
 import { courierOptions } from '../../../data/salesHistory'
 
 const props = defineProps({
+  addresses: {
+    type: Array,
+    default: () => [],
+  },
+  addressBookErrorMessage: {
+    type: String,
+    default: '',
+  },
+  addressBookLoading: {
+    type: Boolean,
+    default: false,
+  },
+  addressBookSaving: {
+    type: Boolean,
+    default: false,
+  },
+  deletingId: {
+    type: [String, Number],
+    default: null,
+  },
   errorMessage: {
     type: String,
     default: '',
@@ -239,6 +284,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  settingDefaultId: {
+    type: [String, Number],
+    default: null,
+  },
   variant: {
     type: String,
     required: true,
@@ -247,17 +296,21 @@ const props = defineProps({
 })
 
 const emit = defineEmits([
-  'close',
-  'next',
   'back',
-  'save-address',
-  'select-address',
+  'close',
   'confirm-purchase',
-  'update-form',
+  'create-address',
+  'delete-address',
+  'next',
+  'save-address',
   'save-shipping',
+  'select-address',
+  'set-default-address',
+  'update-form',
 ])
+const { showToast } = useToast()
 
-const addresses = modalAddressBook
+const addresses = computed(() => props.addresses)
 
 const showActions = computed(() => {
   if (props.variant === 'purchase') {
@@ -273,4 +326,22 @@ const showActions = computed(() => {
 function emitForm(field, value) {
   emit('update-form', field, value)
 }
+
+watch(
+  () => props.errorMessage,
+  (message) => {
+    if (message) {
+      showToast(message, { color: 'error' })
+    }
+  },
+)
+
+watch(
+  () => props.addressBookErrorMessage,
+  (message) => {
+    if (message && !props.addressBookLoading) {
+      showToast(message, { color: 'error' })
+    }
+  },
+)
 </script>
