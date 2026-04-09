@@ -125,6 +125,29 @@ export async function getUserAuctionInquiries(params = {}) {
   return unwrap(data)
 }
 
+export async function getUserDirectInquiries(params = {}) {
+  const suffix = buildQueryString(params)
+  const data = await request(`/api/v1/direct-inquiries${suffix}`, {
+    auth: true,
+    method: 'GET',
+  })
+
+  return unwrap(data)
+}
+
+export async function createUserDirectInquiry(payload) {
+  const data = await request('/api/v1/direct-inquiries', {
+    auth: true,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  })
+
+  return unwrap(data)
+}
+
 export async function createAuctionInquiryAnswer(inquiryId, payload) {
   const data = await request(`/api/v1/inquiries/${inquiryId}`, {
     auth: true,
