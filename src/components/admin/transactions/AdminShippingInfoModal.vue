@@ -1,0 +1,71 @@
+<template>
+  <div class="modal-backdrop admin-modal-backdrop" @click.self="$emit('close')">
+    <section class="admin-shipping-modal">
+      <header class="admin-shipping-modal__head">
+        <h2>배송 정보 등록</h2>
+        <button class="admin-shipping-modal__close" type="button" @click="$emit('close')">
+          <v-icon icon="mdi-close" />
+        </button>
+      </header>
+
+      <form class="admin-shipping-modal__form" @submit.prevent="submit">
+        <label>
+          <span>택배사 <em>*</em></span>
+          <select v-model="courier">
+            <option disabled value="">선택</option>
+            <option v-for="company in shippingCompanies" :key="company" :value="company">{{ company }}</option>
+          </select>
+        </label>
+
+        <label>
+          <span>송장 번호 <em>*</em></span>
+          <input v-model="trackingNumber" placeholder="송장 번호를 입력해 주세요." type="text" />
+        </label>
+
+        <button class="primary-button" type="submit">등록하기</button>
+      </form>
+    </section>
+  </div>
+</template>
+
+<script setup>
+import { ref, watch } from 'vue'
+
+const props = defineProps({
+  item: {
+    type: Object,
+    required: true,
+  },
+  shippingCompanies: {
+    type: Array,
+    default: () => [],
+  },
+})
+
+const emit = defineEmits(['close', 'submit'])
+
+const courier = ref('')
+const trackingNumber = ref('')
+
+watch(
+  () => props.item,
+  (nextItem) => {
+    courier.value = nextItem?.shippingInfo?.courier ?? ''
+    trackingNumber.value = nextItem?.shippingInfo?.trackingNumber ?? ''
+  },
+  { immediate: true },
+)
+
+function submit() {
+  const payload = {
+    courier: courier.value.trim(),
+    trackingNumber: trackingNumber.value.trim(),
+  }
+
+  if (!payload.courier || !payload.trackingNumber) {
+    return
+  }
+
+  emit('submit', payload)
+}
+</script>
