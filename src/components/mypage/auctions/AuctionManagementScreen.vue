@@ -1,11 +1,11 @@
 <template>
   <section class="page-header-inline">
     <h1>경매 관리</h1>
-    <button class="primary-button" type="button">+ 경매 등록하기</button>
+    <button class="primary-button" type="button" @click="$emit('register')">+ 경매 등록하기</button>
   </section>
 
   <section class="stats-grid">
-    <SurfaceCard as="article" v-for="card in auctionSummary" :key="card.label" class="stat-card">
+    <SurfaceCard as="article" v-for="card in summaryItems" :key="card.label" class="stat-card">
       <span class="stat-card__icon"></span>
       <div>
         <p>{{ card.label }}</p>
@@ -22,7 +22,7 @@
         class="chip"
         :class="{ active: selectedTag === tag }"
         type="button"
-        @click="selectedTag = tag"
+        @click="$emit('filter-change', tag)"
       >
         {{ tag }}
       </button>
@@ -31,44 +31,117 @@
 
   <div class="list-grid mypage-auction-card-grid">
     <AuctionCard
-      v-for="(item, index) in filteredItems"
-      :key="item.id || `${item.title}-${index}`"
+      v-for="item in items"
+      :key="item.id"
+      class="wishlist-auction-card"
+      :class="{ 'wishlist-auction-card--inspection': item.isInspected }"
       :clock-icon="clockIcon"
       :heart-icon="heartIcon"
-      :image-src="item.image"
+      :image-src="noImage"
       :item="item"
       :show-live-tag="true"
+      :wishlist-processing="wishlistProcessingIds.has(item.auctionId)"
+      @select="openDetail"
+      @toggle-wishlist="toggleWishlist"
     />
+  </div>
+
+  <div ref="loadMoreTarget" class="load-more-sentinel">
+    <span v-if="loading">경매 관리 목록을 불러오는 중입니다.</span>
+    <span v-else-if="!hasNext && items.length">마지막 경매입니다.</span>
+    <span v-else-if="!items.length">등록한 경매가 없습니다.</span>
   </div>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import AuctionCard from '../../AuctionCard.vue'
 import SurfaceCard from '../../SurfaceCard.vue'
-import { auctionItems, auctionSummary } from '../../../data/mypage'
+import noImage from '../../../assets/no-image.svg'
 
-const selectedTag = ref('전체')
-const clockIcon = 'https://www.figma.com/api/mcp/asset/4ef495a0-f919-4c28-9d20-c5dfe3e99e93'
-const heartIcon = 'https://www.figma.com/api/mcp/asset/64e7d0cd-6ebd-4492-a951-2b0ca40524d2'
-const filterTags = ['전체', '경매 진행 중', '입찰', '유찰']
-
-const auctionItemsWithStatus = auctionItems.map((item, index) => {
-  const auctionStatus = filterTags[(index % 3) + 1]
-
-  return {
-    ...item,
-    id: item.id || `managed-auction-${index}`,
-    auctionStatus,
-    bids: item.bids || item.bidCount,
-    highlight: item.highlight || item.highlighted,
-    isTimeDeal: Boolean(item.tag),
-    price: item.price || item.currentPrice,
-    title: item.title || item.name,
-  }
+const props = defineProps({
+  hasNext: {
+    type: Boolean,
+    default: false,
+  },
+  items: {
+    type: Array,
+    default: () => [],
+  },
+  loading: {
+    type: Boolean,
+    default: false,
+  },
+  selectedTag: {
+    type: String,
+    default: '전체',
+  },
+  summaryItems: {
+    type: Array,
+    default: () => [],
+  },
+  wishlistProcessingIds: {
+    type: Object,
+    default: () => new Set(),
+  },
 })
 
-const filteredItems = computed(() => {
-  return auctionItemsWithStatus.filter((item) => selectedTag.value === '전체' || item.auctionStatus === selectedTag.value)
+const emit = defineEmits(['filter-change', 'load-more', 'open-detail', 'register', 'toggle-wishlist'])
+const loadMoreTarget = ref(null)
+const clockIcon = 'https://www.figma.com/api/mcp/asset/4ef495a0-f919-4c28-9d20-c5dfe3e99e93'
+const heartIcon = 'https://www.figma.com/api/mcp/asset/64e7d0cd-6ebd-4492-a951-2b0ca40524d2'
+const filterTags = ['전체', '예정', '진행 중', '낙찰', '유찰', '취소']
+let observer = null
+
+function openDetail(item) {
+  emit('open-detail', item)
+}
+
+function toggleWishlist(item) {
+  emit('toggle-wishlist', item)
+}
+
+function requestLoadMore() {
+  if (props.hasNext && !props.loading) {
+    emit('load-more')
+  }
+}
+
+function handleScroll() {
+  const scrollTop = window.scrollY || document.documentElement.scrollTop
+  const viewportHeight = window.innerHeight
+  const scrollHeight = document.documentElement.scrollHeight
+
+  if (scrollTop + viewportHeight >= scrollHeight - 160) {
+    requestLoadMore()
+  }
+}
+
+watch(
+  () => [props.items.length, props.hasNext, props.loading],
+  () => nextTick(handleScroll),
+)
+
+onMounted(() => {
+  observer = new IntersectionObserver(
+    ([entry]) => {
+      if (entry.isIntersecting) {
+        requestLoadMore()
+      }
+    },
+    { rootMargin: '160px' },
+  )
+
+  if (loadMoreTarget.value) {
+    observer.observe(loadMoreTarget.value)
+  }
+
+  window.addEventListener('scroll', handleScroll, { passive: true })
+  nextTick(handleScroll)
+})
+
+onBeforeUnmount(() => {
+  observer?.disconnect()
+  window.removeEventListener('scroll', handleScroll)
 })
 </script>

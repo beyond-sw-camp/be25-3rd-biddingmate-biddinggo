@@ -80,6 +80,16 @@ export async function getUserSales(params = {}) {
   return unwrap(data)
 }
 
+export async function getUserManagedAuctions(params = {}) {
+  const suffix = buildQueryString(params)
+  const data = await request(`/api/v1/users/me/sales/auctions${suffix}`, {
+    auth: true,
+    method: 'GET',
+  })
+
+  return unwrap(data)
+}
+
 export async function getWinnerDealDetail(winnerDealId) {
   const data = await request(`/api/v1/winner-deals/${winnerDealId}`, {
     auth: true,
