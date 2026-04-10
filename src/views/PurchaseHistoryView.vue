@@ -11,12 +11,14 @@
     :load-detail="loadPurchaseDetail"
     :save-shipping-address="savePurchaseShippingAddress"
     :set-default-address="setDefaultAddress"
+    :submit-review="submitReview"
     @load-more="loadMorePurchases"
   />
 </template>
 
 <script setup>
 import { onMounted, ref } from 'vue'
+import { createAuctionReview } from '../api/reviews'
 import {
   createUserAddress,
   deleteUserAddress,
@@ -29,6 +31,9 @@ import {
 } from '../api/users'
 import noImage from '../assets/no-image.svg'
 import PurchaseHistoryScreen from '../components/mypage/purchases/PurchaseHistoryScreen.vue'
+import { useToast } from '../composables/useToast'
+
+const { showToast } = useToast()
 
 const purchaseItems = ref([])
 const hasNext = ref(true)
@@ -39,34 +44,28 @@ const pageSize = 10
 const defaultOffset = 1073741824
 
 const enumStatusLabels = {
-  PAID: '발송 대기',
-  SHIPPED: '배송 중',
-  DELIVERED: '배송 완료',
+  PAID: '배송 대기',
+  SHIPPED: '발송 완료',
   CONFIRMED: '거래 완료',
   CANCELLED: '취소',
 }
 
-const compactStatusLabels = {
-  발송대기: '발송 대기',
-  배송중: '배송 중',
-  배송완료: '배송 완료',
-  거래완료: '거래 완료',
-  취소: '취소',
-}
-
 function normalizeDealStatus(status) {
-  const rawStatus = String(status || '').trim()
-  const compactStatus = rawStatus.replace(/\s+/g, '')
+  const rawStatus = String(status || '').trim().toUpperCase()
 
-  return enumStatusLabels[rawStatus] || compactStatusLabels[compactStatus] || rawStatus || '-'
+  return enumStatusLabels[rawStatus] || String(status || '-')
 }
 
-function isWaitingForShipment(item = {}) {
-  return normalizeDealStatus(item.status) === '발송 대기'
+function isPaidStatus(item = {}) {
+  return String(item.status || '').trim().toUpperCase() === 'PAID'
+}
+
+function isShippedStatus(item = {}) {
+  return String(item.status || '').trim().toUpperCase() === 'SHIPPED'
 }
 
 function formatAmount(value) {
-  return `${Number(value || 0).toLocaleString('ko-KR')} 원`
+  return `${Number(value || 0).toLocaleString('ko-KR')}원`
 }
 
 function formatDate(value) {
@@ -115,17 +114,29 @@ function getAddressRows(response) {
   return []
 }
 
+function normalizeBoolean(value) {
+  if (typeof value === 'boolean') {
+    return value
+  }
+
+  if (typeof value === 'string') {
+    return ['true', 'y', 'yes', '1'].includes(value.trim().toLowerCase())
+  }
+
+  return Number(value) === 1
+}
+
 function normalizeAddressOption(address = {}, index = 0) {
   return {
     id: address.id ?? address.addressId ?? address.addressNo ?? `address-${index}`,
     zip: String(
       address.zip
-      ?? address.zipcode
-      ?? address.zipCode
-      ?? address.zonecode
-      ?? address.postalCode
-      ?? address.postCode
-      ?? '',
+        ?? address.zipcode
+        ?? address.zipCode
+        ?? address.zonecode
+        ?? address.postalCode
+        ?? address.postCode
+        ?? '',
     ),
     address1: address.address
       ?? address.address1
@@ -138,21 +149,13 @@ function normalizeAddressOption(address = {}, index = 0) {
       ?? address.detail
       ?? '',
     primary: normalizeBoolean(
-      address.default_yn
+      address.primary
+        ?? address.default_yn
+        ?? address.defaultYn
+        ?? address.defaultAddress
+        ?? address.isDefault,
     ),
   }
-}
-
-function normalizeBoolean(value) {
-  if (typeof value === 'boolean') {
-    return value
-  }
-
-  if (typeof value === 'string') {
-    return ['true', 'y', 'yes', '1'].includes(value.trim().toLowerCase())
-  }
-
-  return Number(value) === 1
 }
 
 function buildShippingAddress(item = {}) {
@@ -181,11 +184,11 @@ function buildShippingInfo(item = {}) {
 }
 
 function getPurchaseModalType(item = {}) {
-  if (item.canRegisterShippingAddress || (isWaitingForShipment(item) && !hasShippingAddress(item))) {
+  if (item.canRegisterShippingAddress || (isPaidStatus(item) && !hasShippingAddress(item))) {
     return 'pending-no-address'
   }
 
-  if (item.canConfirmPurchase) {
+  if (item.canConfirmPurchase || isShippedStatus(item)) {
     return 'delivery-complete-awaiting-confirm'
   }
 
@@ -196,6 +199,7 @@ function normalizeWinnerDeal(item = {}) {
   return {
     id: item.winnerDealId,
     winnerDealId: item.winnerDealId,
+    dealNumber: item.dealNumber || '',
     auctionId: item.auctionId,
     itemId: item.itemId,
     viewerRole: item.viewerRole,
@@ -218,6 +222,12 @@ function normalizeWinnerDeal(item = {}) {
     canConfirmPurchase: Boolean(item.canConfirmPurchase),
     canWriteReview: Boolean(item.canWriteReview),
   }
+}
+
+function updatePurchaseItem(winnerDealId, updater) {
+  purchaseItems.value = purchaseItems.value.map((item) => (
+    item.winnerDealId === winnerDealId ? updater(item) : item
+  ))
 }
 
 async function loadPurchaseDetail(item) {
@@ -268,10 +278,50 @@ async function savePurchaseShippingAddress(item, address) {
     recipient: address.name,
     tel: address.phone,
   })
+
+  updatePurchaseItem(item.winnerDealId, (purchaseItem) => ({
+    ...purchaseItem,
+    shippingAddress: {
+      name: address.name,
+      phone: address.phone,
+      zip: address.zip,
+      address1: address.address1,
+      address2: address.address2,
+    },
+    modalType: isShippedStatus(purchaseItem) ? 'delivery-complete-awaiting-confirm' : 'readonly',
+  }))
 }
 
 async function confirmPurchase(item) {
   await confirmWinnerDeal(item.winnerDealId)
+
+  updatePurchaseItem(item.winnerDealId, (purchaseItem) => ({
+    ...purchaseItem,
+    status: '거래 완료',
+    rawStatus: 'CONFIRMED',
+    modalType: 'readonly',
+    canConfirmPurchase: false,
+  }))
+}
+
+async function submitReview(item, payload) {
+  if (!item?.auctionId) {
+    throw new Error('리뷰를 등록할 경매 ID가 없습니다.')
+  }
+
+  const normalizedRating = Math.min(5, Math.max(1, Math.round(Number(payload.rating || 0))))
+
+  await createAuctionReview(item.auctionId, {
+    rating: normalizedRating,
+    content: String(payload.content || '').trim(),
+  })
+
+  updatePurchaseItem(item.winnerDealId, (purchaseItem) => ({
+    ...purchaseItem,
+    canWriteReview: false,
+  }))
+
+  showToast('리뷰가 등록되었습니다.')
 }
 
 async function loadMorePurchases() {

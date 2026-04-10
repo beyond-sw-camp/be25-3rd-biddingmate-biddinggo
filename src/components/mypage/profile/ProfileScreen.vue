@@ -7,60 +7,83 @@
     <div class="profile-summary">
       <div class="profile-summary__avatar">
         <img :src="profile.avatar" :alt="displayNickname" class="avatar" @error="setDefaultAvatar" />
-        <button type="button">+</button>
+        <button type="button" aria-label="프로필 이미지">+</button>
       </div>
-      <div>
+      <div class="profile-summary__content">
         <div class="profile-summary__name">
-          <span class="rank-badge">G</span>
-          <strong>{{ displayNickname }}</strong>
+          <img v-if="badgeImage" :src="badgeImage" alt="회원 등급 뱃지" class="profile-grade-badge" />
+          <button class="profile-summary__name-button" type="button" @click="emit('open-seller-modal')">
+            <strong>{{ displayNickname }}</strong>
+          </button>
         </div>
-        <div class="profile-summary__meta">
-          <span>사용자 평점 {{ profile.rating }} ({{ profile.reviews }})</span>
+        <div class="profile-summary__meta profile-summary__meta--compact">
+          <div class="profile-rating__stars" aria-label="사용자 평점">
+            <v-icon
+              v-for="star in ratingStars"
+              :key="star"
+              :icon="star <= roundedRating ? 'mdi-star' : 'mdi-star-outline'"
+              :color="star <= roundedRating ? 'primary' : 'grey'"
+              size="20"
+            />
+          </div>
+          <span class="profile-rating__value">{{ roundedRating }}</span>
+          <span class="profile-rating__reviews">리뷰 {{ profile.reviews }}개</span>
           <span>가입일: {{ profile.joinedAt }}</span>
         </div>
       </div>
     </div>
 
-    <div class="form-grid">
-      <label>
-        <span>이름</span>
-        <input v-model="form.name" type="text" readonly aria-readonly="true" />
-      </label>
-      <label>
-        <span>닉네임</span>
-        <input v-model="form.nickname" type="text" />
-      </label>
-      <label>
-        <span>이메일</span>
-        <input v-model="form.email" type="email" readonly aria-readonly="true" />
-      </label>
-      <label class="bank-row">
-        <span>계좌번호</span>
-        <div class="bank-row__inputs">
-          <v-menu location="bottom start" offset="12">
-            <template #activator="{ props: menuProps }">
-              <button class="sort-menu__trigger bank-menu__trigger" type="button" v-bind="menuProps">
-                <span>{{ currentBankLabel }}</span>
-                <v-icon icon="mdi-chevron-down" />
-              </button>
-            </template>
+    <div class="profile-section profile-section--readonly">
+      <div class="form-grid">
+        <label class="profile-field profile-field--readonly">
+          <span>이름</span>
+          <div class="form-grid__readonly form-grid__readonly--strong">{{ form.name || '-' }}</div>
+        </label>
+        <label class="profile-field profile-field--readonly">
+          <span>이메일</span>
+          <div class="form-grid__readonly form-grid__readonly--strong">{{ form.email || '-' }}</div>
+        </label>
+        <label class="profile-field profile-field--readonly profile-field--wide">
+          <span>주소</span>
+          <div class="form-grid__readonly form-grid__readonly--strong">{{ profile.addressLine || '-' }}</div>
+        </label>
+      </div>
+    </div>
 
-            <div class="sort-menu__panel bank-menu__panel">
-              <button
-                v-for="bank in bankOptions"
-                :key="bank.code || 'none'"
-                class="sort-menu__item"
-                :class="{ 'sort-menu__item--active': form.bank === bank.code }"
-                type="button"
-                @click="selectBank(bank.code)"
-              >
-                {{ bank.label }}
-              </button>
-            </div>
-          </v-menu>
-          <input v-model="form.bankAccount" type="text" />
-        </div>
-      </label>
+    <div class="profile-section profile-section--editable">
+      <div class="form-grid">
+        <label class="profile-field">
+          <span>닉네임</span>
+          <input v-model="form.nickname" type="text" />
+        </label>
+        <label class="profile-field bank-row">
+          <span>계좌번호</span>
+          <div class="bank-row__inputs">
+            <v-menu location="bottom start" offset="12">
+              <template #activator="{ props: menuProps }">
+                <button class="sort-menu__trigger bank-menu__trigger" type="button" v-bind="menuProps">
+                  <span>{{ currentBankLabel }}</span>
+                  <v-icon icon="mdi-chevron-down" />
+                </button>
+              </template>
+
+              <div class="sort-menu__panel bank-menu__panel">
+                <button
+                  v-for="bank in bankOptions"
+                  :key="bank.code || 'none'"
+                  class="sort-menu__item"
+                  :class="{ 'sort-menu__item--active': form.bankCode === bank.code }"
+                  type="button"
+                  @click="selectBank(bank.code)"
+                >
+                  {{ bank.label }}
+                </button>
+              </div>
+            </v-menu>
+            <input v-model="form.bankAccount" type="text" placeholder="계좌번호를 입력해주세요" />
+          </div>
+        </label>
+      </div>
     </div>
 
     <div class="form-actions">
@@ -74,7 +97,8 @@ import { computed, reactive, watch } from 'vue'
 import defaultAvatar from '../../../assets/default-avatar.svg'
 import SurfaceCard from '../../SurfaceCard.vue'
 import { overviewUser } from '../../../data/mypage'
-import { bankOptions, normalizeBankCode as normalizeKnownBankCode } from '../../../utils/banks'
+import { getGradeBadge } from '../../../utils/gradeBadge'
+import { bankOptions, getBankLabel, normalizeBankCode } from '../../../utils/banks'
 
 const props = defineProps({
   profile: {
@@ -83,45 +107,46 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['submit'])
+const emit = defineEmits(['open-seller-modal', 'submit'])
 
 const form = reactive({
   name: '',
   nickname: '',
   email: '',
-  bank: '',
+  bankCode: '',
   bankAccount: '',
 })
 
-const currentBankLabel = computed(() => {
-  return bankOptions.find((bank) => bank.code === form.bank)?.label ?? '선택 안함'
+const ratingStars = [1, 2, 3, 4, 5]
+
+const badgeImage = computed(() => getGradeBadge(props.profile?.grade))
+
+const roundedRating = computed(() => {
+  const rating = Number(props.profile?.rating ?? 0)
+
+  if (Number.isNaN(rating)) {
+    return 0
+  }
+
+  return Math.max(0, Math.min(5, Math.round(rating)))
 })
+
+const currentBankLabel = computed(() => getBankLabel(form.bankCode) || '은행 선택')
 
 const displayNickname = computed(() => {
   return form.nickname || props.profile.nickname || form.name
 })
 
-function normalizeBankCode(bank) {
-  if (!bank) {
-    return ''
-  }
-
-  const bankValue = normalizeKnownBankCode(bank)
-  const matchedBank = bankOptions.find((option) => option.code === bankValue || option.label === bankValue)
-
-  return matchedBank?.code || bankValue
-}
-
 function syncForm(profile = {}) {
   form.name = profile.name || ''
   form.nickname = profile.nickname || ''
   form.email = profile.email || ''
-  form.bank = normalizeBankCode(profile.bankCode || profile.bank)
+  form.bankCode = normalizeBankCode(profile.bankCode || profile.bank)
   form.bankAccount = profile.bankAccount || profile.accountNumber || ''
 }
 
 function selectBank(bankCode) {
-  form.bank = bankCode
+  form.bankCode = bankCode
 }
 
 function setDefaultAvatar(event) {
@@ -138,10 +163,9 @@ watch(
 
 function saveProfile() {
   emit('submit', {
-    nickname: form.nickname,
-    imageUrl: props.profile.imageUrl || props.profile.avatar || '',
-    bankCode: form.bank,
-    bankAccount: form.bankAccount,
+    nickname: form.nickname.trim(),
+    bankCode: form.bankCode,
+    bankAccount: form.bankAccount.trim(),
   })
 }
 </script>

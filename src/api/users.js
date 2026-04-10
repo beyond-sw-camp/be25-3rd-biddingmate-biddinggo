@@ -31,6 +31,15 @@ export async function updateUserProfile(payload) {
   return unwrap(data)
 }
 
+export async function getUserSellerProfile(userId) {
+  const data = await request(`/api/v1/users/${userId}`, {
+    auth: true,
+    method: 'GET',
+  })
+
+  return unwrap(data)
+}
+
 export async function getUserBids(params = {}) {
   const suffix = buildQueryString(params)
   const data = await request(`/api/v1/users/me/bids${suffix}`, {

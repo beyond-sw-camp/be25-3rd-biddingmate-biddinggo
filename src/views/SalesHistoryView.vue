@@ -25,34 +25,24 @@ const pageSize = 10
 const defaultOffset = 1073741824
 
 const enumStatusLabels = {
-  PAID: '발송 대기',
-  SHIPPED: '배송 중',
-  DELIVERED: '배송 완료',
+  PAID: '배송 대기',
+  SHIPPED: '발송 완료',
   CONFIRMED: '거래 완료',
   CANCELLED: '취소',
 }
 
-const compactStatusLabels = {
-  발송대기: '발송 대기',
-  배송중: '배송 중',
-  배송완료: '배송 완료',
-  거래완료: '거래 완료',
-  취소: '취소',
-}
-
 function normalizeDealStatus(status) {
-  const rawStatus = String(status || '').trim()
-  const compactStatus = rawStatus.replace(/\s+/g, '')
+  const rawStatus = String(status || '').trim().toUpperCase()
 
-  return enumStatusLabels[rawStatus] || compactStatusLabels[compactStatus] || rawStatus || '-'
+  return enumStatusLabels[rawStatus] || String(status || '-')
 }
 
-function isWaitingForShipment(item = {}) {
-  return normalizeDealStatus(item.status) === '발송 대기'
+function isPaidStatus(item = {}) {
+  return String(item.status || '').trim().toUpperCase() === 'PAID'
 }
 
 function formatAmount(value) {
-  return `${Number(value || 0).toLocaleString('ko-KR')} 원`
+  return `${Number(value || 0).toLocaleString('ko-KR')}원`
 }
 
 function formatDate(value) {
@@ -107,7 +97,7 @@ function buildShippingInfo(item = {}) {
 }
 
 function getSaleModalType(item = {}) {
-  if (item.canRegisterTrackingNumber || (isWaitingForShipment(item) && hasShippingAddress(item) && !hasShippingInfo(item))) {
+  if (item.canRegisterTrackingNumber || (isPaidStatus(item) && hasShippingAddress(item) && !hasShippingInfo(item))) {
     return 'seller-needs-shipping-info'
   }
 
@@ -118,6 +108,7 @@ function normalizeWinnerDeal(item = {}) {
   return {
     id: item.winnerDealId,
     winnerDealId: item.winnerDealId,
+    dealNumber: item.dealNumber || '',
     auctionId: item.auctionId,
     itemId: item.itemId,
     viewerRole: item.viewerRole,
@@ -142,6 +133,12 @@ function normalizeWinnerDeal(item = {}) {
   }
 }
 
+function updateSalesItem(winnerDealId, updater) {
+  salesItems.value = salesItems.value.map((item) => (
+    item.winnerDealId === winnerDealId ? updater(item) : item
+  ))
+}
+
 async function loadSalesDetail(item) {
   if (!item?.winnerDealId) {
     return item
@@ -157,6 +154,18 @@ async function saveSalesShipping(item, shippingInfo) {
     carrier: shippingInfo.courier,
     trackingNumber: shippingInfo.trackingNumber,
   })
+
+  updateSalesItem(item.winnerDealId, (salesItem) => ({
+    ...salesItem,
+    shippingInfo: {
+      courier: shippingInfo.courier,
+      trackingNumber: shippingInfo.trackingNumber,
+    },
+    status: '발송 완료',
+    rawStatus: 'SHIPPED',
+    modalType: 'readonly',
+    canRegisterTrackingNumber: false,
+  }))
 }
 
 async function loadMoreSales() {

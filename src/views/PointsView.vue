@@ -34,6 +34,7 @@ const pointTypeMeta = {
   BID: { label: '입찰', tone: 'minus' },
   EXCHANGE: { label: '인출', tone: 'minus' },
   REFUND: { label: '환불', tone: 'plus' },
+  SETTLEMENT: { label: '구매 확정', tone: 'plus' },
 }
 
 function formatDate(date) {
@@ -45,19 +46,22 @@ function formatDate(date) {
 }
 
 function formatAmount(value) {
-  return `${Number(value || 0).toLocaleString('ko-KR')} 원`
+  return `${Number(value || 0).toLocaleString('ko-KR')}원`
 }
 
 function normalizePointHistory(item = {}) {
   const type = String(item.type || '').trim().toUpperCase()
-  const meta = pointTypeMeta[type] || { label: item.type || '포인트', tone: Number(item.amount ?? 0) < 0 ? 'minus' : 'plus' }
+  const meta = pointTypeMeta[type] || {
+    label: item.type || '포인트',
+    tone: Number(item.amount ?? 0) < 0 ? 'minus' : 'plus',
+  }
   const absoluteAmount = Math.abs(Number(item.amount ?? 0))
 
   return {
     id: item.id,
     title: meta.label,
     date: formatDate(item.createdAt),
-    amount: `${meta.tone === 'minus' ? '-' : '+'}${absoluteAmount.toLocaleString('ko-KR')} 원`,
+    amount: `${meta.tone === 'minus' ? '-' : '+'}${absoluteAmount.toLocaleString('ko-KR')}원`,
     tone: meta.tone,
   }
 }

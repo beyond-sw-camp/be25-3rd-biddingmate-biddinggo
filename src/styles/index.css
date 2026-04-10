@@ -1595,6 +1595,12 @@ select {
   align-items: center;
 }
 
+.profile-summary__content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .profile-summary__avatar {
   position: relative;
 }
@@ -1617,6 +1623,21 @@ select {
   gap: 12px;
 }
 
+.profile-grade-badge {
+  width: 50px;
+  height: 57px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+.profile-summary__name-button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+}
+
 .profile-summary__name strong {
   font-size: 32px;
   font-weight: 800;
@@ -1637,15 +1658,51 @@ select {
 .profile-summary__meta {
   justify-content: flex-start;
   gap: 22px;
-  margin-top: 8px;
   color: var(--text);
+}
+
+.profile-summary__meta--compact {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .form-panel {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
   padding: 50px;
+}
+
+.profile-rating__stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.profile-rating__value {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.profile-rating__reviews {
+  color: var(--text-subtle);
+  font-size: 14px;
+}
+
+.profile-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.profile-section--readonly {
+  padding: 0;
+}
+
+.profile-section--editable {
+  padding: 0;
 }
 
 .form-grid {
@@ -1661,6 +1718,23 @@ select {
   gap: 8px;
 }
 
+.profile-field {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #fff;
+}
+
+.profile-field--readonly {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(15, 23, 42, 0.06);
+  box-shadow: none;
+}
+
+.profile-field--wide {
+  grid-column: 1 / -1;
+}
+
 .form-grid span {
   font-size: 14px;
   font-weight: 500;
@@ -1669,7 +1743,7 @@ select {
 .form-grid input,
 .form-grid select {
   width: 100%;
-  border: 0;
+  border: 1px solid transparent;
   border-radius: 8px;
   background: var(--surface-soft);
   padding: 14px 15px;
@@ -1677,22 +1751,52 @@ select {
   font-weight: 500;
 }
 
+.profile-field--readonly input {
+  background: #fff;
+  color: var(--text-subtle);
+}
+
+.form-grid__readonly {
+  min-height: 49px;
+  border-radius: 10px;
+  background: transparent;
+  padding: 14px 0 0;
+  color: var(--text-subtle);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  word-break: break-word;
+}
+
+.form-grid__readonly--strong {
+  font-weight: 700;
+  color: var(--text);
+}
+
 .bank-row__inputs {
+  display: flex;
+  align-items: stretch;
   gap: 10px;
 }
 
-.bank-row__inputs select {
-  max-width: 129px;
+.bank-row__inputs input {
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .bank-row__inputs .bank-menu__trigger {
-  flex: 0 0 140px;
-  width: 140px;
-  min-height: 47px;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 168px;
+  width: 168px;
+  min-height: 49px;
   justify-content: space-between;
   border-radius: 8px;
+  border: 0;
   background: var(--surface-soft);
   padding: 14px 15px;
+  color: var(--text);
+  font-weight: 500;
   white-space: nowrap;
 }
 
@@ -2246,7 +2350,8 @@ select {
 }
 
 .purchase-form input,
-.purchase-form select {
+.purchase-form select,
+.purchase-form textarea {
   border: 0;
   border-radius: 8px;
   background: var(--surface-soft);
@@ -2265,6 +2370,11 @@ select {
     calc(100% - 12px) calc(50% - 2px);
   background-size: 6px 6px, 6px 6px;
   background-repeat: no-repeat;
+}
+
+.purchase-form textarea {
+  resize: vertical;
+  min-height: 140px;
 }
 
 .purchase-address-preview {
@@ -2329,6 +2439,52 @@ select {
 .purchase-form__submit {
   width: 100%;
   margin-top: 30px;
+}
+
+.purchase-review-form {
+  gap: 24px;
+}
+
+.purchase-review-rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.purchase-review-rating__star-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.purchase-review-rating__button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.purchase-review-rating__half {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.purchase-review-rating__half--left {
+  left: 0;
+}
+
+.purchase-review-rating__half--right {
+  right: 0;
+}
+
+.purchase-modal__actions--stacked {
+  margin-top: 24px;
 }
 
 .purchase-address-list {

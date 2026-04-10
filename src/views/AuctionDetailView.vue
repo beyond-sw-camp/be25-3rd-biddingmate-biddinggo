@@ -5,7 +5,7 @@ import { getAuctionDetail } from '../api/auctions'
 import { getAuctionInquiryList } from '../api/auctionInquiries'
 import { getAuctionBids } from '../api/bids'
 import { getCategoryList } from '../api/categories'
-import { getSellerReviews } from '../api/reviews'
+import { getUserSellerProfile } from '../api/users'
 import { createWishlist, deleteWishlist, getWishlistStatus } from '../api/wishlists'
 import AuctionDetailScreen from '../components/AuctionDetailScreen.vue'
 import { assets } from '../data/marketplaceData'
@@ -20,6 +20,32 @@ const item = ref(null)
 const loading = ref(false)
 const wishlistProcessing = ref(false)
 
+function resolveSellerUserId(detail = {}) {
+  const candidates = [
+    detail.sellerMemberId,
+    detail.memberId,
+    detail.userId,
+    detail.ownerId,
+    detail.sellerId,
+  ]
+
+  const resolvedId = candidates.find((value) => value !== null && value !== undefined && value !== '')
+
+  if (resolvedId !== null && resolvedId !== undefined && resolvedId !== '') {
+    return resolvedId
+  }
+
+  const currentNickname = String(authState.nickname || '').trim()
+  const currentName = String(authState.name || '').trim()
+  const sellerNickname = String(detail.sellerNickname || '').trim()
+
+  if (authState.memberId && sellerNickname && (sellerNickname === currentNickname || sellerNickname === currentName)) {
+    return authState.memberId
+  }
+
+  return null
+}
+
 async function loadAuctionDetail(auctionId) {
   if (!auctionId) {
     item.value = null
@@ -32,11 +58,12 @@ async function loadAuctionDetail(auctionId) {
 
   try {
     const detail = await getAuctionDetail(auctionId)
-    const [categoryResponse, bidResponse, inquiryResponse, sellerReviewResponse, wishlistStatusResponse] = await Promise.allSettled([
+    const sellerUserId = resolveSellerUserId(detail)
+    const [categoryResponse, bidResponse, inquiryResponse, sellerProfileResponse, wishlistStatusResponse] = await Promise.allSettled([
       getCategoryList(),
       authState.isAuthenticated ? getAuctionBids(auctionId, { page: 1, size: 20 }) : Promise.resolve({ content: [] }),
       getAuctionInquiryList(auctionId, { page: 1, size: 20 }),
-      detail?.sellerId ? getSellerReviews(detail.sellerId, { page: 1, size: 3 }) : Promise.resolve({ content: [] }),
+      sellerUserId ? getUserSellerProfile(sellerUserId) : Promise.resolve(null),
       authState.isAuthenticated ? getWishlistStatus(auctionId) : Promise.resolve({ wished: false }),
     ])
     const categorySource = categoryResponse.status === 'fulfilled'
@@ -52,7 +79,7 @@ async function loadAuctionDetail(auctionId) {
       categoryPathLabel,
       inquiries: inquiryResponse.status === 'fulfilled' ? inquiryResponse.value?.content || [] : [],
       isAuthenticated: authState.isAuthenticated,
-      sellerReviews: sellerReviewResponse.status === 'fulfilled' ? sellerReviewResponse.value?.content || [] : [],
+      sellerProfileData: sellerProfileResponse.status === 'fulfilled' ? sellerProfileResponse.value : null,
       wishlistStatus: wishlistStatusResponse.status === 'fulfilled' ? wishlistStatusResponse.value : { wished: false },
     })
   } catch (error) {

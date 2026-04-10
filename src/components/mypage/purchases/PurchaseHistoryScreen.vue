@@ -45,8 +45,8 @@
     :deleting-id="addressDeletingId"
     :item="selectedItem"
     :mode="modalMode"
-    :form="shippingForm"
-    :saving="savingAddress || confirmingPurchase"
+    :form="modalMode === 'review-form' ? reviewForm : shippingForm"
+    :saving="savingAddress || confirmingPurchase || submittingReview"
     :error-message="modalErrorMessage"
     :setting-default-id="addressSettingDefaultId"
     @close="closeModal"
@@ -57,6 +57,7 @@
     @save-address="saveAddress"
     @select-address="selectAddress"
     @set-default-address="handleSetDefaultAddress"
+    @submit-review="submitReview"
     @update-form="updateForm"
     @confirm-purchase="confirmPurchase"
   />
@@ -114,6 +115,10 @@ const props = defineProps({
     type: Function,
     default: null,
   },
+  submitReview: {
+    type: Function,
+    default: null,
+  },
 })
 
 const emit = defineEmits(['load-more'])
@@ -122,8 +127,10 @@ const {
   selectedItem,
   modalMode,
   shippingForm,
+  reviewForm,
   savingAddress,
   confirmingPurchase,
+  submittingReview,
   modalErrorMessage,
   openModal,
   closeModal,
@@ -131,9 +138,18 @@ const {
   updateForm,
   saveAddress,
   confirmPurchase,
+  submitReview,
 } = usePurchaseModal({
   onConfirmPurchase: props.confirmPurchase,
   onSaveAddress: props.saveShippingAddress,
+  onSubmitReview: async (item, payload) => {
+    if (!props.submitReview) {
+      showToast('리뷰 작성 API는 아직 연결되지 않았습니다.', { color: 'error' })
+      throw new Error('리뷰 작성 API는 아직 연결되지 않았습니다.')
+    }
+
+    await props.submitReview(item, payload)
+  },
 })
 
 const selectedTag = ref('전체')
@@ -148,7 +164,7 @@ const addressDeletingId = ref(null)
 const addressSettingDefaultId = ref(null)
 let observer = null
 
-const filterTags = ['전체', '배송 대기', '배송 중', '배송 완료', '거래 완료', '취소']
+const filterTags = ['전체', '배송 대기', '발송 완료', '거래 완료', '취소']
 
 const filteredItems = computed(() => (
   props.items.filter((item) => selectedTag.value === '전체' || item.status === selectedTag.value)

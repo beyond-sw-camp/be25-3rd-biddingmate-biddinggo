@@ -104,7 +104,7 @@ const detailLoadingId = ref(null)
 const detailErrorMessage = ref('')
 let observer = null
 
-const filterTags = ['전체', '배송 대기', '배송 중', '배송 완료', '거래 완료', '취소']
+const filterTags = ['전체', '배송 대기', '발송 완료', '거래 완료', '취소']
 
 const filteredItems = computed(() => (
   props.items.filter((item) => selectedTag.value === '전체' || item.status === selectedTag.value)

@@ -58,7 +58,9 @@
     </div>
 
     <div v-if="showActions" class="purchase-modal__actions">
-      <button class="secondary-button purchase-modal__action" type="button" @click="$emit('close')">취소</button>
+      <button class="secondary-button purchase-modal__action" type="button" @click="$emit('close')">
+        취소
+      </button>
       <button
         v-if="variant === 'purchase' && item.modalType === 'pending-no-address'"
         class="primary-button purchase-modal__action"
@@ -77,6 +79,16 @@
         @click="$emit('confirm-purchase')"
       >
         구매 확정
+      </button>
+
+      <button
+        v-else-if="variant === 'purchase' && item.canWriteReview"
+        class="primary-button purchase-modal__action"
+        type="button"
+        :disabled="saving"
+        @click="$emit('next', 'review-form')"
+      >
+        리뷰 작성하기
       </button>
 
       <button
@@ -106,7 +118,7 @@
         <input
           :value="form.name"
           type="text"
-          placeholder="수령인을 입력해 주세요"
+          placeholder="수령인을 입력해 주세요."
           @input="emitForm('name', $event.target.value)"
         />
       </label>
@@ -115,7 +127,7 @@
         <input
           :value="form.phone"
           type="text"
-          placeholder="연락처를 입력해 주세요"
+          placeholder="연락처를 입력해 주세요."
           @input="emitForm('phone', $event.target.value)"
         />
       </label>
@@ -123,7 +135,7 @@
         <span>주소 <em>*</em></span>
         <div class="purchase-address-preview">
           <div>
-            <strong>{{ form.zip || '배송지를 선택해 주세요' }}</strong>
+            <strong>{{ form.zip || '배송지를 선택해 주세요.' }}</strong>
             <p>{{ form.address1 }}</p>
             <p>{{ form.address2 }}</p>
           </div>
@@ -141,6 +153,61 @@
     <button class="primary-button purchase-form__submit" type="button" :disabled="saving" @click="$emit('save-address')">
       {{ saving ? '등록 중...' : '배송지 정보 등록' }}
     </button>
+  </BaseModal>
+
+  <BaseModal
+    v-else-if="variant === 'purchase' && mode === 'review-form'"
+    panel-class="purchase-modal purchase-modal--form"
+    @close="$emit('close')"
+  >
+    <div class="purchase-modal__head">
+      <h2>리뷰 작성하기</h2>
+    </div>
+
+    <div class="purchase-form purchase-review-form">
+      <label>
+        <span>평점 <em>*</em></span>
+        <div class="purchase-review-rating" role="radiogroup" aria-label="평점 선택">
+          <div
+            v-for="star in ratingStars"
+            :key="star"
+            class="purchase-review-rating__star-wrap"
+          >
+            <button
+              class="purchase-review-rating__button"
+              type="button"
+              :aria-label="`${star}점`"
+              @click="setRating(star)"
+            >
+              <v-icon
+                :icon="getRatingIcon(star)"
+                :color="getRatingColor(star)"
+                size="36"
+              />
+            </button>
+          </div>
+        </div>
+      </label>
+
+      <label>
+        <span>리뷰 내용</span>
+        <textarea
+          :value="form.content"
+          rows="6"
+          placeholder="거래 후기를 입력해 주세요."
+          @input="emitForm('content', $event.target.value)"
+        />
+      </label>
+    </div>
+
+    <div class="purchase-modal__actions purchase-modal__actions--stacked">
+      <button class="secondary-button purchase-modal__action" type="button" @click="$emit('back', 'detail')">
+        닫기
+      </button>
+      <button class="primary-button purchase-modal__action" type="button" :disabled="saving" @click="$emit('submit-review')">
+        {{ saving ? '작성 중...' : '리뷰 작성 완료' }}
+      </button>
+    </div>
   </BaseModal>
 
   <BaseModal
@@ -197,7 +264,7 @@
               class="winnerdeal-courier-select"
               type="button"
             >
-              <span>{{ form.courier || '택배사를 선택해 주세요' }}</span>
+              <span>{{ form.courier || '택배사를 선택해 주세요.' }}</span>
               <v-icon icon="mdi-chevron-down" />
             </button>
           </template>
@@ -221,7 +288,7 @@
         <input
           :value="form.trackingNumber"
           type="text"
-          placeholder="운송장 번호를 입력해 주세요"
+          placeholder="운송장 번호를 입력해 주세요."
           @input="emitForm('trackingNumber', $event.target.value)"
         />
       </label>
@@ -306,17 +373,21 @@ const emit = defineEmits([
   'save-shipping',
   'select-address',
   'set-default-address',
+  'submit-review',
   'update-form',
 ])
+
 const { showToast } = useToast()
 
 const addresses = computed(() => props.addresses)
+const ratingStars = [1, 2, 3, 4, 5]
 
 const showActions = computed(() => {
   if (props.variant === 'purchase') {
     return (
       props.item.modalType === 'pending-no-address' ||
-      props.item.modalType === 'delivery-complete-awaiting-confirm'
+      props.item.modalType === 'delivery-complete-awaiting-confirm' ||
+      Boolean(props.item.canWriteReview)
     )
   }
 
@@ -325,6 +396,28 @@ const showActions = computed(() => {
 
 function emitForm(field, value) {
   emit('update-form', field, value)
+}
+
+function normalizeRatingValue(value) {
+  const parsedValue = Number(value)
+
+  if (Number.isNaN(parsedValue)) {
+    return 5
+  }
+
+  return Math.min(5, Math.max(1, Math.round(parsedValue)))
+}
+
+function setRating(value) {
+  emitForm('rating', normalizeRatingValue(value))
+}
+
+function getRatingIcon(star) {
+  return Number(props.form?.rating || 0) >= star ? 'mdi-star' : 'mdi-star-outline'
+}
+
+function getRatingColor(star) {
+  return Number(props.form?.rating || 0) >= star ? 'primary' : 'grey'
 }
 
 watch(
