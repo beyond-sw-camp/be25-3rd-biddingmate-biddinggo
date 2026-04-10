@@ -64,22 +64,12 @@ export function useAuth() {
     return initializePromise
   }
 
-  async function completeLoginFromCallback(accessToken) {
-    if (!accessToken) {
-      throw new Error('로그인 토큰이 없습니다. 다시 시도해주세요.')
-    }
-
-    setSession({ accessToken, type: 'Bearer' })
-
+  async function completeLoginFromCallback() {
     try {
-      await syncCurrentUser()
+      const loginResponse = await refreshAccessToken()
+      setSession(loginResponse)
 
-      try {
-        const loginResponse = await refreshAccessToken()
-        setSession(loginResponse)
-      } catch {
-        // refresh 쿠키가 아직 없더라도 access token만으로 즉시 테스트는 가능하다.
-      }
+      await syncCurrentUser()
 
       return authState
     } catch (error) {

@@ -13,17 +13,16 @@
 
 <script setup>
 import { onMounted, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useAuth } from '../composables/useAuth'
 
-const route = useRoute()
 const router = useRouter()
 const { auth, completeLoginFromCallback } = useAuth()
 const errorMessage = ref('')
 
 onMounted(async () => {
   try {
-    await completeLoginFromCallback(String(route.query.accessToken || '').trim())
+    await completeLoginFromCallback()
     await router.replace(auth.status === 'PENDING' ? '/profile/setup' : '/')
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : '로그인 처리에 실패했습니다.'
