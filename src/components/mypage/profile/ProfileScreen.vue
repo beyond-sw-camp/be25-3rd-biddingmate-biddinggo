@@ -6,8 +6,15 @@
   <SurfaceCard as="section" class="panel-card form-panel">
     <div class="profile-summary">
       <div class="profile-summary__avatar">
-        <img :src="profile.avatar" :alt="displayNickname" class="avatar" @error="setDefaultAvatar" />
-        <button type="button" aria-label="프로필 이미지">+</button>
+        <img :src="avatarPreview" :alt="displayNickname" class="avatar" @error="setDefaultAvatar" />
+        <input
+          ref="avatarInput"
+          type="file"
+          accept="image/*"
+          hidden
+          @change="handleAvatarChange"
+        />
+        <button type="button" aria-label="프로필 이미지 선택" @click="openAvatarPicker">+</button>
       </div>
       <div class="profile-summary__content">
         <div class="profile-summary__name">
@@ -93,12 +100,12 @@
 </template>
 
 <script setup>
-import { computed, reactive, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import defaultAvatar from '../../../assets/default-avatar.svg'
 import SurfaceCard from '../../SurfaceCard.vue'
 import { overviewUser } from '../../../data/mypage'
-import { getGradeBadge } from '../../../utils/gradeBadge'
 import { bankOptions, getBankLabel, normalizeBankCode } from '../../../utils/banks'
+import { getGradeBadge } from '../../../utils/gradeBadge'
 
 const props = defineProps({
   profile: {
@@ -107,7 +114,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['open-seller-modal', 'submit'])
+const emit = defineEmits(['open-seller-modal', 'select-avatar', 'submit'])
 
 const form = reactive({
   name: '',
@@ -117,6 +124,8 @@ const form = reactive({
   bankAccount: '',
 })
 
+const avatarInput = ref(null)
+const avatarPreview = ref(defaultAvatar)
 const ratingStars = [1, 2, 3, 4, 5]
 
 const badgeImage = computed(() => getGradeBadge(props.profile?.grade))
@@ -133,9 +142,7 @@ const roundedRating = computed(() => {
 
 const currentBankLabel = computed(() => getBankLabel(form.bankCode) || '은행 선택')
 
-const displayNickname = computed(() => {
-  return form.nickname || props.profile.nickname || form.name
-})
+const displayNickname = computed(() => form.nickname || props.profile.nickname || form.name)
 
 function syncForm(profile = {}) {
   form.name = profile.name || ''
@@ -143,10 +150,34 @@ function syncForm(profile = {}) {
   form.email = profile.email || ''
   form.bankCode = normalizeBankCode(profile.bankCode || profile.bank)
   form.bankAccount = profile.bankAccount || profile.accountNumber || ''
+  avatarPreview.value = profile.avatar || defaultAvatar
 }
 
 function selectBank(bankCode) {
   form.bankCode = bankCode
+}
+
+function openAvatarPicker() {
+  avatarInput.value?.click()
+}
+
+function handleAvatarChange(event) {
+  const file = event.target?.files?.[0]
+
+  if (!file) {
+    return
+  }
+
+  const reader = new FileReader()
+
+  reader.onload = () => {
+    const previewUrl = typeof reader.result === 'string' ? reader.result : defaultAvatar
+    avatarPreview.value = previewUrl
+    emit('select-avatar', { file, previewUrl })
+  }
+
+  reader.readAsDataURL(file)
+  event.target.value = ''
 }
 
 function setDefaultAvatar(event) {

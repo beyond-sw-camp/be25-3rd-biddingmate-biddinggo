@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { getSellerReviews } from '../../api/reviews'
+import defaultAvatar from '../../assets/default-avatar.svg'
 import { useToast } from '../../composables/useToast'
 import BaseModal from '../shared/BaseModal.vue'
 
@@ -31,6 +32,8 @@ const reviewItems = ref([])
 const reviewPage = ref(1)
 const reviewLoading = ref(false)
 const reviewHasNext = ref(false)
+
+const sellerAvatar = computed(() => props.sellerProfile?.avatar || defaultAvatar)
 
 const summaryStats = computed(() => [
   { label: '총 판매 건수', value: props.sellerProfile?.totalSalesCount ?? '-' },
@@ -122,7 +125,7 @@ watch(
     </template>
 
     <div class="detail-seller-profile">
-      <img :src="sellerProfile.avatar" :alt="item.seller" class="detail-seller-avatar" />
+      <img :src="sellerAvatar" :alt="item.seller" class="detail-seller-avatar" @error="$event.target.src = defaultAvatar" />
       <div class="detail-seller-copy">
         <div class="detail-seller-name-row">
           <img

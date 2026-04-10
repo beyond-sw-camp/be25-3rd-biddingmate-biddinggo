@@ -1139,8 +1139,8 @@ select {
 }
 
 .avatar {
-  width: 96px;
-  height: 96px;
+  width: 116px;
+  height: 116px;
   object-fit: cover;
   border-radius: 999px;
   border: 4px solid #e3dfff;
@@ -1607,8 +1607,8 @@ select {
 
 .profile-summary__avatar button {
   position: absolute;
-  right: 2px;
-  bottom: 6px;
+  right: -8px;
+  bottom: 10px;
   width: 34px;
   height: 34px;
   border: 0;

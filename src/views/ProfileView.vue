@@ -1,10 +1,16 @@
 <template>
-  <ProfileScreen :profile="profile" @open-seller-modal="openSellerModal" @submit="updateProfile" />
+  <ProfileScreen
+    :profile="profile"
+    @open-seller-modal="openSellerModal"
+    @select-avatar="selectAvatar"
+    @submit="updateProfile"
+  />
 
   <SellerProfileModal
     v-if="isSellerModalOpen"
     :assets="sellerModalAssets"
     :item="sellerModalItem"
+    :seller-id="Number(authState.memberId) || null"
     :seller-profile="sellerModalProfile"
     @close="closeSellerModal"
   />
@@ -12,6 +18,7 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { deleteUploadedFile, requestPresignedUpload, uploadToPresignedUrl } from '../api/files'
 import { getUserProfile, getUserSellerProfile, updateUserProfile } from '../api/users'
 import defaultAvatar from '../assets/default-avatar.svg'
 import SellerProfileModal from '../components/auction-detail/SellerProfileModal.vue'
@@ -26,6 +33,8 @@ const { showToast } = useToast()
 
 const isSellerModalOpen = ref(false)
 const sellerModalState = ref(null)
+const uploadedAvatarUrl = ref('')
+const uploadedAvatarFileKey = ref('')
 
 const profile = ref({
   name: overviewUser.name,
@@ -125,14 +134,62 @@ function closeSellerModal() {
   isSellerModalOpen.value = false
 }
 
+async function selectAvatar(payload) {
+  if (!payload?.file || !payload?.previewUrl) {
+    return
+  }
+
+  const previousAvatar = profile.value.avatar
+  const previousImageUrl = profile.value.imageUrl
+
+  profile.value = {
+    ...profile.value,
+    avatar: payload.previewUrl,
+  }
+
+  try {
+    if (uploadedAvatarFileKey.value) {
+      await deleteUploadedFile(uploadedAvatarFileKey.value)
+      uploadedAvatarFileKey.value = ''
+      uploadedAvatarUrl.value = ''
+    }
+
+    const presigned = await requestPresignedUpload(payload.file)
+    await uploadToPresignedUrl(presigned.uploadUrl, payload.file)
+
+    uploadedAvatarFileKey.value = presigned.fileKey || ''
+    uploadedAvatarUrl.value = presigned.publicUrl || payload.previewUrl
+    profile.value = {
+      ...profile.value,
+      avatar: uploadedAvatarUrl.value,
+      imageUrl: uploadedAvatarUrl.value,
+    }
+    showToast('프로필 이미지가 업로드되었습니다.')
+  } catch (error) {
+    profile.value = {
+      ...profile.value,
+      avatar: previousAvatar,
+      imageUrl: previousImageUrl,
+    }
+    uploadedAvatarFileKey.value = ''
+    uploadedAvatarUrl.value = ''
+    showToast(error?.message || '프로필 이미지 업로드에 실패했습니다.', { color: 'error' })
+  }
+}
+
 async function updateProfile(payload) {
   try {
-    const updatedProfile = await updateUserProfile(payload)
+    const nextPayload = {
+      ...payload,
+      ...(uploadedAvatarUrl.value ? { url: uploadedAvatarUrl.value, imageUrl: uploadedAvatarUrl.value } : {}),
+    }
+    const updatedProfile = await updateUserProfile(nextPayload)
     profile.value = normalizeUserProfile({
       ...profile.value,
-      ...payload,
+      ...nextPayload,
       ...updatedProfile,
     })
+    uploadedAvatarUrl.value = ''
     showToast('프로필 정보가 수정되었습니다.')
   } catch (error) {
     showToast(error?.message || '프로필 정보 수정에 실패했습니다.', { color: 'error' })
