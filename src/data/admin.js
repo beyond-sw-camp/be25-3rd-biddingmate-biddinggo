@@ -3,7 +3,6 @@ export const adminNavItems = [
   { key: 'users', label: '사용자 관리', route: '/admin/users' },
   { key: 'inspections', label: '검수 관리', route: '/admin/inspections' },
   { key: 'notices', label: '공지사항 관리', route: '/admin/notices' },
-  { key: 'settlements', label: '정산 관리', route: '/admin/settlements' },
   { key: 'inquiries', label: '1:1 문의 관리', route: '/admin/inquiries' },
 ]
 
