@@ -192,6 +192,8 @@ async function submitProfile() {
 
 async function createInitialAvatarFile(initial) {
   const letter = String(initial || 'B').slice(0, 1).toUpperCase()
+  const seed = String(form.nickname || form.name || auth.username || letter)
+  const bgColor = pickAvatarColor(seed)
   const size = 256
 
   const canvas = document.createElement('canvas')
@@ -203,7 +205,7 @@ async function createInitialAvatarFile(initial) {
     throw new Error('아바타 이미지를 생성할 수 없습니다.')
   }
 
-  ctx.fillStyle = '#6D5BD0'
+  ctx.fillStyle = bgColor
   ctx.fillRect(0, 0, size, size)
 
   ctx.fillStyle = '#ffffff'
@@ -235,4 +237,17 @@ async function ensureAvatarUrl() {
   await uploadToPresignedUrl(presigned.uploadUrl, fallbackFile)
   form.imageUrl = presigned.publicUrl
 }
+
+const AVATAR_COLORS = [
+  '#FFFFFF', '#8FA6FF', '#B8A4F4', '#6D5BD0'
+]
+
+function pickAvatarColor(seed = '') {
+  let hash = 0
+  for (let i = 0; i < seed.length; i += 1) {
+    hash = (hash * 31 + seed.charCodeAt(i)) | 0
+  }
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length]
+}
+
 </script>
