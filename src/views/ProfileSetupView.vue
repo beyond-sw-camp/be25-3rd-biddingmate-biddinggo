@@ -1,4 +1,4 @@
-<template>
+`<template>
   <main class="login-page profile-setup-page">
     <div class="login-page__orb login-page__orb--top" aria-hidden="true"></div>
     <div class="login-page__orb login-page__orb--bottom" aria-hidden="true"></div>
@@ -47,7 +47,6 @@
             >
               <img v-if="imagePreviewUrl" :src="imagePreviewUrl" alt="프로필 이미지 미리보기" />
               <span v-else>{{ avatarInitial }}</span>
-              <small>{{ uploadingImage ? '업로드 중' : '변경' }}</small>
             </button>
             <p>프로필 사진 설정</p>
           </div>
@@ -120,7 +119,7 @@ const avatarInitial = computed(() => (
 ).toUpperCase())
 
 const canSubmit = computed(() => (
-  Boolean(form.name && form.nickname && form.imageUrl && agreements.terms && agreements.privacy)
+  Boolean(form.name && form.nickname && agreements.terms && agreements.privacy)
 ))
 
 async function handleImageSelected(event) {
@@ -163,6 +162,8 @@ async function submitProfile() {
   errorMessage.value = ''
 
   try {
+    await ensureAvatarUrl()
+
     await registerRequiredUserInfo({
       name: form.name,
       nickname: form.nickname,
@@ -188,4 +189,65 @@ async function submitProfile() {
     submitting.value = false
   }
 }
+
+async function createInitialAvatarFile(initial) {
+  const letter = String(initial || 'B').slice(0, 1).toUpperCase()
+  const seed = String(form.nickname || form.name || auth.username || letter)
+  const bgColor = pickAvatarColor(seed)
+  const size = 256
+
+  const canvas = document.createElement('canvas')
+  canvas.width = size
+  canvas.height = size
+
+  const ctx = canvas.getContext('2d')
+  if (!ctx) {
+    throw new Error('아바타 이미지를 생성할 수 없습니다.')
+  }
+
+  ctx.fillStyle = bgColor
+  ctx.fillRect(0, 0, size, size)
+
+  ctx.fillStyle = '#ffffff'
+  ctx.font = '700 120px Pretendard, Arial, sans-serif'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillText(letter, size / 2, size / 2 + 8)
+
+  const blob = await new Promise((resolve, reject) => {
+    canvas.toBlob((value) => {
+      if (value) {
+        resolve(value)
+      } else {
+        reject(new Error('PNG 변환에 실패했습니다.'))
+      }
+    }, 'image/png')
+  })
+
+  return new File([blob], `avatar-${Date.now()}.png`, { type: 'image/png' })
+}
+
+async function ensureAvatarUrl() {
+  if (form.imageUrl) return
+
+  const fallbackFile = await createInitialAvatarFile(avatarInitial.value)
+  imagePreviewUrl.value = URL.createObjectURL(fallbackFile)
+
+  const presigned = await requestPresignedUpload(fallbackFile)
+  await uploadToPresignedUrl(presigned.uploadUrl, fallbackFile)
+  form.imageUrl = presigned.publicUrl
+}
+
+const AVATAR_COLORS = [
+  '#FFFFFF', '#8FA6FF', '#B8A4F4', '#6D5BD0'
+]
+
+function pickAvatarColor(seed = '') {
+  let hash = 0
+  for (let i = 0; i < seed.length; i += 1) {
+    hash = (hash * 31 + seed.charCodeAt(i)) | 0
+  }
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length]
+}
+
 </script>
