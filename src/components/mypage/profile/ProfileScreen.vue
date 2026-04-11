@@ -33,7 +33,7 @@
               size="20"
             />
           </div>
-          <span class="profile-rating__value">{{ roundedRating }}</span>
+          <span class="profile-rating__value">{{ displayRating }}</span>
           <span class="profile-rating__reviews">리뷰 {{ profile.reviews }}개</span>
           <span>가입일: {{ profile.joinedAt }}</span>
         </div>
@@ -138,6 +138,16 @@ const roundedRating = computed(() => {
   }
 
   return Math.max(0, Math.min(5, Math.round(rating)))
+})
+
+const displayRating = computed(() => {
+  const rating = Number(props.profile?.rating ?? 0)
+
+  if (Number.isNaN(rating)) {
+    return '0.0'
+  }
+
+  return Math.max(0, Math.min(5, rating)).toFixed(1)
 })
 
 const currentBankLabel = computed(() => getBankLabel(form.bankCode) || '은행 선택')

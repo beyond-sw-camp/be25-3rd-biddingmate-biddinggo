@@ -266,6 +266,16 @@ select {
   object-fit: contain;
 }
 
+.topbar-search__button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
 .topbar-search input {
   width: min(413px, 100%);
   border: 0;

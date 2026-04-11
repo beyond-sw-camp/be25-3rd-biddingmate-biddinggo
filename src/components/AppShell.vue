@@ -26,29 +26,15 @@
     </aside>
 
     <div class="content-shell">
-      <header class="topbar">
-        <form class="topbar-search-field topbar-search" role="search" @submit.prevent="submitSearch">
-          <img :src="searchIcon" alt="" class="topbar-search__icon" />
-          <input
-            v-model.trim="searchQuery"
-            type="search"
-            placeholder="상품명, 브랜드를 검색해보세요"
-            aria-label="상품 검색어"
-          />
-        </form>
-
-        <div class="topbar-links">
-          <button class="topbar-link-button" type="button" @click="$emit('open-mypage')">마이페이지</button>
-          <button class="topbar-link-button topbar-link-button--icon" type="button" @click="isNotificationOpen = true">
-            <span>알림</span>
-          </button>
-          <template v-if="auth.isAuthenticated">
-            <span class="topbar-auth-label">{{ displayUsername }}</span>
-            <button class="topbar-link-button" type="button" @click="$emit('logout')">로그아웃</button>
-          </template>
-          <button v-else class="topbar-link-button" type="button" @click="$emit('open-login')">로그인/회원가입</button>
-        </div>
-      </header>
+      <MainTopbar
+        :auth="auth"
+        :initial-search-query="initialSearchQuery"
+        @open-login="$emit('open-login')"
+        @open-mypage="$emit('open-mypage')"
+        @open-notification="isNotificationOpen = true"
+        @logout="$emit('logout')"
+        @search="$emit('search', $event)"
+      />
 
       <main class="page-area">
         <slot />
@@ -60,12 +46,11 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { ref } from 'vue'
+import MainTopbar from './layout/MainTopbar.vue'
 import NotificationModal from './NotificationModal.vue'
 
-const searchIcon = 'https://www.figma.com/api/mcp/asset/43c34f06-dced-42d0-9368-8ac16f87d2f7'
-
-const props = defineProps({
+defineProps({
   currentScreen: {
     type: String,
     required: true,
@@ -88,29 +73,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['navigate', 'open-login', 'open-mypage', 'logout', 'search'])
+defineEmits(['navigate', 'open-login', 'open-mypage', 'logout', 'search'])
 
 const isNotificationOpen = ref(false)
-const searchQuery = ref(String(props.initialSearchQuery || ''))
-const displayUsername = computed(() => {
-  const username = String(props.auth.nickname || props.auth.name || props.auth.username || '').trim()
-
-  return username ? username.slice(0, 10) : '로그인됨'
-})
-
-function submitSearch() {
-  if (!searchQuery.value) {
-    return
-  }
-
-  emit('search', searchQuery.value)
-}
-
-watch(
-  () => props.initialSearchQuery,
-  (next) => {
-    searchQuery.value = String(next || '')
-  },
-  { immediate: true },
-)
 </script>

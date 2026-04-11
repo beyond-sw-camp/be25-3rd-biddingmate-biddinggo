@@ -10,7 +10,7 @@
     v-if="isSellerModalOpen"
     :assets="sellerModalAssets"
     :item="sellerModalItem"
-    :seller-id="Number(authState.memberId) || null"
+    :seller-id="sellerModalUserId"
     :seller-profile="sellerModalProfile"
     @close="closeSellerModal"
   />
@@ -33,6 +33,7 @@ const { showToast } = useToast()
 
 const isSellerModalOpen = ref(false)
 const sellerModalState = ref(null)
+const sellerModalUserId = ref(null)
 const uploadedAvatarUrl = ref('')
 const uploadedAvatarFileKey = ref('')
 
@@ -123,6 +124,7 @@ async function openSellerModal() {
 
   try {
     const sellerProfile = await getUserSellerProfile(userId)
+    sellerModalUserId.value = userId
     sellerModalState.value = normalizeSellerProfile(sellerProfile)
     isSellerModalOpen.value = true
   } catch (error) {
@@ -132,6 +134,7 @@ async function openSellerModal() {
 
 function closeSellerModal() {
   isSellerModalOpen.value = false
+  sellerModalUserId.value = null
 }
 
 async function selectAvatar(payload) {
