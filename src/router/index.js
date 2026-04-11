@@ -9,7 +9,6 @@ import AuctionManagementView from '../views/AuctionManagementView.vue'
 import AdminInquiriesView from '../views/AdminInquiriesView.vue'
 import AdminInspectionsView from '../views/AdminInspectionsView.vue'
 import AdminNoticesView from '../views/AdminNoticesView.vue'
-import AdminSettlementsView from '../views/AdminSettlementsView.vue'
 import AdminTransactionsView from '../views/AdminTransactionsView.vue'
 import AdminUsersView from '../views/AdminUsersView.vue'
 import BidHistoryView from '../views/BidHistoryView.vue'
@@ -262,15 +261,6 @@ const routes = [
     meta: {
       navSection: 'admin',
       navKey: 'notices',
-    },
-  },
-  {
-    path: '/admin/settlements',
-    name: 'admin-settlements',
-    component: AdminSettlementsView,
-    meta: {
-      navSection: 'admin',
-      navKey: 'settlements',
     },
   },
   {
