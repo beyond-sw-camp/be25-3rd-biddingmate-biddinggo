@@ -335,6 +335,8 @@ router.beforeEach((to) => {
     authState.isAuthenticated
     && authState.status === 'PENDING'
     && !publicAuthRoutes.has(routeName)
+    && !hasAdminAuthority()
+    && !publicAuthRoutes.has(routeName)
   ) {
     return {
       name: 'profile-setup',
