@@ -731,7 +731,7 @@ select {
   object-fit: cover;
 }
 
-.profile-setup-avatar small {
+/* .profile-setup-avatar small {
   position: absolute;
   right: -2px;
   bottom: 0;
@@ -748,7 +748,7 @@ select {
   font-size: 10px;
   font-weight: 700;
   line-height: 1;
-}
+} */
 
 .profile-setup-field {
   display: grid;
