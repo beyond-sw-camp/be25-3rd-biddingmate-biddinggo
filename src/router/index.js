@@ -27,6 +27,7 @@ import SalesHistoryView from '../views/SalesHistoryView.vue'
 import WishlistView from '../views/WishlistView.vue'
 import AuthCallbackView from '../views/AuthCallbackView.vue'
 import { authState } from '../lib/authSession'
+import AdminLoginView from '../views/AdminLoginView.vue'
 
 const routes = [
   {
@@ -276,6 +277,11 @@ const routes = [
     path: '/:pathMatch(.*)*',
     redirect: '/',
   },
+  {
+    path: '/admin/login',
+    name: 'admin-login',
+    component: AdminLoginView,
+  },
 ]
 
 const router = createRouter({
@@ -286,13 +292,49 @@ const router = createRouter({
   },
 })
 
+function hasAdminAuthority(authorities = authState.authorities) {
+  if (!Array.isArray(authorities)) {
+    return false
+  }
+
+  return authorities.some((authority) => {
+    const normalized = String(authority || '').toUpperCase()
+    return normalized === 'ROLE_ADMIN' || normalized === 'ADMIN'
+  })
+}
+
 router.beforeEach((to) => {
-  const publicAuthRoutes = new Set(['login', 'auth-callback', 'profile-setup'])
+  const routeName = String(to.name || '')
+  const publicAuthRoutes = new Set(['login', 'admin-login', 'auth-callback', 'profile-setup'])
+  const isAdminRoute = to.path.startsWith('/admin') && routeName !== 'admin-login'
+
+  if (routeName === 'admin-login') {
+    if (authState.isAuthenticated && hasAdminAuthority()) {
+      return { name: 'admin-transactions' }
+    }
+
+    if (authState.isAuthenticated && !hasAdminAuthority()) {
+      return { name: 'home' }
+    }
+  }
+
+  if (isAdminRoute) {
+    if (!authState.isAuthenticated) {
+      return {
+        name: 'admin-login',
+        query: { redirect: to.fullPath },
+      }
+    }
+
+    if (!hasAdminAuthority()) {
+      return { name: 'home' }
+    }
+  }
 
   if (
     authState.isAuthenticated
     && authState.status === 'PENDING'
-    && !publicAuthRoutes.has(String(to.name || ''))
+    && !publicAuthRoutes.has(routeName)
   ) {
     return {
       name: 'profile-setup',
@@ -300,7 +342,7 @@ router.beforeEach((to) => {
     }
   }
 
-  if (authState.isAuthenticated && authState.status === 'ACTIVE' && to.name === 'profile-setup') {
+  if (authState.isAuthenticated && authState.status === 'ACTIVE' && routeName === 'profile-setup') {
     return { name: 'home' }
   }
 
