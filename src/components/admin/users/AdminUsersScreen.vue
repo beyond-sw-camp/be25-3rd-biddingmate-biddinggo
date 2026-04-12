@@ -44,7 +44,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="user in users" :key="user.userNo">
+          <tr v-for="user in displayedUsers" :key="user.userNo">
             <td class="admin-transaction-table__strong">{{ user.userNo }}</td>
             <td>{{ user.nickname }}</td>
             <td>{{ user.email }}</td>
@@ -63,7 +63,7 @@
               </button>
           </td>
           </tr>
-          <tr v-if="users.length === 0">
+          <tr v-if="displayedUsers.length === 0">
             <td class="admin-transaction-table__empty" colspan="8">조건에 맞는 사용자가 없습니다.</td>
           </tr>
         </tbody>
@@ -96,6 +96,20 @@ const filterToApiStatus = {
   활성: 'ACTIVE',
   정지: 'INACTIVE',
 }
+
+const displayedUsers = computed(() => {
+  const keyword = searchQuery.value.trim().toLowerCase()
+
+  return users.value.filter((user) => {
+    const matchesStatus = selectedFilter.value === '전체' || user.status === selectedFilter.value
+    const matchesKeyword =
+      !keyword ||
+      String(user.nickname || '').toLowerCase().includes(keyword) ||
+      String(user.email || '').toLowerCase().includes(keyword)
+
+    return matchesStatus && matchesKeyword
+  })
+})
 
 function statusToLabel(status) {
   if (status === 'ACTIVE') return '활성'

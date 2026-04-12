@@ -57,7 +57,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in inspections" :key="item.inspectionNo">
+          <tr v-for="item in displayedInspections" :key="item.inspectionNo">
             <td class="admin-transaction-table__strong">
               <button class="topbar-link-button" type="button" @click="openInspectionDetail(item.inspectionNo)">
                 {{ item.inspectionNo }}
@@ -74,7 +74,7 @@
               </button>
             </td>
           </tr>
-          <tr v-if="inspections.length === 0">
+          <tr v-if="displayedInspections.length === 0">
             <td class="admin-transaction-table__empty" colspan="7">조건에 맞는 검수 건이 없습니다.</td>
           </tr>
         </tbody>
@@ -158,6 +158,20 @@ const filterToApiStatus = {
   승인: 'PASSED',
   반려: 'FAILED',
 }
+
+const displayedInspections = computed(() => {
+  const keyword = searchQuery.value.trim().toLowerCase()
+
+  return inspections.value.filter((item) => {
+    const matchesStatus = selectedFilter.value === '전체' || item.status === selectedFilter.value
+    const matchesKeyword =
+      !keyword ||
+      String(item.productName || '').toLowerCase().includes(keyword) ||
+      String(item.seller || '').toLowerCase().includes(keyword)
+
+    return matchesStatus && matchesKeyword
+  })
+})
 
 function statusToLabel(status) {
   if (status === 'PENDING') return '검수 대기'
