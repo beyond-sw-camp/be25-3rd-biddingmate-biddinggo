@@ -192,7 +192,7 @@ function applyDetail(baseRow, detail) {
     },
     shippingInfo: hasShipping
       ? {
-          courier: detail.carrier,
+          carrier: detail.carrier,
           trackingNumber: detail.trackingNumber,
         }
       : null,
@@ -265,7 +265,7 @@ async function saveShippingInfo(payload) {
 
   try {
     await registerAdminTrackingNumber(selectedTrade.value.winnerDealId, {
-      carrier: payload.courier,
+      carrier: payload.carrier,
       trackingNumber: payload.trackingNumber,
     })
 
