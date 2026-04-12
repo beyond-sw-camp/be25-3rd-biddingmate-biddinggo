@@ -33,13 +33,23 @@ const currentNavKey = computed(() => String(route.meta.navKey ?? ''))
 const currentScreen = computed(() => String(route.name ?? ''))
 const currentSearchQuery = computed(() => String(route.query.q || ''))
 
+function hasAdminAuthority(authorities = auth.authorities) {
+  if (!Array.isArray(authorities)) return false
+  return authorities.some((authority) => {
+    const normalized = String(authority || '').toUpperCase()
+    return normalized === 'ROLE_ADMIN' || normalized === 'ADMIN'
+  })
+}
+
+
 onMounted(async () => {
   await initializeAuth()
 
   if (
     auth.isAuthenticated
     && auth.status === 'PENDING'
-    && !['profile-setup', 'auth-callback', 'login'].includes(String(route.name || ''))
+    && !hasAdminAuthority()
+    && !['profile-setup', 'auth-callback', 'login', 'admin-login'].includes(String(route.name || ''))
   ) {
     router.replace({
       name: 'profile-setup',

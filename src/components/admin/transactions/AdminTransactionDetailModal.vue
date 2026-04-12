@@ -43,7 +43,7 @@
           <h3>배송 정보</h3>
           <div v-if="item.shippingInfo" class="admin-transaction-modal__shipping-card">
             <span>택배사</span>
-            <p>{{ item.shippingInfo.courier }}</p>
+            <p>{{ item.shippingInfo.carrier }}</p>
             <span>송장 번호</span>
             <p>{{ item.shippingInfo.trackingNumber }}</p>
           </div>
