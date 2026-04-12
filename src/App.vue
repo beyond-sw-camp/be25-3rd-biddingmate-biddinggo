@@ -16,16 +16,16 @@
   </AppShell>
 
   <RouterView v-else />
-
-  <AppToast />
+  <NotificationToastStack />
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import AppShell from './components/AppShell.vue'
-import AppToast from './components/shared/AppToast.vue'
+import NotificationToastStack from './components/NotificationToastStack.vue'
 import { useAuth } from './composables/useAuth'
+import { useNotificationCenter } from './composables/useNotificationCenter'
 import { navigationItems } from './data/marketplaceData'
 
 const route = useRoute()
@@ -44,9 +44,14 @@ function hasAdminAuthority(authorities = auth.authorities) {
   })
 }
 
+const { initializeNotificationCenter, shutdownNotificationCenter } = useNotificationCenter()
 
 onMounted(async () => {
   await initializeAuth()
+
+  if (auth.isAuthenticated) {
+    await initializeNotificationCenter()
+  }
 
   if (
     auth.isAuthenticated
@@ -60,6 +65,20 @@ onMounted(async () => {
     })
   }
 })
+
+watch(
+  () => auth.isAuthenticated,
+  (isAuthenticated) => {
+    if (isAuthenticated) {
+      void initializeNotificationCenter()
+      return
+    }
+
+    shutdownNotificationCenter({ clear: true })
+  },
+)
+
+
 
 function navigate(path) {
   if (typeof path === 'string' && path) {
@@ -94,7 +113,9 @@ function openMyPage() {
 }
 
 async function handleLogout() {
+  shutdownNotificationCenter({ clear: true })
   await logout()
   window.location.reload()
 }
+
 </script>
