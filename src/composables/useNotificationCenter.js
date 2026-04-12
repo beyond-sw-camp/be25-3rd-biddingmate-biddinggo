@@ -226,8 +226,13 @@ async function loadNotifications(params = {}) {
         state.notifications = content
         .map(normalizeNotification)
         .sort((a,b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
-    } catch {
+    } catch(error) {
+        console.error('[notifications] load failed:', {
+        message: error?.message,
+        name: error?.name,
+        stack: error?.stack,
 
+    })
     }
 }
 
