@@ -41,6 +41,7 @@
           <button class="topbar-link-button" type="button" @click="$emit('open-mypage')">마이페이지</button>
           <button class="topbar-link-button topbar-link-button--icon" type="button" @click="isNotificationOpen = true">
             <span>알림</span>
+            <span v-if="unreadBadgeLabel" class="topbar-notification-badge">{{ unreadBadgeLabel }}</span>
           </button>
           <template v-if="auth.isAuthenticated">
             <span class="topbar-auth-label">{{ displayUsername }}</span>
@@ -62,6 +63,9 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import NotificationModal from './NotificationModal.vue'
+import { computed, ref, watch } from 'vue'
+import NotificationModal from './NotificationModal.vue'
+import { useNotificationCenter } from '../composables/useNotificationCenter'
 
 const searchIcon = 'https://www.figma.com/api/mcp/asset/43c34f06-dced-42d0-9368-8ac16f87d2f7'
 
@@ -96,6 +100,14 @@ const displayUsername = computed(() => {
   const username = String(props.auth.nickname || props.auth.name || props.auth.username || '').trim()
 
   return username ? username.slice(0, 10) : '로그인됨'
+})
+
+const { unreadCount } = useNotificationCenter()
+
+const unreadBadgeLabel = computed(() => {
+  const count = Number(unreadCount.value || 0)
+  if (count <= 0) return ''
+  return String(Math.min(count, 99))
 })
 
 function submitSearch() {
