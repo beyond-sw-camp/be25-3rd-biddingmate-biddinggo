@@ -21,7 +21,7 @@ const TYPE_LABEL = Object.freeze({
 const state = reactive({
     initialized: false,
     connecting: false,
-    conneted: false,
+    connected: false,
     notifications: [],
     unreadCount: 0,
     toasts: [],
@@ -41,12 +41,12 @@ function formatRelativeTime(value) {
     if (diffSec < 60) return '방금전'
     if (diffSec < 3600) return `${Math.floor(diffSec / 60)}분 전`
     if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}시간 전`
-    if (diffSec < 604800) return `${Math.floor(diffSec / 604800)}일 전`
+    if (diffSec < 604800) return `${Math.floor(diffSec / 86400)}일 전`
     return `${Math.floor(diffSec/ 604800)}주 전`
 }
 
 function normalizeNotification(raw = {}) {
-    const type = STring(raw.type || '')
+    const type = String(raw.type || '')
     const content = String(raw.content || '')
     const createdAt = raw.createdAt || null
     const unread = !raw.readAt
@@ -118,7 +118,7 @@ function closeSseStream() {
         streamController.abort()
         streamController = null
     }
-    state.conneted = false
+    state.connected = false
     state.connecting = false
 }
 
@@ -145,7 +145,7 @@ function openSseStream() {
             const contentType = String(response.headers.get('content-type') || '')
 
             if (response.ok && contentType.includes('text/event-stream')) {
-                state.conneted = true
+                state.connected = true
                 state.connecting = false
                 return
             }
@@ -158,7 +158,7 @@ function openSseStream() {
         },
 
         onmessage(event) {
-            if (!event?.data || event.event === 'connnect') return
+            if (!event?.data || event.event === 'connect') return
 
             try{
                 const parsed = JSON.parse(event.data)
@@ -169,12 +169,12 @@ function openSseStream() {
         },
 
         onclose() {
-            state.conneted = false
+            state.connected = false
             throw new ErrorEvent('SSE_CLOSED')
         },
 
         onerror(error) {
-            state.conneted = false
+            state.connected = false
             state.connecting = false
 
 
@@ -185,7 +185,7 @@ function openSseStream() {
             return 3000
         },
     }).catch((error) => {
-        state.conneted = false
+        state.connected = false
         state.connecting = false
 
         const message = String(error?.message || '')
@@ -304,7 +304,7 @@ export function useNotificationCenter() {
         notifications: computed(() => state.notifications),
         unreadCount: computed(() => state.unreadCount),
         toasts: computed(() => state.toasts),
-        conneted: computed(() => state.conneted),
+        connected: computed(() => state.connected),
         connecting: computed(() => state.connecting),
         initializeNotificationCenter,
         shutdownNotificationCenter,

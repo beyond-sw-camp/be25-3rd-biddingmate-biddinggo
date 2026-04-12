@@ -20,10 +20,6 @@
 </template>
 
 <script setup>
-import { RouterView, useRoute, useRouter } from 'vue-router'
-import AppShell from './components/AppShell.vue'
-import { useAuth } from './composables/useAuth'
-import { navigationItems } from './data/marketplaceData'
 import { computed, onMounted, watch } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import AppShell from './components/AppShell.vue'
@@ -47,23 +43,6 @@ function hasAdminAuthority(authorities = auth.authorities) {
     return normalized === 'ROLE_ADMIN' || normalized === 'ADMIN'
   })
 }
-
-
-onMounted(async () => {
-  await initializeAuth()
-
-  if (
-    auth.isAuthenticated
-    && auth.status === 'PENDING'
-    && !hasAdminAuthority()
-    && !['profile-setup', 'auth-callback', 'login', 'admin-login'].includes(String(route.name || ''))
-  ) {
-    router.replace({
-      name: 'profile-setup',
-      query: { redirect: route.fullPath },
-    })
-  }
-})
 
 const { initializeNotificationCenter, shutdownNotificationCenter } = useNotificationCenter()
 
