@@ -16,6 +16,7 @@
   </AppShell>
 
   <RouterView v-else />
+  <NotificationToastStack />
 </template>
 
 <script setup>
@@ -23,6 +24,13 @@ import { computed, onMounted } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import AppShell from './components/AppShell.vue'
 import { useAuth } from './composables/useAuth'
+import { navigationItems } from './data/marketplaceData'
+import { computed, onMounted, watch } from 'vue'
+import { RouterView, useRoute, useRouter } from 'vue-router'
+import AppShell from './components/AppShell.vue'
+import NotificationToastStack from './components/NotificationToastStack.vue'
+import { useAuth } from './composables/useAuth'
+import { useNotificationCenter } from './composables/useNotificationCenter'
 import { navigationItems } from './data/marketplaceData'
 
 const route = useRoute()
@@ -57,6 +65,46 @@ onMounted(async () => {
     })
   }
 })
+
+const { initializeNotificationCenter, shutdownNotificationCenter } = useNotificationCenter()
+
+onMounted(async () => {
+  await initializeAuth()
+
+  if (auth.isAuthenticated) {
+    await initializeNotificationCenter()
+  }
+
+  if (
+    auth.isAuthenticated
+    && auth.status === 'PENDING'
+    && !hasAdminAuthority()
+    && !['profile-setup', 'auth-callback', 'login', 'admin-login'].includes(String(route.name || ''))
+  ) {
+    router.replace({
+      name: 'profile-setup',
+      query: { redirect: route.fullPath },
+    })
+  }
+})
+
+watch(
+  () => auth.isAuthenticated,
+  (isAuthenticated) => {
+    if (isAuthenticated) {
+      void initializeNotificationCenter()
+      return
+    }
+
+    shutdownNotificationCenter({ clear: true })
+  },
+)
+
+async function handleLogout() {
+  shutdownNotificationCenter({ clear: true })
+  await logout()
+  window.location.reload()
+}
 
 function navigate(path) {
   if (typeof path === 'string' && path) {
