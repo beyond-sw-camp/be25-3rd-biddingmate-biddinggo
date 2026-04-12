@@ -2580,3 +2580,100 @@ select {
     flex-direction: column;
   }
 }
+
+.topbar-notification-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  padding: 0 5px;
+  background: #bc1d25;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.notification-modal-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notification-mark-all-button {
+  border: 0;
+  background: transparent;
+  color: #23008d;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.notification-mark-all-button:disabled {
+  color: #94a3b8;
+  cursor: default;
+}
+
+.notification-card--interactive {
+  cursor: pointer;
+}
+
+.notification-empty {
+  min-height: 160px;
+  display: grid;
+  place-items: center;
+  color: #94a3b8;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.notification-toast-stack {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(360px, calc(100vw - 24px));
+}
+
+.notification-toast {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  border-radius: 12px;
+  border: 1px solid #e7edf5;
+  background: #ffffff;
+  padding: 12px 14px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
+  cursor: pointer;
+}
+
+.notification-toast__text strong {
+  display: block;
+  color: #111827;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 18px;
+}
+
+.notification-toast__text p {
+  margin: 2px 0 0;
+  color: #6b7280;
+  font-size: 12px;
+  line-height: 17px;
+}
+
+.notification-toast__close {
+  border: 0;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
