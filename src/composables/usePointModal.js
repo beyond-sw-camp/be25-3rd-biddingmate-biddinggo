@@ -1,5 +1,4 @@
 import { computed, ref } from 'vue'
-import { pointHistory } from '../data/mypage'
 import { getBankLabel } from '../utils/banks'
 
 const INITIAL_POINTS = 1850000
@@ -23,7 +22,7 @@ function formatTimestamp(date = new Date()) {
 
 export function usePointModal(options = {}) {
   const currentPoints = options.currentPoints ?? ref(INITIAL_POINTS)
-  const history = options.history ?? ref([...pointHistory])
+  const history = options.history ?? ref([])
   const onCharge = options.onCharge
   const onWithdraw = options.onWithdraw
   const modalMode = ref('')

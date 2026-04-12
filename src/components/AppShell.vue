@@ -1,6 +1,11 @@
 <template>
   <div class="app-shell">
-    <aside class="sidebar">
+    <aside
+      ref="sidebarRef"
+      class="sidebar"
+      :class="{ 'sidebar--scrolling': isSidebarScrolling }"
+      @scroll="handleSidebarScroll"
+    >
       <button class="brand-block app-shell__brand" type="button" @click="$emit('navigate', '/')">
         <strong>Biddinggo</strong>
         <span>BIDDINGMATE</span>
@@ -46,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onBeforeUnmount, ref } from 'vue'
 import MainTopbar from './layout/MainTopbar.vue'
 import NotificationModal from './NotificationModal.vue'
 
@@ -76,4 +81,29 @@ defineProps({
 defineEmits(['navigate', 'open-login', 'open-mypage', 'logout', 'search'])
 
 const isNotificationOpen = ref(false)
+const sidebarRef = ref(null)
+const isSidebarScrolling = ref(false)
+let sidebarScrollTimer = null
+
+function handleSidebarScroll() {
+  if (!sidebarRef.value) {
+    return
+  }
+
+  isSidebarScrolling.value = true
+
+  if (sidebarScrollTimer) {
+    window.clearTimeout(sidebarScrollTimer)
+  }
+
+  sidebarScrollTimer = window.setTimeout(() => {
+    isSidebarScrolling.value = false
+  }, 240)
+}
+
+onBeforeUnmount(() => {
+  if (sidebarScrollTimer) {
+    window.clearTimeout(sidebarScrollTimer)
+  }
+})
 </script>

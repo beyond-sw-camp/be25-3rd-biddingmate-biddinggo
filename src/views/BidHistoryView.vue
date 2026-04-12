@@ -14,6 +14,7 @@ import { useRouter } from 'vue-router'
 import { getUserBids } from '../api/users'
 import noImage from '../assets/no-image.svg'
 import BidHistoryScreen from '../components/mypage/bids/BidHistoryScreen.vue'
+import { getCountdownLabel } from '../utils/marketplace'
 
 const router = useRouter()
 const bidItems = ref([])
@@ -94,7 +95,7 @@ function normalizeBidItem(item = {}) {
     status: auctionStatusLabels[item.status] || item.status || '-',
     name: item.name || '-',
     image: item.representativeImageUrl || item.imageUrl || noImage,
-    time: formatRemainingTime(item.endDate),
+    time: getCountdownLabel(item.endDate),
     currentPrice: formatPrice(item.vickreyPrice ?? item.startPrice),
     myBid: formatPrice(item.amount),
     date: formatDate(item.createdAt),

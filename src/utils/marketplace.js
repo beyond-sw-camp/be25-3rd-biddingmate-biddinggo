@@ -68,7 +68,7 @@ export function normalizeAuctionCard(result = {}) {
     time: getCountdownLabel(result.endDate),
     highlight: result.status === 'ON_GOING',
     isTimeDeal: auctionType === 'TIME_DEAL',
-    isInspected: auctionType === 'INSPECTION' || inspectionYn === 'YES',
+    isInspected: inspectionYn === 'YES',
     image: result.item?.images?.[0]?.url || result.representativeImageUrl || '',
   }
 }
@@ -162,7 +162,7 @@ export function normalizeAuctionDetail(
   const sellerReviewCount = Number(sellerProfileData?.reviewCount ?? detail.sellerReviewCount ?? 0)
   const auctionType = normalizeEnumValue(detail.type ?? detail.auctionType)
   const inspectionYn = normalizeEnumValue(detail.inspectionYn ?? detail.inspection_yn)
-  const isInspected = auctionType === 'INSPECTION' || inspectionYn === 'YES'
+  const isInspected = inspectionYn === 'YES'
   const category = detail.item?.category || {}
   const history = normalizeBidHistory(bidHistory)
   const sellerTotalSalesCount = sellerProfileData?.totalSales

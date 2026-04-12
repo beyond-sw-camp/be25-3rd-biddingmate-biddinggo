@@ -19,7 +19,9 @@
       <div class="stack-list">
         <SurfaceCard as="article" v-for="entry in history" :key="entry.id ?? `${entry.title}-${entry.date}`" class="point-row">
           <div class="point-row__left">
-            <span class="point-icon" :class="entry.tone">{{ entry.tone === 'minus' ? '-' : '+' }}</span>
+            <span class="point-icon" :class="entry.tone" aria-hidden="true">
+              <v-icon :icon="entry.tone === 'minus' ? 'mdi-arrow-left' : 'mdi-arrow-right'" />
+            </span>
             <div>
               <h3>{{ entry.title }}</h3>
               <p>{{ entry.date }}</p>
@@ -200,7 +202,7 @@ onMounted(() => {
         requestLoadMore()
       }
     },
-    { rootMargin: '160px' },
+    { rootMargin: '120px' },
   )
 
   if (loadMoreTarget.value) {

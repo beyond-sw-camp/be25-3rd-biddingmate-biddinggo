@@ -8,7 +8,6 @@
       <img :src="item.image || watchImage" :alt="item.name" class="purchase-modal__image" />
 
       <div class="purchase-modal__summary">
-        <p class="purchase-modal__category">{{ item.category || '낙찰 거래' }}</p>
         <StatusBadge :status="item.status" />
         <h2>{{ item.name }}</h2>
         <div class="purchase-price-box">
@@ -105,13 +104,10 @@
 
   <BaseModal
     v-else-if="variant === 'purchase' && mode === 'shipping-form'"
+    header-label="배송지 정보 등록"
     panel-class="purchase-modal purchase-modal--form"
     @close="$emit('close')"
   >
-    <div class="purchase-modal__head">
-      <h2>배송지 정보 등록</h2>
-    </div>
-
     <div class="purchase-form">
       <label>
         <span>이름 <em>*</em></span>
@@ -157,13 +153,10 @@
 
   <BaseModal
     v-else-if="variant === 'purchase' && mode === 'review-form'"
+    header-label="리뷰 작성하기"
     panel-class="purchase-modal purchase-modal--form"
     @close="$emit('close')"
   >
-    <div class="purchase-modal__head">
-      <h2>리뷰 작성하기</h2>
-    </div>
-
     <div class="purchase-form purchase-review-form">
       <label>
         <span>평점 <em>*</em></span>
@@ -247,13 +240,10 @@
 
   <BaseModal
     v-else-if="variant === 'sale' && mode === 'shipping-form'"
+    header-label="배송 정보 등록"
     panel-class="purchase-modal purchase-modal--form"
     @close="$emit('close')"
   >
-    <div class="purchase-modal__head">
-      <h2>배송 정보 등록</h2>
-    </div>
-
     <div class="purchase-form sales-form">
       <label>
         <span>택배사 <em>*</em></span>

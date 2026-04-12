@@ -1,12 +1,9 @@
 <template>
-  <section class="page-header-block">
+  <section class="page-header-block wishlist-page-header">
     <h1>관심 경매 내역</h1>
-  </section>
-
-  <section class="filter-bar wishlist-filter-bar">
     <v-menu location="bottom end" offset="12">
       <template #activator="{ props: menuProps }">
-        <button class="sort-menu__trigger" type="button" v-bind="menuProps">
+        <button class="sort-menu__trigger wishlist-sort-trigger" type="button" v-bind="menuProps">
           <span>{{ currentSortLabel }}</span>
           <v-icon icon="mdi-chevron-down" />
         </button>
@@ -33,7 +30,6 @@
       :key="item.id"
       class="wishlist-auction-card"
       :class="{ 'wishlist-auction-card--inspection': item.isInspected }"
-      :clock-icon="clockIcon"
       :heart-icon="heartIcon"
       :image-src="noImage"
       :item="item"
@@ -81,7 +77,6 @@ const props = defineProps({
 
 const emit = defineEmits(['load-more', 'open-detail', 'sort-change', 'toggle-wishlist'])
 const loadMoreTarget = ref(null)
-const clockIcon = 'https://www.figma.com/api/mcp/asset/4ef495a0-f919-4c28-9d20-c5dfe3e99e93'
 const heartIcon = 'https://www.figma.com/api/mcp/asset/64e7d0cd-6ebd-4492-a951-2b0ca40524d2'
 let observer = null
 
@@ -134,7 +129,7 @@ onMounted(() => {
         requestLoadMore()
       }
     },
-    { rootMargin: '160px' },
+    { rootMargin: '120px' },
   )
 
   if (loadMoreTarget.value) {

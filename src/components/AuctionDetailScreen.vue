@@ -453,12 +453,12 @@ function buyNow() {
 
 <style scoped>
 .feedback-strip {
-  margin-bottom: 24px;
-  border-radius: 18px;
+  margin-bottom: 18px;
+  border-radius: 14px;
   background: #fff;
-  padding: 18px 20px;
+  padding: 14px 15px;
   color: #64748b;
-  font-size: 14px;
+  font-size: 11px;
   text-align: center;
 }
 
@@ -470,7 +470,7 @@ function buyNow() {
 .feedback-inline {
   flex: 1;
   color: #23008d;
-  font-size: 14px;
+  font-size: 11px;
   text-align: center;
 }
 </style>

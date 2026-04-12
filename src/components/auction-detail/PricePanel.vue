@@ -46,7 +46,6 @@ defineEmits(['open-bid', 'toggle-wishlist'])
       </button>
     </div>
 
-    <p class="detail-brand-line">{{ item.brand }} |</p>
     <h2 class="detail-product-title">{{ item.title }}</h2>
 
     <div class="detail-price-block">

@@ -1,6 +1,7 @@
 <script setup>
 import { toRef } from 'vue'
 import { useRouter } from 'vue-router'
+import noImage from '../assets/no-image.svg'
 import { assets } from '../data/marketplaceData'
 import { useRegisterFlow } from '../composables/useRegisterFlow'
 import AuctionSetupForm from './register/AuctionSetupForm.vue'
@@ -9,11 +10,7 @@ import RegisterMethodSelect from './register/RegisterMethodSelect.vue'
 import RegisterProductForm from './register/RegisterProductForm.vue'
 import RegisterStepper from './register/RegisterStepper.vue'
 
-const inspectionIcon = 'https://www.figma.com/api/mcp/asset/d5a99cb7-a2ca-482c-b0ca-24c4ff52d162'
-const directIcon = 'https://www.figma.com/api/mcp/asset/f2c463ba-f81c-4eba-8631-58c625f3d89b'
-const checkBullet = 'https://www.figma.com/api/mcp/asset/22001c49-ae72-4074-8e82-fb905a0e3640'
-const infoBullet = 'https://www.figma.com/api/mcp/asset/f9c860bc-f862-4836-b1e9-b0ea19594b4d'
-const inspectionProductImage = 'https://www.figma.com/api/mcp/asset/32f14895-b803-4f5e-ae62-afb42f566620'
+const inspectionProductImage = noImage
 
 const props = defineProps({
   initialInspectionId: {
@@ -40,8 +37,8 @@ const registrationMethods = [
     buttonLabel: '검수 상품 등록하기',
     cardClass: 'is-inspection',
     buttonClass: 'is-inspection',
-    iconSrc: inspectionIcon,
-    bulletSrc: checkBullet,
+    icon: 'mdi-shield-check-outline',
+    bulletIcon: 'mdi-check-circle',
   },
   {
     key: 'direct',
@@ -54,8 +51,8 @@ const registrationMethods = [
     buttonLabel: '직접 등록하기',
     cardClass: 'is-direct',
     buttonClass: 'is-direct',
-    iconSrc: directIcon,
-    bulletSrc: infoBullet,
+    icon: 'mdi-package-variant-closed-plus',
+    bulletIcon: 'mdi-information-outline',
   },
 ]
 

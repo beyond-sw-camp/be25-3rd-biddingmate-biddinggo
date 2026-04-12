@@ -1,6 +1,11 @@
 <template>
   <div class="app-shell admin-layout">
-    <aside class="sidebar admin-layout__sidebar">
+    <aside
+      ref="sidebarRef"
+      class="sidebar admin-layout__sidebar"
+      :class="{ 'sidebar--scrolling': isSidebarScrolling }"
+      @scroll="handleSidebarScroll"
+    >
       <RouterLink class="brand-block" to="/admin/transactions">
         <strong>Biddinggo</strong>
         <span>BIDDINGMATE</span>
@@ -33,12 +38,38 @@
 </template>
 
 <script setup>
+import { onBeforeUnmount, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { adminNavItems } from '../../data/admin'
 
 const route = useRoute()
+const sidebarRef = ref(null)
+const isSidebarScrolling = ref(false)
+let sidebarScrollTimer = null
 
 function isActive(targetRoute) {
   return route.path === targetRoute
 }
+
+function handleSidebarScroll() {
+  if (!sidebarRef.value) {
+    return
+  }
+
+  isSidebarScrolling.value = true
+
+  if (sidebarScrollTimer) {
+    window.clearTimeout(sidebarScrollTimer)
+  }
+
+  sidebarScrollTimer = window.setTimeout(() => {
+    isSidebarScrolling.value = false
+  }, 240)
+}
+
+onBeforeUnmount(() => {
+  if (sidebarScrollTimer) {
+    window.clearTimeout(sidebarScrollTimer)
+  }
+})
 </script>

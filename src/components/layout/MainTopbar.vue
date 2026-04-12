@@ -2,13 +2,13 @@
   <header class="topbar">
     <form class="topbar-search-field topbar-search" role="search" @submit.prevent="submitSearch">
       <button type="submit" class="topbar-search__button" aria-label="상품 검색">
-        <img :src="searchIcon" alt="" class="topbar-search__icon" />
+        <v-icon icon="mdi-magnify" class="topbar-search__icon" aria-hidden="true" />
       </button>
       <input
         v-model.trim="searchQuery"
         type="search"
-        placeholder="상품명, 브랜드를 검색해보세요"
-        aria-label="상품 검색어"
+        placeholder="어떤 경매를 찾으시나요?"
+        aria-label="경매 검색어"
         @keydown.enter.prevent="submitSearch"
       />
     </form>
@@ -29,8 +29,6 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
-
-const searchIcon = 'https://www.figma.com/api/mcp/asset/43c34f06-dced-42d0-9368-8ac16f87d2f7'
 
 const props = defineProps({
   auth: {

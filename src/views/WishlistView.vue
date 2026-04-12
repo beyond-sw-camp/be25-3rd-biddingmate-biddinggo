@@ -20,6 +20,7 @@ import { getUserWishlists } from '../api/users'
 import noImage from '../assets/no-image.svg'
 import WishlistScreen from '../components/mypage/wishlists/WishlistScreen.vue'
 import { authState } from '../lib/authSession'
+import { getCountdownLabel } from '../utils/marketplace'
 
 const router = useRouter()
 const wishlistItems = ref([])
@@ -90,9 +91,10 @@ function formatRemainingTime(endDate) {
 
 function normalizeWishlistItem(item = {}) {
   const price = item.vickreyPrice || item.startPrice
-  const title = [item.brand, item.name].filter(Boolean).join(' ') || `상품 #${item.itemId}`
+  const title = item.name || `상품 #${item.itemId}`
   const bidCount = `입찰 ${Number(item.bidCount || 0).toLocaleString('ko-KR')}건`
   const auctionType = String(item.type || '').toUpperCase()
+  const inspectionYn = String(item.inspectionYn ?? item.inspection_yn ?? '').trim().toUpperCase()
 
   return {
     id: item.auctionId,
@@ -107,7 +109,7 @@ function normalizeWishlistItem(item = {}) {
     highlight: item.status === 'ON_GOING',
     image: item.representativeImageUrl || noImage,
     interestCount: Number(item.wishCount || 0),
-    isInspected: auctionType === 'INSPECTION',
+    isInspected: inspectionYn === 'YES',
     isTimeDeal: auctionType === 'TIME_DEAL',
     isWished: true,
     itemId: item.itemId,
@@ -116,7 +118,7 @@ function normalizeWishlistItem(item = {}) {
     price: formatAmount(price),
     status: item.status,
     tag: statusLabels[item.status] || item.status || '',
-    time: formatRemainingTime(item.endDate),
+    time: getCountdownLabel(item.endDate),
     title,
     type: item.type,
     wishCount: Number(item.wishCount || 0),

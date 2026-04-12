@@ -19,6 +19,7 @@ import {
   purchaseStatusItems as fallbackPurchaseStatusItems,
 } from '../data/mypage'
 import { salesHistoryItems as fallbackSalesHistoryItems } from '../data/salesHistory'
+import { getCountdownLabel } from '../utils/marketplace'
 
 const overviewUser = ref(fallbackOverviewUser)
 const bidItems = ref(fallbackBidItems)
@@ -133,7 +134,7 @@ function normalizeBiddingItem(item = {}) {
     status: biddingStatusLabels[item.status] || item.status || '-',
     name: item.itemName || '-',
     image: item.itemImageUrl || item.representativeImageUrl || item.imageUrl || noImage,
-    time: formatRemainingTime(item.endDate),
+    time: getCountdownLabel(item.endDate),
     currentPrice: formatPrice(item.currentPrice),
     myBid: formatPrice(item.myBidPrice),
     date: formatDate(item.endDate),

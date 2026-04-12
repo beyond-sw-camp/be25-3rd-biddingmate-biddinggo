@@ -316,7 +316,7 @@ onMounted(() => {
         requestLoadMore()
       }
     },
-    { rootMargin: '160px' },
+    { rootMargin: '120px' },
   )
 
   if (loadMoreTarget.value) {

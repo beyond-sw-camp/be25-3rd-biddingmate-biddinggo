@@ -6,7 +6,9 @@
 
   <section class="stats-grid">
     <SurfaceCard as="article" v-for="card in summaryItems" :key="card.label" class="stat-card">
-      <span class="stat-card__icon"></span>
+      <span class="stat-card__icon" :class="`stat-card__icon--${getSummaryIcon(card).tone}`">
+        <v-icon :icon="getSummaryIcon(card).icon" size="22" />
+      </span>
       <div>
         <p>{{ card.label }}</p>
         <strong>{{ card.value }}</strong>
@@ -35,7 +37,6 @@
       :key="item.id"
       class="wishlist-auction-card"
       :class="{ 'wishlist-auction-card--inspection': item.isInspected }"
-      :clock-icon="clockIcon"
       :heart-icon="heartIcon"
       :image-src="noImage"
       :item="item"
@@ -88,10 +89,20 @@ const props = defineProps({
 
 const emit = defineEmits(['filter-change', 'load-more', 'open-detail', 'register', 'toggle-wishlist'])
 const loadMoreTarget = ref(null)
-const clockIcon = 'https://www.figma.com/api/mcp/asset/4ef495a0-f919-4c28-9d20-c5dfe3e99e93'
 const heartIcon = 'https://www.figma.com/api/mcp/asset/64e7d0cd-6ebd-4492-a951-2b0ca40524d2'
 const filterTags = ['전체', '예정', '진행 중', '낙찰', '유찰', '취소']
 let observer = null
+
+const summaryIconMap = {
+  '전체 경매': { icon: 'mdi-view-grid-outline', tone: 'all' },
+  '진행 중': { icon: 'mdi-timer-sand', tone: 'ongoing' },
+  '낙찰': { icon: 'mdi-gavel', tone: 'success' },
+  '유찰': { icon: 'mdi-alert-circle-outline', tone: 'failed' },
+}
+
+function getSummaryIcon(card) {
+  return summaryIconMap[card.label] || summaryIconMap['전체 경매']
+}
 
 function openDetail(item) {
   emit('open-detail', item)
@@ -129,7 +140,7 @@ onMounted(() => {
         requestLoadMore()
       }
     },
-    { rootMargin: '160px' },
+    { rootMargin: '120px' },
   )
 
   if (loadMoreTarget.value) {

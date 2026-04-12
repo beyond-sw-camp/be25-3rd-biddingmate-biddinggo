@@ -58,7 +58,6 @@ defineEmits(['openDetail', 'openList', 'toggleWishlist'])
         <AuctionCard
           v-for="(item, index) in items"
           :key="`${item.title}-${index}`"
-          :clock-icon="assets.clockIcon"
           :heart-icon="assets.heartIcon"
           :image-src="assets.watchImage"
           :item="item"
@@ -75,11 +74,11 @@ defineEmits(['openDetail', 'openList', 'toggleWishlist'])
 <style scoped>
 .feedback-strip {
   margin: 0;
-  border-radius: 18px;
+  border-radius: 14px;
   background: #f8fafc;
-  padding: 18px 20px;
+  padding: 14px 15px;
   color: #64748b;
-  font-size: 14px;
+  font-size: 11px;
   text-align: center;
 }
 

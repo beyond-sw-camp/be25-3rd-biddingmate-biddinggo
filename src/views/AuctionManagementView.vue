@@ -22,6 +22,7 @@ import { getUserManagedAuctions } from '../api/users'
 import noImage from '../assets/no-image.svg'
 import AuctionManagementScreen from '../components/mypage/auctions/AuctionManagementScreen.vue'
 import { useToast } from '../composables/useToast'
+import { getCountdownLabel } from '../utils/marketplace'
 
 const router = useRouter()
 const { showToast } = useToast()
@@ -105,6 +106,7 @@ function normalizeAuctionItem(item = {}) {
   const price = item.currentPrice ?? item.startPrice ?? 0
   const bidCount = Number(item.bidCount || 0)
   const auctionType = String(item.auctionType || '').trim().toUpperCase()
+  const inspectionYn = String(item.inspectionYn ?? item.inspection_yn ?? '').trim().toUpperCase()
 
   return {
     id: item.auctionId,
@@ -115,9 +117,9 @@ function normalizeAuctionItem(item = {}) {
     price: formatAmount(price),
     bids: `입찰 ${bidCount}건`,
     bidCount,
-    time: formatRemainingTime(item.endDate),
+    time: getCountdownLabel(item.endDate),
     isTimeDeal: auctionType === 'TIME_DEAL',
-    isInspected: auctionType === 'INSPECTION',
+    isInspected: inspectionYn === 'YES',
     highlight: item.saleStatus === 'ONGOING',
     highlighted: item.saleStatus === 'ONGOING',
     saleStatus: item.saleStatus || '',
