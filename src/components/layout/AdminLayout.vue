@@ -1,17 +1,12 @@
-<template>
+﻿<template>
   <div class="app-shell admin-layout">
-    <aside
-      ref="sidebarRef"
-      class="sidebar admin-layout__sidebar"
-      :class="{ 'sidebar--scrolling': isSidebarScrolling }"
-      @scroll="handleSidebarScroll"
-    >
+    <aside class="sidebar admin-layout__sidebar">
       <RouterLink class="brand-block" to="/admin/transactions">
         <strong>Biddinggo</strong>
         <span>BIDDINGMATE</span>
       </RouterLink>
 
-      <nav class="sidebar-nav admin-layout__nav" aria-label="관리자 메뉴">
+      <nav class="sidebar-nav admin-layout__nav" aria-label="Admin Menu">
         <RouterLink
           v-for="item in adminNavItems"
           :key="item.key"
@@ -27,7 +22,9 @@
 
     <div class="content-shell">
       <header class="topbar admin-layout__topbar">
-        <button class="topbar-link-button" type="button">로그아웃</button>
+        <button class="topbar-link-button" type="button" :disabled="isLoggingOut" @click="handleLogout">
+          로그아웃
+        </button>
       </header>
 
       <main class="page-area admin-layout__page">
@@ -38,38 +35,29 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount, ref } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
+import { ref } from 'vue'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { useAuth } from '../../composables/useAuth'
 import { adminNavItems } from '../../data/admin'
 
 const route = useRoute()
-const sidebarRef = ref(null)
-const isSidebarScrolling = ref(false)
-let sidebarScrollTimer = null
+const router = useRouter()
+const { logout } = useAuth()
+const isLoggingOut = ref(false)
 
 function isActive(targetRoute) {
   return route.path === targetRoute
 }
 
-function handleSidebarScroll() {
-  if (!sidebarRef.value) {
-    return
+async function handleLogout() {
+  if (isLoggingOut.value) return
+  isLoggingOut.value = true
+
+  try {
+    await logout()
+    await router.replace({ name: 'admin-login' })
+  } finally {
+    isLoggingOut.value = false
   }
-
-  isSidebarScrolling.value = true
-
-  if (sidebarScrollTimer) {
-    window.clearTimeout(sidebarScrollTimer)
-  }
-
-  sidebarScrollTimer = window.setTimeout(() => {
-    isSidebarScrolling.value = false
-  }, 240)
 }
-
-onBeforeUnmount(() => {
-  if (sidebarScrollTimer) {
-    window.clearTimeout(sidebarScrollTimer)
-  }
-})
 </script>

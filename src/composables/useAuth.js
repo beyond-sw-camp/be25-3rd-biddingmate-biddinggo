@@ -27,7 +27,7 @@ async function restoreSessionFromRefresh() {
 }
 
 export function useAuth() {
-  const displayName = computed(() => authState.nickname || authState.name || authState.username || '?뚯썝')
+  const displayName = computed(() => authState.nickname || authState.name || authState.username || '회원')
 
   async function initializeAuth() {
     if (authState.initialized) {
@@ -64,22 +64,12 @@ export function useAuth() {
     return initializePromise
   }
 
-  async function completeLoginFromCallback(accessToken) {
-    if (!accessToken) {
-      throw new Error('濡쒓렇???좏겙???놁뒿?덈떎. ?ㅼ떆 ?쒕룄?댁＜?몄슂.')
-    }
-
-    setSession({ accessToken, type: 'Bearer' })
-
+  async function completeLoginFromCallback() {
     try {
-      await syncCurrentUser()
+      const loginResponse = await refreshAccessToken()
+      setSession(loginResponse)
 
-      try {
-        const loginResponse = await refreshAccessToken()
-        setSession(loginResponse)
-      } catch {
-        // refresh 荑좏궎媛 ?꾩쭅 ?녿뜑?쇰룄 access token留뚯쑝濡?利됱떆 ?뚯뒪?몃뒗 媛?ν븯??
-      }
+      await syncCurrentUser()
 
       return authState
     } catch (error) {
@@ -110,4 +100,3 @@ export function useAuth() {
     logout,
   }
 }
-

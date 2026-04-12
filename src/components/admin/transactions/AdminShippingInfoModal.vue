@@ -11,7 +11,7 @@
       <form class="admin-shipping-modal__form" @submit.prevent="submit">
         <label>
           <span>택배사 <em>*</em></span>
-          <select v-model="courier">
+          <select v-model="carrier">
             <option disabled value="">선택</option>
             <option v-for="company in shippingCompanies" :key="company" :value="company">{{ company }}</option>
           </select>
@@ -44,13 +44,13 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'submit'])
 
-const courier = ref('')
+const carrier = ref('')
 const trackingNumber = ref('')
 
 watch(
   () => props.item,
   (nextItem) => {
-    courier.value = nextItem?.shippingInfo?.courier ?? ''
+    carrier.value = nextItem?.shippingInfo?.carrier ?? ''
     trackingNumber.value = nextItem?.shippingInfo?.trackingNumber ?? ''
   },
   { immediate: true },
@@ -58,11 +58,11 @@ watch(
 
 function submit() {
   const payload = {
-    courier: courier.value.trim(),
+    carrier: carrier.value.trim(),
     trackingNumber: trackingNumber.value.trim(),
   }
 
-  if (!payload.courier || !payload.trackingNumber) {
+  if (!payload.carrier || !payload.trackingNumber) {
     return
   }
 
