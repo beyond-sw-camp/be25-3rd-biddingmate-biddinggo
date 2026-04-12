@@ -35,6 +35,7 @@
           <RouterLink to="/mypage">마이페이지</RouterLink>
           <button class="topbar-link-button topbar-link-button--icon" type="button" @click="isNotificationOpen = true">
             <span>알림</span>
+            <span v-if="unreadBadgeLabel" class="topbar-notification-badge">{{ unreadBadgeLabel }}</span>
           </button>
           <a href="/">로그인/회원가입</a>
         </div>
@@ -50,10 +51,18 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+//import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { navItems } from '../../data/mypage'
 import NotificationModal from '../NotificationModal.vue'
+import { useNotificationCenter } from '../../composables/useNotificationCenter'
 
 const isNotificationOpen = ref(false)
+const { unreadCount } = useNotificationCenter()
+
+const unreadBadgeLabel = computed(() => {
+  const count = Number(unreadCount.value || 0)
+  if (count <= 0) return ''
+  return String(Math.min(count, 99))
+})
 </script>
