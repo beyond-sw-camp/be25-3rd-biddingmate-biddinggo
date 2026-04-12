@@ -20,7 +20,6 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import AppShell from './components/AppShell.vue'
 import { useAuth } from './composables/useAuth'
@@ -100,11 +99,7 @@ watch(
   },
 )
 
-async function handleLogout() {
-  shutdownNotificationCenter({ clear: true })
-  await logout()
-  window.location.reload()
-}
+
 
 function navigate(path) {
   if (typeof path === 'string' && path) {
@@ -139,7 +134,9 @@ function openMyPage() {
 }
 
 async function handleLogout() {
+  shutdownNotificationCenter({ clear: true })
   await logout()
   window.location.reload()
 }
+
 </script>

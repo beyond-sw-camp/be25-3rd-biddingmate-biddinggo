@@ -52,9 +52,6 @@
 
 <script setup>
 import { ref } from 'vue'
-import { RouterLink } from 'vue-router'
-import { navItems } from '../../data/mypage'
-import NotificationModal from '../NotificationModal.vue'
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { navItems } from '../../data/mypage'

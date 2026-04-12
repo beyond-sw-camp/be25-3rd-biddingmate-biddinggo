@@ -63,8 +63,6 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import NotificationModal from './NotificationModal.vue'
-import { computed, ref, watch } from 'vue'
-import NotificationModal from './NotificationModal.vue'
 import { useNotificationCenter } from '../composables/useNotificationCenter'
 
 const searchIcon = 'https://www.figma.com/api/mcp/asset/43c34f06-dced-42d0-9368-8ac16f87d2f7'
