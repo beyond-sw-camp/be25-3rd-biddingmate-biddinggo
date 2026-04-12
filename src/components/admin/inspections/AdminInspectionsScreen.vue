@@ -33,11 +33,7 @@
       />
     </section>
 
-    <section v-if="isLoading" class="admin-placeholder-card surface-card">
-      <h2>검수 요청 목록을 불러오는 중입니다.</h2>
-    </section>
-
-    <section v-else-if="errorMessage" class="admin-placeholder-card surface-card">
+    <section v-if="errorMessage" class="admin-placeholder-card surface-card">
       <h2>검수 요청 목록을 불러오지 못했습니다.</h2>
       <p>{{ errorMessage }}</p>
       <button class="primary-button" type="button" @click="loadInspections">다시 시도</button>

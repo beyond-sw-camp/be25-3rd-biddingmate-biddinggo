@@ -79,22 +79,126 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import AdminLayout from '../../layout/AdminLayout.vue'
-import {
-  adminTransactionRows,
-  adminTransactionStatusFilters,
-  shippingCompanies,
-} from '../../../data/admin'
+import { shippingCompanies } from '../../../data/admin'
+import { assets } from '../../../data/marketplaceData'
 import AdminStatusBadge from '../shared/AdminStatusBadge.vue'
 import AdminShippingInfoModal from './AdminShippingInfoModal.vue'
 import AdminTransactionDetailModal from './AdminTransactionDetailModal.vue'
+import {
+  fetchAdminTransactions,
+  fetchAdminTransactionDetail,
+  registerAdminTrackingNumber,
+} from '../../../api/adminTransactions'
+
+const adminTransactionStatusFilters = ['전체', '거래 완료', '발송 대기', '배송 중', '거래 취소']
 
 const selectedFilter = ref('전체')
 const searchQuery = ref('')
-const rows = ref(adminTransactionRows.map((row) => ({ ...row })))
+const rows = ref([])
 const selectedTrade = ref(null)
 const isShippingModalOpen = ref(false)
+
+const isLoading = ref(false)
+const isDetailLoading = ref(false)
+const isSubmittingShipping = ref(false)
+const errorMessage = ref('')
+
+const statusLabelToApiStatus = {
+  전체: undefined,
+  '거래 완료': 'CONFIRMED',
+  '발송 대기': 'PAID',
+  '배송 중': 'SHIPPED',
+  '거래 취소': 'CANCELLED',
+}
+
+function statusToLabel(status) {
+  if (status === 'PAID') return '발송 대기'
+  if (status === 'SHIPPED') return '배송 중'
+  if (status === 'CONFIRMED') return '거래 완료'
+  if (status === 'CANCELLED') return '거래 취소'
+  return String(status || '-')
+}
+
+function formatDate(value) {
+  if (!value) return '-'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return String(value)
+
+  const yyyy = date.getFullYear()
+  const mm = String(date.getMonth() + 1).padStart(2, '0')
+  const dd = String(date.getDate()).padStart(2, '0')
+  return `${yyyy}.${mm}.${dd}`
+}
+
+function formatAmount(value) {
+  const amount = Number(value)
+  if (!Number.isFinite(amount)) return '-'
+  return `${amount.toLocaleString('ko-KR')} 원`
+}
+
+function toRow(item) {
+  return {
+    winnerDealId: item.winnerDealId,
+    tradeNo: item.dealNumber || `WD-${item.winnerDealId}`,
+    seller: item.sellerName || '-',
+    buyer: item.winnerName || '-',
+    productName: item.itemName || '-',
+    amount: formatAmount(item.winnerPrice),
+    tradedAt: formatDate(item.createdAt),
+    status: statusToLabel(item.status),
+    statusRaw: item.status,
+    category: '-',
+    productTitle: item.itemName || '-',
+    finalBid: formatAmount(item.winnerPrice),
+    image: assets.listWatchImage,
+    shippingAddress: {
+      name: '-',
+      phone: '-',
+      zip: '-',
+      address1: '-',
+      address2: '-',
+    },
+    shippingInfo: null,
+    canRegisterTrackingNumber: false,
+  }
+}
+
+function applyDetail(baseRow, detail) {
+  const hasShipping = Boolean(detail?.carrier && detail?.trackingNumber)
+
+  return {
+    ...baseRow,
+    winnerDealId: detail?.winnerDealId ?? baseRow.winnerDealId,
+    tradeNo: detail?.dealNumber ?? baseRow.tradeNo,
+    seller: detail?.sellerName ?? baseRow.seller,
+    buyer: detail?.winnerName ?? baseRow.buyer,
+    productName: detail?.itemName ?? baseRow.productName,
+    amount: formatAmount(detail?.winnerPrice ?? 0),
+    tradedAt: formatDate(detail?.createdAt),
+    status: statusToLabel(detail?.status),
+    statusRaw: detail?.status ?? baseRow.statusRaw,
+    category: detail?.inspectionItem ? '검수 상품' : '일반 상품',
+    productTitle: detail?.itemName ?? baseRow.productTitle,
+    finalBid: formatAmount(detail?.winnerPrice ?? 0),
+    image: detail?.itemImageUrl || baseRow.image,
+    shippingAddress: {
+      name: detail?.recipient || detail?.winnerName || '-',
+      phone: detail?.tel || '-',
+      zip: detail?.zipcode || '-',
+      address1: detail?.address || '-',
+      address2: detail?.detailAddress || '-',
+    },
+    shippingInfo: hasShipping
+      ? {
+          courier: detail.carrier,
+          trackingNumber: detail.trackingNumber,
+        }
+      : null,
+    canRegisterTrackingNumber: Boolean(detail?.canRegisterTrackingNumber),
+  }
+}
 
 const filteredRows = computed(() => {
   const keyword = searchQuery.value.trim().toLowerCase()
@@ -103,15 +207,45 @@ const filteredRows = computed(() => {
     const matchesStatus = selectedFilter.value === '전체' || row.status === selectedFilter.value
     const matchesKeyword =
       !keyword ||
-      row.productName.toLowerCase().includes(keyword) ||
-      row.tradeNo.toLowerCase().includes(keyword)
+      String(row.productName || '').toLowerCase().includes(keyword) ||
+      String(row.tradeNo || '').toLowerCase().includes(keyword)
 
     return matchesStatus && matchesKeyword
   })
 })
 
-function openDetail(row) {
+async function loadRows() {
+  isLoading.value = true
+  errorMessage.value = ''
+
+  try {
+    const page = await fetchAdminTransactions({
+      page: 1,
+      size: 100,
+      order: 'DESC',
+      status: statusLabelToApiStatus[selectedFilter.value],
+    })
+
+    rows.value = Array.isArray(page?.content) ? page.content.map(toRow) : []
+  } catch (error) {
+    errorMessage.value = String(error?.message || '거래 내역 조회에 실패했습니다.')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+async function openDetail(row) {
   selectedTrade.value = row
+  isDetailLoading.value = true
+
+  try {
+    const detail = await fetchAdminTransactionDetail(row.winnerDealId)
+    selectedTrade.value = applyDetail(row, detail)
+  } catch {
+    // 목록 기본 정보로 모달 유지
+  } finally {
+    isDetailLoading.value = false
+  }
 }
 
 function closeDetail() {
@@ -120,16 +254,33 @@ function closeDetail() {
 }
 
 function openShippingModal() {
+  if (!selectedTrade.value?.canRegisterTrackingNumber || isSubmittingShipping.value) return
   isShippingModalOpen.value = true
 }
 
-function saveShippingInfo(payload) {
-  if (!selectedTrade.value) {
-    return
-  }
+async function saveShippingInfo(payload) {
+  if (!selectedTrade.value?.winnerDealId || isSubmittingShipping.value) return
 
-  selectedTrade.value.shippingInfo = payload
-  selectedTrade.value.status = '배송 중'
-  isShippingModalOpen.value = false
+  isSubmittingShipping.value = true
+
+  try {
+    await registerAdminTrackingNumber(selectedTrade.value.winnerDealId, {
+      carrier: payload.courier,
+      trackingNumber: payload.trackingNumber,
+    })
+
+    const detail = await fetchAdminTransactionDetail(selectedTrade.value.winnerDealId)
+    selectedTrade.value = applyDetail(selectedTrade.value, detail)
+    isShippingModalOpen.value = false
+    await loadRows()
+  } catch (error) {
+    errorMessage.value = String(error?.message || '배송 정보 등록에 실패했습니다.')
+  } finally {
+    isSubmittingShipping.value = false
+  }
 }
+
+watch(selectedFilter, loadRows)
+onMounted(loadRows)
 </script>
+
