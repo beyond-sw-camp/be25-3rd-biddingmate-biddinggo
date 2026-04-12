@@ -1,25 +1,26 @@
 <template>
   <SurfaceCard as="article" class="inquiry-card" :class="{ 'inquiry-card--expanded': isExpanded }">
-    <button class="inquiry-card__head inquiry-card__toggle" type="button" @click="toggleExpanded">
-      <div>
-        <StatusBadge :status="inquiry.status" />
-        <h3>{{ inquiry.title }}</h3>
-        <p>{{ inquiry.date }}</p>
-      </div>
+    <div class="inquiry-card__head">
+      <button class="inquiry-card__toggle" type="button" @click="toggleExpanded">
+        <div>
+          <StatusBadge :status="inquiry.status" />
+          <h3>{{ inquiry.title }}</h3>
+          <p>{{ inquiry.date }}</p>
+        </div>
+      </button>
 
       <div class="inquiry-card__actions">
         <button
           v-if="inquiry.action"
-          class="ghost-action"
-          :class="{ 'inquiry-card__text-action': inquiry.action === '상품 보러가기' }"
+          class="ghost-action inquiry-card__text-action"
           type="button"
-          @click.stop
+          @click.stop="$emit('open-auction', inquiry)"
         >
           {{ inquiry.action }}
         </button>
         <v-icon class="inquiry-card__chevron" :icon="isExpanded ? 'mdi-chevron-up' : 'mdi-chevron-down'" />
       </div>
-    </button>
+    </div>
 
     <div v-if="isExpanded" class="inquiry-card__body">
       <div class="inquiry-block">
@@ -49,7 +50,7 @@
           />
         </div>
         <button :class="replyButtonClass" type="button" @click="handlePendingAction">
-          {{ inquiry.pendingAction }}
+          {{ isReplying ? '답변 등록' : inquiry.pendingAction }}
         </button>
       </div>
     </div>
@@ -72,7 +73,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['submit-reply'])
+const emit = defineEmits(['open-auction', 'submit-reply'])
 
 const isExpanded = ref(false)
 const isReplying = ref(false)

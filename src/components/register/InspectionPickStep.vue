@@ -43,7 +43,7 @@ defineEmits(['close-detail', 'open-inspection-request', 'select-item', 'start-au
   <section class="register-form-card register-inspection-pick-card">
     <div class="inspection-toolbar register-inspection-toolbar">
       <div class="inspection-search">
-        <img :src="assets.listSearchIcon" alt="" class="inspection-search-icon" />
+        <v-icon icon="mdi-magnify" class="inspection-search-icon" size="18" />
         <input
           :value="inspectionSearchQuery"
           type="search"
@@ -84,7 +84,7 @@ defineEmits(['close-detail', 'open-inspection-request', 'select-item', 'start-au
       </article>
 
       <button type="button" class="register-empty-card" @click="$emit('open-inspection-request')">
-        <div class="register-empty-icon">+</div>
+        <div class="register-empty-icon"><v-icon icon="mdi-plus" size="28" /></div>
         <strong>상품이 없으신가요?</strong>
         <p>신규 사전 검수 상품을 등록해보세요.</p>
       </button>

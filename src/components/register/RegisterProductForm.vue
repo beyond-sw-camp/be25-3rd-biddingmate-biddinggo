@@ -217,7 +217,7 @@ function slideThumbnails(direction) {
           </span>
           <template v-else>
             <div class="register-upload-placeholder">
-              <div class="register-upload-icon">+</div>
+              <div class="register-upload-icon"><v-icon icon="mdi-camera-plus-outline" size="28" /></div>
               <span>{{ uploadInProgress ? '업로드 중...' : '이미지 업로드' }}</span>
             </div>
           </template>
@@ -231,7 +231,7 @@ function slideThumbnails(direction) {
             aria-label="이전 사진 보기"
             @click="slideThumbnails(-1)"
           >
-            ‹
+            <v-icon icon="mdi-chevron-left" size="18" />
           </button>
 
           <div ref="thumbnailScroller" class="register-thumb-row">
@@ -251,7 +251,7 @@ function slideThumbnails(direction) {
                 :aria-label="`${image.name} 삭제`"
                 @click="removeImage(index)"
               >
-                ×
+                <v-icon icon="mdi-close" size="16" />
               </button>
             </div>
             <button
@@ -261,7 +261,7 @@ function slideThumbnails(direction) {
               :disabled="uploadInProgress"
               @click="openFilePicker"
             >
-              <span>+</span>
+              <span><v-icon icon="mdi-plus" size="18" /></span>
               <em>사진 추가</em>
             </button>
           </div>
@@ -273,7 +273,7 @@ function slideThumbnails(direction) {
             aria-label="다음 사진 보기"
             @click="slideThumbnails(1)"
           >
-            ›
+            <v-icon icon="mdi-chevron-right" size="18" />
           </button>
         </div>
 

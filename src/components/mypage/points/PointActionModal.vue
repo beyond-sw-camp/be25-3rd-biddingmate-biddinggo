@@ -5,12 +5,55 @@
     :header-label="title"
     @close="$emit('close')"
   >
-    <div v-if="mode === 'virtual-account'" class="point-action-modal point-action-modal--account">
+    <form v-if="mode === 'charge-details'" class="point-action-modal" @submit.prevent="submitChargeDetails">
+      <section class="point-balance-card point-balance-card--amount">
+        <span>충전 금액</span>
+        <strong>{{ formatAmount(amount) }}</strong>
+      </section>
+
+      <div class="point-detail-field">
+        <span>입금할 은행</span>
+        <v-menu location="bottom start" offset="8">
+          <template #activator="{ props: menuProps }">
+            <button class="point-bank-menu__trigger" type="button" v-bind="menuProps">
+              <span>{{ selectedBankLabel }}</span>
+              <v-icon icon="mdi-chevron-down" />
+            </button>
+          </template>
+
+          <div class="point-bank-menu__panel">
+            <button
+              v-for="bank in selectableBanks"
+              :key="bank.code"
+              class="point-bank-menu__item"
+              :class="{ 'point-bank-menu__item--active': selectedBank === bank.code }"
+              type="button"
+              @click="selectBank(bank.code)"
+            >
+              {{ bank.label }}
+            </button>
+          </div>
+        </v-menu>
+      </div>
+
+      <label class="point-detail-field">
+        <span>입금자명</span>
+        <input v-model.trim="customerName" type="text" placeholder="입금자명을 입력해 주세요" required />
+      </label>
+
+      <p class="point-detail-note">입력한 은행과 입금자명으로 가상계좌를 발급합니다.</p>
+
+      <button class="primary-button point-action-modal__submit" type="submit" :disabled="!selectedBank || !customerName">
+        가상계좌 발급하기
+      </button>
+    </form>
+
+    <div v-else-if="mode === 'virtual-account'" class="point-action-modal point-action-modal--account">
       <section class="point-account-banner">
         <v-icon class="point-account-banner__icon" icon="mdi-credit-card-outline" />
         <div>
           <strong>가상계좌 발급 완료</strong>
-          <p>아래 계좌로 입금하시면 자동으로 충전됩니다</p>
+          <p>아래 계좌로 입금하시면 자동으로 충전됩니다.</p>
         </div>
       </section>
 
@@ -69,7 +112,7 @@
         <strong>{{ formatAmount(expectedPoints) }}</strong>
       </div>
 
-      <button class="primary-button point-action-modal__submit" type="button" @click="$emit('submit')">
+      <button class="primary-button point-action-modal__submit" type="button" :disabled="amount <= 0" @click="$emit('submit')">
         {{ actionLabel }}
       </button>
     </div>
@@ -77,67 +120,59 @@
 </template>
 
 <script setup>
+import { computed, ref, watch } from 'vue'
 import BaseModal from '../../BaseModal.vue'
+import { bankOptions } from '../../../utils/banks'
 
-defineProps({
-  actionLabel: {
-    type: String,
-    default: '',
-  },
-  amount: {
-    type: Number,
-    default: 0,
-  },
-  amountLabel: {
-    type: String,
-    default: '',
-  },
-  currentPoints: {
-    type: Number,
-    default: 0,
-  },
-  expectedLabel: {
-    type: String,
-    default: '',
-  },
-  expectedPoints: {
-    type: Number,
-    default: 0,
-  },
-  mode: {
-    type: String,
-    default: '',
-  },
-  open: {
-    type: Boolean,
-    default: false,
-  },
-  presets: {
-    type: Array,
-    default: () => [],
-  },
-  selectedPreset: {
-    type: [Number, String],
-    default: null,
-  },
-  title: {
-    type: String,
-    default: '',
-  },
-  virtualAccount: {
-    type: Object,
-    default: () => ({}),
-  },
+const props = defineProps({
+  actionLabel: { type: String, default: '' },
+  amount: { type: Number, default: 0 },
+  amountLabel: { type: String, default: '' },
+  currentPoints: { type: Number, default: 0 },
+  expectedLabel: { type: String, default: '' },
+  expectedPoints: { type: Number, default: 0 },
+  mode: { type: String, default: '' },
+  open: { type: Boolean, default: false },
+  presets: { type: Array, default: () => [] },
+  selectedPreset: { type: [Number, String], default: null },
+  title: { type: String, default: '' },
+  virtualAccount: { type: Object, default: () => ({}) },
 })
 
-defineEmits(['close', 'confirm', 'preset', 'submit'])
+const emit = defineEmits(['close', 'confirm', 'preset', 'submit', 'submit-charge-details'])
+
+const customerName = ref('')
+const selectedBank = ref('020')
+const selectableBanks = computed(() => bankOptions.filter((bank) => bank.code))
+const selectedBankLabel = computed(() => selectableBanks.value.find((bank) => bank.code === selectedBank.value)?.label || '은행 선택')
+
+watch(
+  () => props.mode,
+  (mode) => {
+    if (mode === 'charge-details') {
+      selectedBank.value = selectedBank.value || '020'
+      customerName.value = ''
+    }
+  },
+)
 
 function formatAmount(value) {
-  return `${value.toLocaleString('ko-KR')} P`
+  return `${Number(value || 0).toLocaleString('ko-KR')} 원`
 }
 
 function formatPreset(preset) {
   if (preset === 'all') return '전액'
   return `+ ${(preset / 10000).toLocaleString('ko-KR')}만`
+}
+
+function selectBank(bankCode) {
+  selectedBank.value = bankCode
+}
+
+function submitChargeDetails() {
+  emit('submit-charge-details', {
+    bank: selectedBank.value,
+    customerName: customerName.value,
+  })
 }
 </script>

@@ -88,6 +88,12 @@ const sellerProfile = computed(() => ({
   rating: props.item?.sellerRating || '0.0',
   reviewCount: props.item?.sellerReviewCount || 0,
   joinedAt: props.item?.sellerJoinedAt || '-',
+  totalSalesCount: props.item?.sellerTotalSalesCount ?? '-',
+  cancelCount: props.item?.sellerCancelCount ?? '-',
+  responseRate:
+    props.item?.sellerResponseRate === null || props.item?.sellerResponseRate === undefined
+      ? '-'
+      : `${props.item.sellerResponseRate}%`,
   stats: [
     { label: '판매자 등급', value: props.item?.sellerGrade || '-' },
     { label: '구매자 리뷰', value: `${props.item?.sellerReviewCount || 0}` },
@@ -384,6 +390,7 @@ function buyNow() {
         v-if="isSellerModalOpen"
         :assets="assets"
         :item="item"
+        :seller-id="item.sellerId"
         :seller-profile="sellerProfile"
         @close="closeSellerModal"
       />
@@ -446,12 +453,12 @@ function buyNow() {
 
 <style scoped>
 .feedback-strip {
-  margin-bottom: 24px;
-  border-radius: 18px;
+  margin-bottom: 18px;
+  border-radius: 14px;
   background: #fff;
-  padding: 18px 20px;
+  padding: 14px 15px;
   color: #64748b;
-  font-size: 14px;
+  font-size: 11px;
   text-align: center;
 }
 
@@ -463,7 +470,7 @@ function buyNow() {
 .feedback-inline {
   flex: 1;
   color: #23008d;
-  font-size: 14px;
+  font-size: 11px;
   text-align: center;
 }
 </style>

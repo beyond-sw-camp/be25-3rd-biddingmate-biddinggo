@@ -1,24 +1,6 @@
 <template>
   <div class="app-shell">
-    <aside class="sidebar">
-      <RouterLink class="brand-block" to="/mypage">
-        <strong>Biddinggo</strong>
-        <span>BIDDINGMATE</span>
-      </RouterLink>
-
-      <nav class="sidebar-nav">
-        <RouterLink
-          v-for="item in navItems"
-          :key="item.route"
-          :to="item.route"
-          class="sidebar-link"
-          :class="{ active: $route.path === item.route }"
-        >
-          <span class="sidebar-link__dot"></span>
-          {{ item.label }}
-        </RouterLink>
-      </nav>
-    </aside>
+    <MyPageSidebar />
 
     <div class="content-shell">
       <header class="topbar">
@@ -42,7 +24,7 @@
       </header>
 
       <main class="page-area">
-        <slot />
+        <RouterView />
       </main>
     </div>
 
@@ -51,13 +33,46 @@
 </template>
 
 <script setup>
-//import { computed, ref } from 'vue'
-import { RouterLink } from 'vue-router'
-import { navItems } from '../../data/mypage'
+import { computed, ref } from 'vue'
+import { RouterView, useRoute, useRouter } from 'vue-router'
+import { useAuth } from '../../composables/useAuth'
 import NotificationModal from '../NotificationModal.vue'
+import MyPageSidebar from './MyPageSidebar.vue'
+import { RouterLink } from 'vue-router'
 import { useNotificationCenter } from '../../composables/useNotificationCenter'
 
+const route = useRoute()
+const router = useRouter()
+const { auth, logout } = useAuth()
 const isNotificationOpen = ref(false)
+
+const currentSearchQuery = computed(() => String(route.query.q || ''))
+
+function searchAuctions(query) {
+  const keyword = String(query || '').trim()
+
+  if (!keyword) {
+    return
+  }
+
+  router.push({
+    name: 'auction-search',
+    query: { q: keyword },
+  })
+}
+
+function openLogin() {
+  router.push('/login')
+}
+
+function openMyPage() {
+  router.push('/mypage')
+}
+
+async function handleLogout() {
+  await logout()
+  router.push('/')
+}
 const { unreadCount } = useNotificationCenter()
 
 const unreadBadgeLabel = computed(() => {

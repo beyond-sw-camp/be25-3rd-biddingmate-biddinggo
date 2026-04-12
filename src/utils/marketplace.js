@@ -68,7 +68,7 @@ export function normalizeAuctionCard(result = {}) {
     time: getCountdownLabel(result.endDate),
     highlight: result.status === 'ON_GOING',
     isTimeDeal: auctionType === 'TIME_DEAL',
-    isInspected: auctionType === 'INSPECTION' || inspectionYn === 'YES',
+    isInspected: inspectionYn === 'YES',
     image: result.item?.images?.[0]?.url || result.representativeImageUrl || '',
   }
 }
@@ -146,17 +146,43 @@ function normalizePricePrediction(pricePrediction = null) {
 
 export function normalizeAuctionDetail(
   detail = {},
-  { bidHistory = [], categoryPathLabel = '', inquiries = [], isAuthenticated = false, sellerReviews = [], wishlistStatus = {} } = {},
+  {
+    bidHistory = [],
+    categoryPathLabel = '',
+    inquiries = [],
+    isAuthenticated = false,
+    sellerProfileData = null,
+    sellerReviews = [],
+    wishlistStatus = {},
+  } = {},
 ) {
   const currentPrice = detail.vickreyPrice ?? detail.vickrey_price ?? detail.startPrice
   const sellerName = detail.sellerNickname || (detail.sellerId ? `판매자 ${detail.sellerId}` : '판매자')
-  const sellerRating = Number(detail.sellerRating || 0)
-  const sellerReviewCount = Number(detail.sellerReviewCount || 0)
+  const sellerRating = Number(sellerProfileData?.rating ?? detail.sellerRating ?? 0)
+  const sellerReviewCount = Number(sellerProfileData?.reviewCount ?? detail.sellerReviewCount ?? 0)
   const auctionType = normalizeEnumValue(detail.type ?? detail.auctionType)
   const inspectionYn = normalizeEnumValue(detail.inspectionYn ?? detail.inspection_yn)
-  const isInspected = auctionType === 'INSPECTION' || inspectionYn === 'YES'
+  const isInspected = inspectionYn === 'YES'
   const category = detail.item?.category || {}
   const history = normalizeBidHistory(bidHistory)
+  const sellerTotalSalesCount = sellerProfileData?.totalSales
+    ?? sellerProfileData?.totalSalesCount
+    ?? detail.sellerTotalSalesCount
+    ?? detail.totalSalesCount
+    ?? detail.sellerSaleCount
+    ?? detail.saleCount
+    ?? null
+  const sellerCancelCount = sellerProfileData?.cancelCount
+    ?? detail.sellerCancelCount
+    ?? detail.cancelSalesCount
+    ?? detail.cancelCount
+    ?? detail.sellerCancelledCount
+    ?? null
+  const sellerResponseRate = sellerProfileData?.responseRate
+    ?? detail.sellerResponseRate
+    ?? detail.responseRate
+    ?? detail.sellerReplyRate
+    ?? null
 
   return {
     id: detail.auctionId ? `auction-${detail.auctionId}` : 'auction-detail',
@@ -165,11 +191,14 @@ export function normalizeAuctionDetail(
     categoryId: category.id,
     categoryPathLabel: categoryPathLabel || category.name || '',
     itemId: detail.item?.itemId,
-    sellerId: detail.sellerId,
-    sellerAvatar: detail.sellerImageUrl || '',
-    sellerJoinedAt: formatShortDate(detail.sellerCreatedAt),
+    sellerId: detail.sellerMemberId ?? detail.memberId ?? detail.userId ?? detail.ownerId ?? detail.sellerId,
+    sellerAvatar: sellerProfileData?.imageUrl || detail.sellerImageUrl || '',
+    sellerJoinedAt: formatShortDate(sellerProfileData?.createdAt || detail.sellerCreatedAt),
     sellerRating: sellerRating ? sellerRating.toFixed(1) : '0.0',
     sellerReviewCount,
+    sellerTotalSalesCount,
+    sellerCancelCount,
+    sellerResponseRate,
     sellerReviews: normalizeSellerReviews(sellerReviews),
     title: detail.item?.name || '상품명 없음',
     brand: detail.item?.brand || '브랜드 미정',
@@ -183,8 +212,8 @@ export function normalizeAuctionDetail(
     highlight: detail.status === 'ON_GOING',
     isTimeDeal: auctionType === 'TIME_DEAL',
     isInspected,
-    seller: sellerName,
-    sellerGrade: detail.sellerGrade || (isInspected ? 'CERTIFIED' : 'STANDARD'),
+    seller: sellerProfileData?.nickname || sellerName,
+    sellerGrade: sellerProfileData?.grade || detail.sellerGrade || (isInspected ? 'CERTIFIED' : 'STANDARD'),
     description: detail.item?.description || '상품 설명이 없습니다.',
     inspectionLabel: isInspected ? '검수 완료 상품' : '일반 등록 상품',
     inspectionDescription:

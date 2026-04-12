@@ -1,6 +1,14 @@
 <template>
-  <SurfaceCard as="article" class="history-card">
-    <img :src="item.image" :alt="item.name" class="history-card__thumb" />
+  <SurfaceCard
+    as="article"
+    class="history-card history-card--interactive"
+    role="button"
+    tabindex="0"
+    @click="$emit('open-detail')"
+    @keydown.enter="$emit('open-detail')"
+    @keydown.space.prevent="$emit('open-detail')"
+  >
+    <img :src="item.image" :alt="item.name" class="history-card__thumb" @error="setNoImage" />
     <div class="history-card__body">
       <div class="history-card__content">
         <StatusBadge :status="item.status" />
@@ -24,6 +32,7 @@
 <script setup>
 import SurfaceCard from '../../SurfaceCard.vue'
 import StatusBadge from './StatusBadge.vue'
+import noImage from '../../../assets/no-image.svg'
 
 defineProps({
   item: {
@@ -31,4 +40,10 @@ defineProps({
     required: true,
   },
 })
+
+defineEmits(['open-detail'])
+
+function setNoImage(event) {
+  event.target.src = noImage
+}
 </script>

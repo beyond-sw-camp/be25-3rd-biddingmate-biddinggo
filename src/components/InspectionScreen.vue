@@ -70,7 +70,6 @@ const {
 
     <InspectionToolbar
       :active-filter="activeFilter"
-      :assets="assets"
       :filter-options="filterOptions"
       :search-query="searchQuery"
       @update:active-filter="activeFilter = $event"
@@ -108,12 +107,12 @@ const {
 
 <style scoped>
 .feedback-strip {
-  margin: 18px 0;
-  border-radius: 18px;
+  margin: 14px 0;
+  border-radius: 14px;
   background: #fff;
-  padding: 18px 20px;
+  padding: 14px 15px;
   color: #64748b;
-  font-size: 14px;
+  font-size: 11px;
   text-align: center;
 }
 

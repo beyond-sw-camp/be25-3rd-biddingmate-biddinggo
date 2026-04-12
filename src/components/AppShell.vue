@@ -1,12 +1,17 @@
 <template>
   <div class="app-shell">
-    <aside class="sidebar">
+    <aside
+      ref="sidebarRef"
+      class="sidebar"
+      :class="{ 'sidebar--scrolling': isSidebarScrolling }"
+      @scroll="handleSidebarScroll"
+    >
       <button class="brand-block app-shell__brand" type="button" @click="$emit('navigate', '/')">
         <strong>Biddinggo</strong>
         <span>BIDDINGMATE</span>
       </button>
 
-      <nav class="sidebar-nav app-shell__nav" aria-label="메인 메뉴">
+      <nav class="sidebar-nav app-shell__nav" aria-label="주요 메뉴">
         <button
           v-for="item in navigationItems"
           :key="item.label"
@@ -61,13 +66,11 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { onBeforeUnmount, ref, computed } from 'vue'
 import NotificationModal from './NotificationModal.vue'
 import { useNotificationCenter } from '../composables/useNotificationCenter'
 
-const searchIcon = 'https://www.figma.com/api/mcp/asset/43c34f06-dced-42d0-9368-8ac16f87d2f7'
-
-const props = defineProps({
+defineProps({
   currentScreen: {
     type: String,
     required: true,
@@ -90,15 +93,17 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['navigate', 'open-login', 'open-mypage', 'logout', 'search'])
+defineEmits(['navigate', 'open-login', 'open-mypage', 'logout', 'search'])
 
 const isNotificationOpen = ref(false)
-const searchQuery = ref(String(props.initialSearchQuery || ''))
-const displayUsername = computed(() => {
-  const username = String(props.auth.nickname || props.auth.name || props.auth.username || '').trim()
+const sidebarRef = ref(null)
+const isSidebarScrolling = ref(false)
+let sidebarScrollTimer = null
 
+function handleSidebarScroll() {
+  if (!sidebarRef.value) {
   return username ? username.slice(0, 10) : '로그인됨'
-})
+}}
 
 const { unreadCount } = useNotificationCenter()
 
@@ -113,14 +118,20 @@ function submitSearch() {
     return
   }
 
-  emit('search', searchQuery.value)
+  isSidebarScrolling.value = true
+
+  if (sidebarScrollTimer) {
+    window.clearTimeout(sidebarScrollTimer)
+  }
+
+  sidebarScrollTimer = window.setTimeout(() => {
+    isSidebarScrolling.value = false
+  }, 240)
 }
 
-watch(
-  () => props.initialSearchQuery,
-  (next) => {
-    searchQuery.value = String(next || '')
-  },
-  { immediate: true },
-)
+onBeforeUnmount(() => {
+  if (sidebarScrollTimer) {
+    window.clearTimeout(sidebarScrollTimer)
+  }
+})
 </script>

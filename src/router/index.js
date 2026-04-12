@@ -17,6 +17,7 @@ import DirectInquiryView from '../views/DirectInquiryView.vue'
 import HomeView from '../views/HomeView.vue'
 import InspectionView from '../views/InspectionView.vue'
 import LoginView from '../views/LoginView.vue'
+import MyPageLayout from '../components/layout/MyPageLayout.vue'
 import PointsView from '../views/PointsView.vue'
 import ProfileSetupView from '../views/ProfileSetupView.vue'
 import ProfileView from '../views/ProfileView.vue'
@@ -109,110 +110,109 @@ const routes = [
   },
   {
     path: '/mypage',
-    name: 'mypage-dashboard',
-    component: DashboardView,
+    component: MyPageLayout,
     meta: {
       navSection: 'mypage',
-      navKey: 'mypage-dashboard',
+      requiresAuth: true,
     },
-  },
-  {
-    path: '/mypage/notifications',
-    redirect: '/mypage',
-  },
-  {
-    path: '/mypage/bids',
-    name: 'bids',
-    component: BidHistoryView,
-    meta: {
-      navSection: 'mypage',
-      navKey: 'bids',
-    },
-  },
-  {
-    path: '/mypage/wishlists',
-    name: 'favorites',
-    component: WishlistView,
-    meta: {
-      navSection: 'mypage',
-      navKey: 'favorites',
-    },
-  },
-  {
-    path: '/mypage/purchases',
-    name: 'purchases',
-    component: PurchaseHistoryView,
-    meta: {
-      navSection: 'mypage',
-      navKey: 'purchases',
-    },
-  },
-  {
-    path: '/mypage/sales',
-    name: 'sales',
-    component: SalesHistoryView,
-    meta: {
-      navSection: 'mypage',
-      navKey: 'sales',
-    },
-  },
-  {
-    path: '/mypage/auctions',
-    name: 'auction-management',
-    component: AuctionManagementView,
-    meta: {
-      navSection: 'mypage',
-      navKey: 'auction-management',
-    },
-  },
-  {
-    path: '/mypage/profile',
-    name: 'profile',
-    component: ProfileView,
-    meta: {
-      navSection: 'mypage',
-      navKey: 'profile',
-    },
-  },
-  {
-    path: '/mypage/addresses',
-    name: 'addresses',
-    component: AddressBookView,
-    meta: {
-      navSection: 'mypage',
-      navKey: 'addresses',
-    },
-  },
-  {
-    path: '/mypage/points',
-    name: 'points',
-    component: PointsView,
-    meta: {
-      navSection: 'mypage',
-      navKey: 'points',
-    },
-  },
-  {
-    path: '/mypage/trade-inquiries',
-    redirect: '/mypage/auction-inquiries',
-  },
-  {
-    path: '/mypage/auction-inquiries',
-    name: 'auction-inquiries',
-    component: AuctionInquiryView,
-    meta: {
-      navSection: 'mypage',
-      navKey: 'auction-inquiries',
-    },
-  },
-  {
-    path: '/mypage/direct-inquiries',
-    name: 'direct-inquiries',
-    component: DirectInquiryView,
-    meta: {
-      navSection: 'mypage',
-      navKey: 'direct-inquiries',
-    },
+    children: [
+      {
+        path: '',
+        name: 'mypage-dashboard',
+        component: DashboardView,
+        meta: {
+          navKey: 'mypage-dashboard',
+        },
+      },
+      {
+        path: 'notifications',
+        redirect: '/mypage',
+      },
+      {
+        path: 'bids',
+        name: 'bids',
+        component: BidHistoryView,
+        meta: {
+          navKey: 'bids',
+        },
+      },
+      {
+        path: 'wishlists',
+        name: 'favorites',
+        component: WishlistView,
+        meta: {
+          navKey: 'favorites',
+        },
+      },
+      {
+        path: 'purchases',
+        name: 'purchases',
+        component: PurchaseHistoryView,
+        meta: {
+          navKey: 'purchases',
+        },
+      },
+      {
+        path: 'sales',
+        name: 'sales',
+        component: SalesHistoryView,
+        meta: {
+          navKey: 'sales',
+        },
+      },
+      {
+        path: 'auctions',
+        name: 'auction-management',
+        component: AuctionManagementView,
+        meta: {
+          navKey: 'auction-management',
+        },
+      },
+      {
+        path: 'profile',
+        name: 'profile',
+        component: ProfileView,
+        meta: {
+          navKey: 'profile',
+        },
+      },
+      {
+        path: 'addresses',
+        name: 'addresses',
+        component: AddressBookView,
+        meta: {
+          navKey: 'addresses',
+        },
+      },
+      {
+        path: 'points',
+        name: 'points',
+        component: PointsView,
+        meta: {
+          navKey: 'points',
+        },
+      },
+      {
+        path: 'trade-inquiries',
+        redirect: '/mypage/auction-inquiries',
+      },
+      {
+        path: 'auction-inquiries',
+        name: 'auction-inquiries',
+        component: AuctionInquiryView,
+        meta: {
+          navKey: 'auction-inquiries',
+        },
+      },
+      {
+        path: 'direct-inquiries',
+        name: 'direct-inquiries',
+        component: DirectInquiryView,
+        meta: {
+          navKey: 'direct-inquiries',
+        },
+      },
+    ],
   },
   {
     path: '/admin',
@@ -318,6 +318,15 @@ router.beforeEach((to) => {
 
     if (!hasAdminAuthority()) {
       return { name: 'home' }
+    }
+  }
+
+  if (to.matched.some((route) => route.meta.requiresAuth) && !authState.isAuthenticated) {
+    return {
+      path: '/login',
+      query: {
+        redirect: to.fullPath,
+      },
     }
   }
 

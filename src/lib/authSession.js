@@ -163,7 +163,7 @@ export function setUserInfo(userInfo = {}) {
   state.memberId = userInfo.memberId === null || userInfo.memberId === undefined ? state.memberId : Number(userInfo.memberId)
   state.username = String(userInfo.username || state.username || '')
   state.name = String(userInfo.name || state.name || '')
-  state.nickname = String(userInfo.nickname || state.nickname || '')
+  state.nickname = String(userInfo.nickname || userInfo.nickName || state.nickname || '')
   state.imageUrl = String(userInfo.imageUrl || state.imageUrl || '')
   state.status = String(userInfo.status || state.status || '')
   state.authorities = normalizeAuthorities(userInfo.role ?? state.authorities)
