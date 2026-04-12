@@ -87,7 +87,7 @@ function enqueueToast(notification) {
         url: notification.url,
     }
 
-    state.toasts = [toast, ...state.toasts].slice(0,4)
+    state.toasts = [toast, ...state.toasts].slice(0,6)
     
     const timer = setTimeout(() => {
         removeToast(toast.id)

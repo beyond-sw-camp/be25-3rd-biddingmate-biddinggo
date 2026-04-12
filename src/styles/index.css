@@ -1736,20 +1736,32 @@ select {
 
 .purchase-modal--notification {
   width: min(639px, 100%);
-  max-height: min(781px, calc(100vh - 48px));
+  max-height: min(780px, calc(100vh - 48px));
 }
 
 .notification-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
+}
+
+.purchase-modal--notification {
+  display: flex;
+  flex-direction: column;
+}
+
+.purchase-modal--notification .base-modal__body--notification {
+  min-height: 0;
+  max-height: calc(100vh - 220px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .notification-card {
   display: flex;
   align-items: flex-start;
-  gap: 16px;
-  padding: 24px;
+  gap: 10px;
+  padding: 10px 12px;
   border-radius: 16px;
   background: var(--surface-soft);
 }
@@ -1770,9 +1782,29 @@ select {
   flex: 1;
 }
 
+.purchase-modal--notification .notification-card__body {
+  display: flex;
+  flex-direction: column;
+}
+
+.purchase-modal--notification .notification-card__body h3 {
+  order: 2;
+}
+
+.purchase-modal--notification .notification-card__body p {
+  order: 3;
+}
+
+.purchase-modal--notification .notification-card__body span {
+  order: 1;
+  align-self: flex-end;
+  margin-bottom: 4px;
+  text-align: right;
+}
+
 .notification-card__body h3 {
   margin: 0 0 6px;
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 600;
   letter-spacing: -0.015em;
 }
@@ -1780,7 +1812,7 @@ select {
 .notification-card__body p {
   margin: 0 0 12px;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 400;
   line-height: 1.625;
 }
