@@ -138,7 +138,7 @@ const totalElements = ref(0)
 let searchTimer = null
 let requestSeq = 0
 
-const gradeOptions = ['새상품', 'A+', 'A', 'B', 'C', 'D']
+const gradeOptions = ['새상품', 'S', 'A+', 'A', 'B', 'C']
 const approveTargetInspectionNo = ref(null)
 const rejectTargetInspectionNo = ref(null)
 

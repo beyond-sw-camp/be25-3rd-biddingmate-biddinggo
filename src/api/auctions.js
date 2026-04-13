@@ -55,6 +55,15 @@ export async function updateAuction(auctionId, payload) {
   return unwrap(data)
 }
 
+export async function cancelAuction(auctionId) {
+  const data = await request(`/api/v1/auctions/${auctionId}/cancel`, {
+    auth: true,
+    method: 'PATCH',
+  })
+
+  return unwrap(data)
+}
+
 export async function createAuctionFromInspectionItem(payload) {
   const data = await request('/api/v1/auctions/inspection-items', {
     auth: true,

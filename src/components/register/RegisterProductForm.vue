@@ -306,10 +306,12 @@ function slideThumbnails(direction) {
           <div class="register-select-wrap">
             <select v-model="form.condition">
               <option value="" disabled>상품의 상태를 선택해주세요.</option>
-              <option value="최상">최상</option>
-              <option value="상">상</option>
-              <option value="중">중</option>
-              <option value="하">하</option>
+              <option value="새상품">새상품</option>
+              <option value="S">S</option>
+              <option value="A+">A+</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
             </select>
           </div>
         </label>

@@ -446,6 +446,12 @@ img {
   background: #000;
 }
 
+.hero-section:hover .hero-nav-button,
+.hero-section:focus-within .hero-nav-button {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .hero-background {
   position: absolute;
   inset: 0;
@@ -502,6 +508,66 @@ img {
   font-weight: 600;
   line-height: 24px;
   cursor: pointer;
+}
+
+.hero-nav-button {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.55);
+  color: #fff;
+  font-size: 28px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(-50%);
+  opacity: 0;
+  pointer-events: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.hero-nav-button:hover {
+  background: rgba(15, 23, 42, 0.78);
+}
+
+.hero-nav-button--prev {
+  left: 24px;
+}
+
+.hero-nav-button--next {
+  right: 24px;
+}
+
+.hero-indicators {
+  position: absolute;
+  right: 36px;
+  bottom: 28px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hero-indicator {
+  width: 10px;
+  height: 10px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.48);
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.hero-indicator.is-active {
+  background: #fff;
+  transform: scale(1.2);
 }
 
 .best-section {
@@ -872,6 +938,12 @@ img {
   width: 957px;
 }
 
+.detail-owner-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .detail-breadcrumb {
   color: #191c1e;
   font-size: 24px;
@@ -945,6 +1017,16 @@ img {
 .detail-action-chip.is-edit {
   background: #f3f6fe;
   color: #23008d;
+}
+
+.detail-action-chip.is-delete {
+  background: #fef2f2;
+  color: #bc1d25;
+}
+
+.detail-action-chip:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
 }
 
 .detail-grid {
@@ -3066,6 +3148,14 @@ img {
   gap: 14px;
 }
 
+.auction-field-grid {
+  align-items: start;
+}
+
+.auction-field-grid .register-field + .register-field {
+  margin-top: 0;
+}
+
 .auction-start-inputs {
   display: flex;
   gap: 10px;
@@ -3178,6 +3268,7 @@ img {
   justify-content: space-between;
   gap: 12px;
   width: 100%;
+  min-height: 44px;
   border-radius: 8px;
   background: #f2f4f6;
   padding: 0 14px;
@@ -3186,7 +3277,16 @@ img {
 .auction-money-field input {
   border: 0;
   background: transparent;
-  padding: 14px 0;
+  height: 44px;
+  padding: 0;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.auction-money-field input::-webkit-outer-spin-button,
+.auction-money-field input::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
 }
 
 .auction-money-field span {

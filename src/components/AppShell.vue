@@ -39,8 +39,8 @@
           <input
             v-model.trim="searchQuery"
             type="search"
-            placeholder="어떤 경매를 찾고 싶으신가요?"
-            aria-label="경매 검색어"
+            placeholder="어떤 경매를 찾으시나요?"
+            aria-label="경매 검색"
             @keydown.enter.prevent="submitSearch"
           />
         </form>
@@ -99,10 +99,16 @@ const props = defineProps({
 const emit = defineEmits(['navigate', 'open-login', 'open-mypage', 'logout', 'search'])
 
 const isNotificationOpen = ref(false)
-const isSidebarScrolling = ref(false)
 const sidebarRef = ref(null)
+const isSidebarScrolling = ref(false)
 const searchQuery = ref(String(props.initialSearchQuery || ''))
 let sidebarScrollTimer = null
+
+const displayUsername = computed(() => {
+  const username = String(props.auth.nickname || props.auth.name || props.auth.username || '').trim()
+
+  return username ? username.slice(0, 10) : '로그인됨'
+})
 
 const { unreadCount } = useNotificationCenter()
 
@@ -110,11 +116,6 @@ const unreadBadgeLabel = computed(() => {
   const count = Number(unreadCount.value || 0)
   if (count <= 0) return ''
   return String(Math.min(count, 99))
-})
-
-const displayUsername = computed(() => {
-  const username = String(props.auth.nickname || props.auth.name || props.auth.username || '').trim()
-  return username ? username.slice(0, 10) : '로그인됨'
 })
 
 function clearSidebarScrollTimer() {
