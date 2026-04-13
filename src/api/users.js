@@ -1,7 +1,7 @@
 import { buildQueryString, request, unwrap } from './http'
 
 export async function getUserDashboard() {
-  const data = await request(`/api/v1/users/me`, {
+  const data = await request(`/api/v1/members/me`, {
     auth: true,
     method: 'GET',
   })
@@ -10,7 +10,7 @@ export async function getUserDashboard() {
 }
 
 export async function getUserProfile() {
-  const data = await request(`/api/v1/users/me/profile`, {
+  const data = await request(`/api/v1/members/me/profile`, {
     auth: true,
     method: 'GET',
   })
@@ -19,7 +19,7 @@ export async function getUserProfile() {
 }
 
 export async function updateUserProfile(payload) {
-  const data = await request('/api/v1/users/me/profile', {
+  const data = await request('/api/v1/members/me/profile', {
     auth: true,
     method: 'PATCH',
     headers: {
@@ -32,7 +32,7 @@ export async function updateUserProfile(payload) {
 }
 
 export async function getUserSellerProfile(userId) {
-  const data = await request(`/api/v1/users/${userId}`, {
+  const data = await request(`/api/v1/members/${userId}`, {
     auth: true,
     method: 'GET',
   })
@@ -42,7 +42,7 @@ export async function getUserSellerProfile(userId) {
 
 export async function getUserBids(params = {}) {
   const suffix = buildQueryString(params)
-  const data = await request(`/api/v1/users/me/bids${suffix}`, {
+  const data = await request(`/api/v1/members/me/bids${suffix}`, {
     auth: true,
     method: 'GET',
   })
@@ -82,7 +82,7 @@ export async function getUserSales(params = {}) {
 
 export async function getUserManagedAuctions(params = {}) {
   const suffix = buildQueryString(params)
-  const data = await request(`/api/v1/users/me/sales/auctions${suffix}`, {
+  const data = await request(`/api/v1/members/me/sales/auctions${suffix}`, {
     auth: true,
     method: 'GET',
   })
