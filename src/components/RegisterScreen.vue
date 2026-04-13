@@ -72,7 +72,6 @@ const {
   headerDescription,
   headerTitle,
   inspectionPickItems,
-  isInspectionAuctionRegistration,
   isAuctionStep,
   isInspectionDetailOpen,
   openInspectionRequest,
@@ -174,7 +173,6 @@ async function handleSubmit() {
       v-else
       :auction-form="auctionForm"
       :bid-unit-options="bidUnitOptions"
-      :can-use-time-deal="!isInspectionAuctionRegistration"
       :duration-options="durationOptions"
       :error-message="errorMessage"
       :processing="processing"

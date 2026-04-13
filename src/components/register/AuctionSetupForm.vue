@@ -141,7 +141,7 @@ watch(
         <label class="register-field">
           <span class="register-label">경매 시작가 <span>*</span></span>
           <div class="auction-money-field">
-            <input v-model="auctionForm.startPrice" type="number" placeholder="0" />
+            <input v-model="auctionForm.startPrice" type="text" inputmode="numeric" placeholder="0" />
             <span>원</span>
           </div>
         </label>
@@ -149,7 +149,7 @@ watch(
         <label class="register-field">
           <span class="register-label">즉시 구매가</span>
           <div class="auction-money-field">
-            <input v-model="auctionForm.buyNowPrice" type="number" placeholder="0" />
+            <input v-model="auctionForm.buyNowPrice" type="text" inputmode="numeric" placeholder="0" />
             <span>원</span>
           </div>
         </label>

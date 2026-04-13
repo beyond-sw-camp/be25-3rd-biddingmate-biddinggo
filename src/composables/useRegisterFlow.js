@@ -551,7 +551,7 @@ export function useRegisterFlow(initialMode, initialInspectionId) {
 
     const payload = {
       itemId: selectedInspectionItem.value.itemId,
-      auction: buildAuctionPayload('INSPECTION'),
+      auction: buildAuctionPayload(auctionForm.value.timeDeal ? 'TIME_DEAL' : 'NORMAL'),
     }
 
     const result = await createAuctionFromInspectionItem(payload)
@@ -611,11 +611,6 @@ export function useRegisterFlow(initialMode, initialInspectionId) {
     auctionForm.value[field] = !auctionForm.value[field]
 
     if (field === 'timeDeal') {
-      if (registrationType.value === 'inspection') {
-        auctionForm.value.timeDeal = false
-        return
-      }
-
       selectedDuration.value = auctionForm.value.timeDeal ? '12시간' : '5일'
       syncAuctionSchedule()
     }

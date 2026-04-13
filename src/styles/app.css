@@ -3066,6 +3066,14 @@ img {
   gap: 14px;
 }
 
+.auction-field-grid {
+  align-items: start;
+}
+
+.auction-field-grid .register-field + .register-field {
+  margin-top: 0;
+}
+
 .auction-start-inputs {
   display: flex;
   gap: 10px;
@@ -3178,6 +3186,7 @@ img {
   justify-content: space-between;
   gap: 12px;
   width: 100%;
+  min-height: 44px;
   border-radius: 8px;
   background: #f2f4f6;
   padding: 0 14px;
@@ -3186,7 +3195,16 @@ img {
 .auction-money-field input {
   border: 0;
   background: transparent;
-  padding: 14px 0;
+  height: 44px;
+  padding: 0;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.auction-money-field input::-webkit-outer-spin-button,
+.auction-money-field input::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
 }
 
 .auction-money-field span {
