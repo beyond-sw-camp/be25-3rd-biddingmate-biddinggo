@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { getAuctionList } from '../api/auctions'
 import { createWishlist, deleteWishlist, getWishlistStatus } from '../api/wishlists'
 import HomeScreen from '../components/HomeScreen.vue'
-import { assets } from '../data/marketplaceData'
+import { assets, heroSlides } from '../data/marketplaceData'
 import { authState } from '../lib/authSession'
 import { normalizeAuctionCard } from '../utils/marketplace'
 
@@ -142,6 +142,7 @@ onMounted(() => {
   <HomeScreen
     :assets="assets"
     :error-message="errorMessage"
+    :hero-slides="heroSlides"
     :items="homeItems"
     :loading="loading"
     :wishlist-processing-ids="wishlistProcessingIds"

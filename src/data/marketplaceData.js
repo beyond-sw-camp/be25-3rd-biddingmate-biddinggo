@@ -9,6 +9,30 @@ export const assets = {
   listWatchImage: 'https://www.figma.com/api/mcp/asset/e8c9af76-2653-419a-8da5-b7a65a36822d',
 }
 
+export const heroSlides = [
+  {
+    key: 'all-auctions',
+    title: ['대한민국 경매,', '한 곳에서 확인하세요'],
+    description: ['실시간으로 진행되는 프리미엄 아이템 경매. Biddinggo', '에서 가장 빠르고 안전하게 비딩을 시작하세요.'],
+    buttonLabel: '지금 둘러보기',
+    backgroundImage: "https://pub-a42a8c25bf464f499cab51ef3c3d0136.r2.dev/item-image/Luxurybackground.png",
+  },
+  {
+    key: 'premium-auctions',
+    title: ['검수 완료 경매,', '더 안심하고 입찰하세요'],
+    description: ['검수 정보와 상태가 확인된 상품만 모아', '프리미엄 경매를 더 신뢰 있게 만나보세요.'],
+    buttonLabel: '추천 경매 보기',
+    backgroundImage: "https://pub-a42a8c25bf464f499cab51ef3c3d0136.r2.dev/item-image/auction-image.jpeg",
+  },
+  {
+    key: 'closing-soon',
+    title: ['마감 임박 경매,', '지금 바로 확인하세요'],
+    description: ['놓치기 쉬운 인기 경매를 빠르게 확인하고', '원하는 상품에 마지막 기회를 잡아보세요.'],
+    buttonLabel: '전체 경매 보기',
+    backgroundImage: "https://pub-a42a8c25bf464f499cab51ef3c3d0136.r2.dev/item-image/pingu3.jpeg",
+  },
+]
+
 export const navigationItems = [
   { label: '홈', icon: assets.homeIcon, key: 'home', route: '/' },
   { label: '카테고리', icon: assets.categoryIcon, key: 'list', route: '/auctions' },
