@@ -33,15 +33,14 @@
     <div class="content-shell">
       <header class="topbar">
         <form class="topbar-search-field topbar-search" role="search" @submit.prevent="submitSearch">
-          <button type="submit" class="topbar-search__button" aria-label="상품 검색">
+          <button type="submit" class="topbar-search__button" aria-label="경매 검색">
             <v-icon icon="mdi-magnify" class="topbar-search__icon" aria-hidden="true" />
           </button>
           <input
             v-model.trim="searchQuery"
             type="search"
-            placeholder="어떤 경매를 찾고 싶으신가요?"
-            aria-label="경매 검색어"
-            @keydown.enter.prevent="submitSearch"
+            placeholder="어떤 경매를 찾으시나요?"
+            aria-label="경매 검색"
           />
         </form>
 
@@ -100,9 +99,29 @@ const emit = defineEmits(['navigate', 'open-login', 'open-mypage', 'logout', 'se
 
 const isNotificationOpen = ref(false)
 const isSidebarScrolling = ref(false)
-const sidebarRef = ref(null)
-const searchQuery = ref(String(props.initialSearchQuery || ''))
 let sidebarScrollTimer = null
+
+function handleSidebarScroll() {
+  if (!sidebarRef.value) {
+    return
+  }
+
+  isSidebarScrolling.value = true
+
+  if (sidebarScrollTimer) {
+    window.clearTimeout(sidebarScrollTimer)
+  }
+
+  sidebarScrollTimer = window.setTimeout(() => {
+    isSidebarScrolling.value = false
+  }, 160)
+}
+
+const displayUsername = computed(() => {
+  const username = String(props.auth.nickname || props.auth.name || props.auth.username || '').trim()
+
+  return username ? username.slice(0, 10) : '로그인됨'
+})
 
 const { unreadCount } = useNotificationCenter()
 
@@ -129,6 +148,16 @@ function handleSidebarScroll() {
     return
   }
 
+  emit('search', keyword)
+}
+
+watch(
+  () => props.initialSearchQuery,
+  (next) => {
+    searchQuery.value = String(next || '')
+  },
+  { immediate: true },
+)
   isSidebarScrolling.value = true
   clearSidebarScrollTimer()
 

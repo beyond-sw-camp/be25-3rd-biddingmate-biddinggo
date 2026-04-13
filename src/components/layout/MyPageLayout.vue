@@ -4,14 +4,18 @@
 
     <div class="content-shell">
       <header class="topbar">
-        <v-text-field
-          class="topbar-search-field"
-          density="comfortable"
-          hide-details
-          placeholder="어떤 경매를 찾으시나요?"
-          prepend-inner-icon="mdi-magnify"
-          variant="solo"
-        />
+        <form class="topbar-search-field topbar-search" role="search" @submit.prevent="submitSearch">
+          <button type="submit" class="topbar-search__button" aria-label="경매 검색">
+            <v-icon icon="mdi-magnify" class="topbar-search__icon" aria-hidden="true" />
+          </button>
+          <input
+            v-model.trim="searchQuery"
+            type="search"
+            placeholder="어떤 경매를 찾으시나요?"
+            aria-label="경매 검색"
+            @keydown.enter.prevent="submitSearch"
+          />
+        </form>
 
         <div class="topbar-links">
           <RouterLink to="/mypage">마이페이지</RouterLink>
@@ -33,7 +37,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import { useAuth } from '../../composables/useAuth'
 import NotificationModal from '../NotificationModal.vue'
@@ -47,6 +51,7 @@ const { auth, logout } = useAuth()
 const isNotificationOpen = ref(false)
 
 const currentSearchQuery = computed(() => String(route.query.q || ''))
+const searchQuery = ref(currentSearchQuery.value)
 
 function searchAuctions(query) {
   const keyword = String(query || '').trim()
@@ -59,6 +64,10 @@ function searchAuctions(query) {
     name: 'auction-search',
     query: { q: keyword },
   })
+}
+
+function submitSearch() {
+  searchAuctions(searchQuery.value)
 }
 
 function openLogin() {
@@ -80,4 +89,12 @@ const unreadBadgeLabel = computed(() => {
   if (count <= 0) return ''
   return String(Math.min(count, 99))
 })
+
+watch(
+  currentSearchQuery,
+  (next) => {
+    searchQuery.value = String(next || '')
+  },
+  { immediate: true },
+)
 </script>
