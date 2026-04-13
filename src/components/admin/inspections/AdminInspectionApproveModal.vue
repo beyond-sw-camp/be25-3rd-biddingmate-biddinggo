@@ -36,7 +36,7 @@ import { computed, ref } from 'vue'
 const props = defineProps({
   grades: {
     type: Array,
-    default: () => ['새상품', 'A+', 'A', 'B', 'C', 'D'],
+    default: () => ['새상품', 'S', 'A+', 'A', 'B', 'C'],
   },
 })
 
@@ -45,7 +45,7 @@ const emit = defineEmits(['close', 'submit'])
 const normalizedGrades = computed(() =>
   Array.isArray(props.grades) && props.grades.length
     ? props.grades
-    : ['새상품', 'A+', 'A', 'B', 'C', 'D'],
+    : ['새상품', 'S', 'A+', 'A', 'B', 'C'],
 )
 
 const selectedGrade = ref('A')

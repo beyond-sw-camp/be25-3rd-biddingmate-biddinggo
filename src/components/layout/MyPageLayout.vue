@@ -18,12 +18,16 @@
         </form>
 
         <div class="topbar-links">
-          <RouterLink to="/mypage">마이페이지</RouterLink>
+          <button class="topbar-link-button" type="button" @click="openMyPage">마이페이지</button>
           <button class="topbar-link-button topbar-link-button--icon" type="button" @click="isNotificationOpen = true">
             <span>알림</span>
             <span v-if="unreadBadgeLabel" class="topbar-notification-badge">{{ unreadBadgeLabel }}</span>
           </button>
-          <a href="/">로그인/회원가입</a>
+          <template v-if="auth.isAuthenticated">
+            <span class="topbar-auth-label">{{ displayUsername }}</span>
+            <button class="topbar-link-button" type="button" @click="handleLogout">로그아웃</button>
+          </template>
+          <button v-else class="topbar-link-button" type="button" @click="openLogin">로그인/회원가입</button>
         </div>
       </header>
 
@@ -42,7 +46,6 @@ import { RouterView, useRoute, useRouter } from 'vue-router'
 import { useAuth } from '../../composables/useAuth'
 import NotificationModal from '../NotificationModal.vue'
 import MyPageSidebar from './MyPageSidebar.vue'
-import { RouterLink } from 'vue-router'
 import { useNotificationCenter } from '../../composables/useNotificationCenter'
 
 const route = useRoute()
@@ -52,6 +55,11 @@ const isNotificationOpen = ref(false)
 
 const currentSearchQuery = computed(() => String(route.query.q || ''))
 const searchQuery = ref(currentSearchQuery.value)
+const displayUsername = computed(() => {
+  const username = String(auth.nickname || auth.name || auth.username || '').trim()
+
+  return username ? username.slice(0, 10) : '로그인됨'
+})
 
 function searchAuctions(query) {
   const keyword = String(query || '').trim()
