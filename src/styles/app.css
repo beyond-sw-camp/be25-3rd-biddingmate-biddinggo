@@ -938,6 +938,12 @@ img {
   width: 957px;
 }
 
+.detail-owner-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .detail-breadcrumb {
   color: #191c1e;
   font-size: 24px;
@@ -1011,6 +1017,16 @@ img {
 .detail-action-chip.is-edit {
   background: #f3f6fe;
   color: #23008d;
+}
+
+.detail-action-chip.is-delete {
+  background: #fef2f2;
+  color: #bc1d25;
+}
+
+.detail-action-chip:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
 }
 
 .detail-grid {

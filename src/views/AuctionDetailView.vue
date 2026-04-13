@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getAuctionDetail } from '../api/auctions'
+import { cancelAuction, getAuctionDetail } from '../api/auctions'
 import { getAuctionInquiryList } from '../api/auctionInquiries'
 import { getAuctionBids } from '../api/bids'
 import { getCategoryList } from '../api/categories'
@@ -18,6 +18,7 @@ const router = useRouter()
 const errorMessage = ref('')
 const item = ref(null)
 const loading = ref(false)
+const cancelProcessing = ref(false)
 const wishlistProcessing = ref(false)
 
 function resolveSellerUserId(detail = {}) {
@@ -169,6 +170,32 @@ function openEditPage() {
   router.push(`/auctions/${auctionId}/edit`)
 }
 
+async function handleCancelAuction() {
+  const auctionId = item.value?.auctionId || route.params.id
+
+  if (!auctionId || cancelProcessing.value) {
+    return
+  }
+
+  const confirmed = window.confirm('이 경매를 삭제하시겠습니까?')
+
+  if (!confirmed) {
+    return
+  }
+
+  cancelProcessing.value = true
+  errorMessage.value = ''
+
+  try {
+    await cancelAuction(auctionId)
+    backToList()
+  } catch (error) {
+    errorMessage.value = error?.message || '경매 삭제에 실패했습니다.'
+  } finally {
+    cancelProcessing.value = false
+  }
+}
+
 watch(
   () => route.params.id,
   (value) => {
@@ -181,11 +208,13 @@ watch(
 <template>
   <AuctionDetailScreen
     :assets="assets"
+    :cancel-processing="cancelProcessing"
     :error-message="errorMessage"
     :item="item"
     :loading="loading"
     :wishlist-processing="wishlistProcessing"
     @back="backToList"
+    @cancel-auction="handleCancelAuction"
     @edit-auction="openEditPage"
     @refresh="loadAuctionDetail(String(route.params.id || ''))"
     @toggle-wishlist="toggleWishlist"
