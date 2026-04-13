@@ -156,6 +156,7 @@ export function normalizeAuctionDetail(
     wishlistStatus = {},
   } = {},
 ) {
+  const status = normalizeEnumValue(detail.status)
   const currentPrice = detail.vickreyPrice ?? detail.vickrey_price ?? detail.startPrice
   const sellerName = detail.sellerNickname || (detail.sellerId ? `판매자 ${detail.sellerId}` : '판매자')
   const sellerRating = Number(sellerProfileData?.rating ?? detail.sellerRating ?? 0)
@@ -188,6 +189,7 @@ export function normalizeAuctionDetail(
     id: detail.auctionId ? `auction-${detail.auctionId}` : 'auction-detail',
     auctionId: detail.auctionId,
     auctionType,
+    status,
     categoryId: category.id,
     categoryPathLabel: categoryPathLabel || category.name || '',
     itemId: detail.item?.itemId,
@@ -209,7 +211,7 @@ export function normalizeAuctionDetail(
     wishCount: Number(detail.wishCount || 0),
     isWished: Boolean(wishlistStatus?.wished),
     time: getCountdownLabel(detail.endDate),
-    highlight: detail.status === 'ON_GOING',
+    highlight: status === 'ON_GOING',
     isTimeDeal: auctionType === 'TIME_DEAL',
     isInspected,
     seller: sellerProfileData?.nickname || sellerName,

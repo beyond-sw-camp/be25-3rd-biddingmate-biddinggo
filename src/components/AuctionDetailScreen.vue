@@ -129,6 +129,14 @@ const isOwnAuction = computed(() => {
   return Number.isFinite(memberId) && Number.isFinite(sellerId) && memberId === sellerId
 })
 
+const isCancelledAuction = computed(() => {
+  const status = String(props.item?.status || '').trim().toUpperCase()
+
+  return status === 'CANCELLED' || status === 'CANCELED'
+})
+
+const canManageAuction = computed(() => isOwnAuction.value && !isCancelledAuction.value)
+
 function openSellerModal() {
   isSellerModalOpen.value = true
 }
@@ -326,13 +334,16 @@ function buyNow() {
 <template>
   <section class="detail-screen">
     <div class="detail-title-row">
-      <button type="button" class="detail-category-trail" @click="emit('back')">
-        <span>홈</span>
-        <em>|</em>
-        <strong>{{ categoryTrailLabel }}</strong>
-      </button>
+      <div class="detail-title-meta">
+        <button type="button" class="detail-category-trail" @click="emit('back')">
+          <span>홈</span>
+          <em>|</em>
+          <strong>{{ categoryTrailLabel }}</strong>
+        </button>
+        <span v-if="item && isCancelledAuction" class="detail-status-badge is-cancelled">삭제된 경매</span>
+      </div>
       <div v-if="feedbackMessage" class="feedback-inline">{{ feedbackMessage }}</div>
-      <div v-if="item && isOwnAuction" class="detail-owner-actions">
+      <div v-if="item && canManageAuction" class="detail-owner-actions">
         <button
           type="button"
           class="detail-action-chip is-delete"
@@ -361,7 +372,7 @@ function buyNow() {
         </button>
       </div>
       <button
-        v-else
+        v-else-if="item && !isCancelledAuction"
         type="button"
         class="detail-action-chip is-report"
         @click="openReportModal"

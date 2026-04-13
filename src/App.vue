@@ -16,6 +16,7 @@
   </AppShell>
 
   <RouterView v-else />
+  <AppToast />
   <NotificationToastStack />
 </template>
 
@@ -24,6 +25,7 @@ import { computed, onMounted, watch } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import AppShell from './components/AppShell.vue'
 import NotificationToastStack from './components/NotificationToastStack.vue'
+import AppToast from './components/shared/AppToast.vue'
 import { useAuth } from './composables/useAuth'
 import { useNotificationCenter } from './composables/useNotificationCenter'
 import { navigationItems } from './data/marketplaceData'
