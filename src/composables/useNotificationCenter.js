@@ -1,7 +1,14 @@
 import { computed, reactive } from "vue"
 import {fetchEventSource} from '@microsoft/fetch-event-source'
 import { API_BASE_URL } from "../api/http"
-import { authState, getAccessToken } from "../lib/authSession"  
+import { 
+    authState,
+    clearSession, 
+    getAccessToken,
+    setSession,
+    shouldRefreshAccessToken,
+ } from "../lib/authSession"  
+import { refreshAccessToken } from "../api/auth"
 import { 
     fetchNotifications, 
     fetchUnreadNotificationCount, 
@@ -15,6 +22,7 @@ const TYPE_LABEL = Object.freeze({
     NEW_BID: '새 입찰',
     TOP_BID: '최고 입찰',
     AUCTION_UNSOLD: '경매 종료',
+    ADMIN_NOTICE: '공지사항 등록'
     
 })
 
@@ -30,6 +38,8 @@ const state = reactive({
 let streamController = null
 let initializePromise = null
 const toastTimers = new Map()
+
+let sseRefreshPromise = null
 
 function formatRelativeTime(value) {
     if(!value) return ''
@@ -79,13 +89,19 @@ function removeToast(id) {
     state.toasts = state.toasts.filter((toast) => toast.id !== id)
 }
 
+function ellipsis(text = '', max =50) {
+    const value = String(text || '')
+    return value.length > max ? `${value.slice(0, max)}...` : value
+}
+
 function enqueueToast(notification) {
     const toast = {
         id: Date.now() + Math.random(),
         title: notification.title,
-        body: notification.body,
+        body: ellipsis(notification.body, 50),
         url: notification.url,
     }
+    
 
     state.toasts = [toast, ...state.toasts].slice(0,6)
     
@@ -113,6 +129,37 @@ function mergeIncoming(raw) {
     }
 }
 
+async function ensureSseAccessToken(forceRefresh = false) {
+    if (!authState.isAuthenticated) {
+        return null
+    }
+
+    const token = getAccessToken()
+    if (!forceRefresh && token && !shouldRefreshAccessToken()) {
+        return token
+    }
+
+    if (!sseRefreshPromise) {
+        sseRefreshPromise = (async () => {
+            const loginResponse = await refreshAccessToken()
+            setSession(loginResponse)
+            return getAccessToken()
+
+        }) ()
+        .catch(() => {
+            clearSession()
+            return null
+        })
+        .finally(() => {
+            sseRefreshPromise = null
+        })
+    }
+
+    return sseRefreshPromise
+}
+
+
+
 function closeSseStream() {
     if (streamController) {
         streamController.abort()
@@ -122,15 +169,20 @@ function closeSseStream() {
     state.connecting = false
 }
 
-function openSseStream() {
+async function openSseStream() {
     closeSseStream()
 
     if (!API_BASE_URL || !authState.isAuthenticated) return
+
+    state.connecting = true;
     
-    const accessToken = getAccessToken()
-    if (!accessToken) return
+    const accessToken = await ensureSseAccessToken()
+    if (!accessToken) {
+        
+        state.connecting = false
+        return
+    }
     
-    state.connecting = true
     streamController = new AbortController()
 
     void fetchEventSource(`${API_BASE_URL}/api/v1/notifications/subscribe`, {
@@ -184,13 +236,21 @@ function openSseStream() {
 
             return 3000
         },
-    }).catch((error) => {
+    }).catch(async(error) => {
         state.connected = false
         state.connecting = false
 
         const message = String(error?.message || '')
-        if (message.includes('SSE_UNAUTHORIZED') || message.includes('AbortError')) {
+
+        if (message.includes('AbortError')){
             return
+        }
+
+        if (message.includes('SSE_UNAUTHORIZED')) {
+            const refreshedToken = await ensureSseAccessToken(true)
+            if (refreshedToken && authState.isAuthenticated) {
+                void openSseStream()
+            }
         }
     })
 }
@@ -280,7 +340,7 @@ async function initializeNotificationCenter() {
     
     initializePromise = (async () => {
         await Promise.allSettled([refreshUnreadCount(), loadNotifications()])
-        openSseStream()
+        void openSseStream()
         state.initialized = true
     })().finally(() => {
         initializePromise = null
