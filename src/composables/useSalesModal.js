@@ -1,8 +1,9 @@
 import { reactive, ref } from 'vue'
 
-export function useSalesModal() {
+export function useSalesModal({ onSaveShipping } = {}) {
   const selectedItem = ref(null)
   const modalMode = ref('detail')
+  const savingShipping = ref(false)
   const shippingForm = reactive({
     courier: '',
     trackingNumber: '',
@@ -26,22 +27,37 @@ export function useSalesModal() {
     shippingForm[field] = value
   }
 
-  function saveShipping() {
-    if (!selectedItem.value || !shippingForm.courier || !shippingForm.trackingNumber) return
+  async function saveShipping() {
+    if (!selectedItem.value || !shippingForm.courier || !shippingForm.trackingNumber || savingShipping.value) {
+      return
+    }
 
-    selectedItem.value.shippingInfo = {
+    const nextShipping = {
       courier: shippingForm.courier,
       trackingNumber: shippingForm.trackingNumber,
     }
-    selectedItem.value.status = '배송중'
-    selectedItem.value.modalType = 'readonly'
-    modalMode.value = 'detail'
+
+    savingShipping.value = true
+
+    try {
+      if (onSaveShipping) {
+        await onSaveShipping(selectedItem.value, nextShipping)
+      }
+
+      selectedItem.value.shippingInfo = nextShipping
+      selectedItem.value.status = '배송 중'
+      selectedItem.value.modalType = 'readonly'
+      modalMode.value = 'detail'
+    } finally {
+      savingShipping.value = false
+    }
   }
 
   return {
     selectedItem,
     modalMode,
     shippingForm,
+    savingShipping,
     openModal,
     closeModal,
     updateForm,

@@ -18,7 +18,7 @@ defineEmits(['select-mode'])
       :class="method.cardClass"
     >
       <div class="register-method-icon-wrap">
-        <img :src="method.iconSrc" :alt="method.title" class="register-method-icon" />
+        <v-icon :icon="method.icon" class="register-method-icon" />
       </div>
 
       <h3>{{ method.title }}</h3>
@@ -29,7 +29,7 @@ defineEmits(['select-mode'])
           :key="point"
           class="register-method-point"
         >
-          <img :src="method.bulletSrc" alt="" class="register-method-bullet" />
+          <v-icon :icon="method.bulletIcon" class="register-method-bullet" size="16" />
           <span>{{ point }}</span>
         </li>
       </ul>

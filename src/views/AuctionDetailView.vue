@@ -1,11 +1,11 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getAuctionDetail } from '../api/auctions'
+import { cancelAuction, getAuctionDetail } from '../api/auctions'
 import { getAuctionInquiryList } from '../api/auctionInquiries'
 import { getAuctionBids } from '../api/bids'
 import { getCategoryList } from '../api/categories'
-import { getSellerReviews } from '../api/reviews'
+import { getUserSellerProfile } from '../api/users'
 import { createWishlist, deleteWishlist, getWishlistStatus } from '../api/wishlists'
 import AuctionDetailScreen from '../components/AuctionDetailScreen.vue'
 import { assets } from '../data/marketplaceData'
@@ -18,7 +18,34 @@ const router = useRouter()
 const errorMessage = ref('')
 const item = ref(null)
 const loading = ref(false)
+const cancelProcessing = ref(false)
 const wishlistProcessing = ref(false)
+
+function resolveSellerUserId(detail = {}) {
+  const candidates = [
+    detail.sellerMemberId,
+    detail.memberId,
+    detail.userId,
+    detail.ownerId,
+    detail.sellerId,
+  ]
+
+  const resolvedId = candidates.find((value) => value !== null && value !== undefined && value !== '')
+
+  if (resolvedId !== null && resolvedId !== undefined && resolvedId !== '') {
+    return resolvedId
+  }
+
+  const currentNickname = String(authState.nickname || '').trim()
+  const currentName = String(authState.name || '').trim()
+  const sellerNickname = String(detail.sellerNickname || '').trim()
+
+  if (authState.memberId && sellerNickname && (sellerNickname === currentNickname || sellerNickname === currentName)) {
+    return authState.memberId
+  }
+
+  return null
+}
 
 async function loadAuctionDetail(auctionId) {
   if (!auctionId) {
@@ -32,11 +59,12 @@ async function loadAuctionDetail(auctionId) {
 
   try {
     const detail = await getAuctionDetail(auctionId)
-    const [categoryResponse, bidResponse, inquiryResponse, sellerReviewResponse, wishlistStatusResponse] = await Promise.allSettled([
+    const sellerUserId = resolveSellerUserId(detail)
+    const [categoryResponse, bidResponse, inquiryResponse, sellerProfileResponse, wishlistStatusResponse] = await Promise.allSettled([
       getCategoryList(),
       authState.isAuthenticated ? getAuctionBids(auctionId, { page: 1, size: 20 }) : Promise.resolve({ content: [] }),
       getAuctionInquiryList(auctionId, { page: 1, size: 20 }),
-      detail?.sellerId ? getSellerReviews(detail.sellerId, { page: 1, size: 3 }) : Promise.resolve({ content: [] }),
+      sellerUserId ? getUserSellerProfile(sellerUserId) : Promise.resolve(null),
       authState.isAuthenticated ? getWishlistStatus(auctionId) : Promise.resolve({ wished: false }),
     ])
     const categorySource = categoryResponse.status === 'fulfilled'
@@ -52,7 +80,7 @@ async function loadAuctionDetail(auctionId) {
       categoryPathLabel,
       inquiries: inquiryResponse.status === 'fulfilled' ? inquiryResponse.value?.content || [] : [],
       isAuthenticated: authState.isAuthenticated,
-      sellerReviews: sellerReviewResponse.status === 'fulfilled' ? sellerReviewResponse.value?.content || [] : [],
+      sellerProfileData: sellerProfileResponse.status === 'fulfilled' ? sellerProfileResponse.value : null,
       wishlistStatus: wishlistStatusResponse.status === 'fulfilled' ? wishlistStatusResponse.value : { wished: false },
     })
   } catch (error) {
@@ -142,6 +170,32 @@ function openEditPage() {
   router.push(`/auctions/${auctionId}/edit`)
 }
 
+async function handleCancelAuction() {
+  const auctionId = item.value?.auctionId || route.params.id
+
+  if (!auctionId || cancelProcessing.value) {
+    return
+  }
+
+  const confirmed = window.confirm('이 경매를 삭제하시겠습니까?')
+
+  if (!confirmed) {
+    return
+  }
+
+  cancelProcessing.value = true
+  errorMessage.value = ''
+
+  try {
+    await cancelAuction(auctionId)
+    backToList()
+  } catch (error) {
+    errorMessage.value = error?.message || '경매 삭제에 실패했습니다.'
+  } finally {
+    cancelProcessing.value = false
+  }
+}
+
 watch(
   () => route.params.id,
   (value) => {
@@ -154,11 +208,13 @@ watch(
 <template>
   <AuctionDetailScreen
     :assets="assets"
+    :cancel-processing="cancelProcessing"
     :error-message="errorMessage"
     :item="item"
     :loading="loading"
     :wishlist-processing="wishlistProcessing"
     @back="backToList"
+    @cancel-auction="handleCancelAuction"
     @edit-auction="openEditPage"
     @refresh="loadAuctionDetail(String(route.params.id || ''))"
     @toggle-wishlist="toggleWishlist"

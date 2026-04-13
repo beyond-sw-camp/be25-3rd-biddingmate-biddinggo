@@ -16,13 +16,18 @@
   </AppShell>
 
   <RouterView v-else />
+  <AppToast />
+  <NotificationToastStack />
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import AppShell from './components/AppShell.vue'
+import NotificationToastStack from './components/NotificationToastStack.vue'
+import AppToast from './components/shared/AppToast.vue'
 import { useAuth } from './composables/useAuth'
+import { useNotificationCenter } from './composables/useNotificationCenter'
 import { navigationItems } from './data/marketplaceData'
 
 const route = useRoute()
@@ -33,13 +38,28 @@ const currentNavKey = computed(() => String(route.meta.navKey ?? ''))
 const currentScreen = computed(() => String(route.name ?? ''))
 const currentSearchQuery = computed(() => String(route.query.q || ''))
 
+function hasAdminAuthority(authorities = auth.authorities) {
+  if (!Array.isArray(authorities)) return false
+  return authorities.some((authority) => {
+    const normalized = String(authority || '').toUpperCase()
+    return normalized === 'ROLE_ADMIN' || normalized === 'ADMIN'
+  })
+}
+
+const { initializeNotificationCenter, shutdownNotificationCenter } = useNotificationCenter()
+
 onMounted(async () => {
   await initializeAuth()
+
+  if (auth.isAuthenticated) {
+    await initializeNotificationCenter()
+  }
 
   if (
     auth.isAuthenticated
     && auth.status === 'PENDING'
-    && !['profile-setup', 'auth-callback', 'login'].includes(String(route.name || ''))
+    && !hasAdminAuthority()
+    && !['profile-setup', 'auth-callback', 'login', 'admin-login'].includes(String(route.name || ''))
   ) {
     router.replace({
       name: 'profile-setup',
@@ -47,6 +67,20 @@ onMounted(async () => {
     })
   }
 })
+
+watch(
+  () => auth.isAuthenticated,
+  (isAuthenticated) => {
+    if (isAuthenticated) {
+      void initializeNotificationCenter()
+      return
+    }
+
+    shutdownNotificationCenter({ clear: true })
+  },
+)
+
+
 
 function navigate(path) {
   if (typeof path === 'string' && path) {
@@ -81,7 +115,9 @@ function openMyPage() {
 }
 
 async function handleLogout() {
+  shutdownNotificationCenter({ clear: true })
   await logout()
   window.location.reload()
 }
+
 </script>

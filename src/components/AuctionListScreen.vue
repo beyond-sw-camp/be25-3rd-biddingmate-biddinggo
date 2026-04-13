@@ -54,7 +54,6 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['openDetail', 'selectCategory', 'selectSort', 'submitSearch', 'toggleCategory', 'toggleWishlist'])
-const isSortMenuOpen = ref(false)
 const searchKeyword = ref(props.toolbarSearchValue)
 
 const effectiveSortOptions = computed(() => (
@@ -71,7 +70,6 @@ watch(
 )
 
 function selectSort(option) {
-  isSortMenuOpen.value = false
   emit('selectSort', option)
 }
 
@@ -115,7 +113,7 @@ function submitSearch() {
     <div class="list-column" :class="{ 'is-full': !showCategories }">
       <div class="list-toolbar">
         <form class="list-search" role="search" @submit.prevent="submitSearch">
-          <img :src="assets.listSearchIcon" alt="" class="list-search-icon" />
+          <v-icon icon="mdi-magnify" class="list-search-icon" size="18" />
           <input
             v-model="searchKeyword"
             type="search"
@@ -124,32 +122,26 @@ function submitSearch() {
           />
         </form>
 
-        <div class="sort-dropdown" @keydown.escape="isSortMenuOpen = false">
-          <button
-            type="button"
-            class="sort-button"
-            :aria-expanded="isSortMenuOpen"
-            aria-haspopup="listbox"
-            @click="isSortMenuOpen = !isSortMenuOpen"
-          >
-            {{ selectedSortLabel }}
-            <img :src="assets.sortChevronIcon" alt="" :class="{ 'is-open': isSortMenuOpen }" />
-          </button>
-          <div v-if="isSortMenuOpen" class="sort-menu" role="listbox">
+        <v-menu location="bottom end" offset="12">
+          <template #activator="{ props: menuProps }">
+            <button class="sort-menu__trigger" type="button" v-bind="menuProps">
+              <span>{{ selectedSortLabel }}</span>
+              <v-icon icon="mdi-chevron-down" />
+            </button>
+          </template>
+          <div class="sort-menu__panel">
             <button
               v-for="option in effectiveSortOptions"
               :key="option.key"
               type="button"
-              class="sort-menu-option"
-              :class="{ 'is-active': option.key === selectedSortKey }"
-              role="option"
-              :aria-selected="option.key === selectedSortKey"
+              class="sort-menu__item"
+              :class="{ 'sort-menu__item--active': option.key === selectedSortKey }"
               @click="selectSort(option)"
             >
               {{ option.label }}
             </button>
           </div>
-        </div>
+        </v-menu>
       </div>
 
       <p v-if="errorMessage" class="feedback-strip is-error">{{ errorMessage }}</p>
@@ -158,7 +150,6 @@ function submitSearch() {
         <AuctionCard
           v-for="(item, index) in items"
           :key="`${item.title}-${index}`"
-          :clock-icon="assets.clockIcon"
           :heart-icon="assets.heartIcon"
           :image-src="assets.listWatchImage"
           :item="item"
@@ -180,11 +171,11 @@ function submitSearch() {
 
 .feedback-strip {
   margin: 0;
-  border-radius: 18px;
+  border-radius: 14px;
   background: #fff;
-  padding: 18px 20px;
+  padding: 14px 15px;
   color: #64748b;
-  font-size: 14px;
+  font-size: 11px;
   text-align: center;
 }
 

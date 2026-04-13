@@ -44,7 +44,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="user in filteredUsers" :key="user.userNo">
+          <tr v-for="user in displayedUsers" :key="user.userNo">
             <td class="admin-transaction-table__strong">{{ user.userNo }}</td>
             <td>{{ user.nickname }}</td>
             <td>{{ user.email }}</td>
@@ -53,12 +53,17 @@
             <td>{{ user.reportCount }}</td>
             <td><AdminStatusBadge :status="user.status" /></td>
             <td>
-              <button class="ghost-button admin-inline-button" type="button" @click="toggleStatus(user.userNo)">
-                {{ user.status === '활성' ? '정지' : '복구' }}
+              <button
+                class="ghost-button admin-inline-button"
+                type="button"
+                :disabled="isProcessing || !canToggleStatus(user.statusRaw)"
+                @click="toggleStatus(user.userNo)"
+              >
+                {{ user.statusRaw === 'ACTIVE' ? '정지' : user.statusRaw === 'INACTIVE' ? '복구' : '-' }}
               </button>
-            </td>
+          </td>
           </tr>
-          <tr v-if="filteredUsers.length === 0">
+          <tr v-if="displayedUsers.length === 0">
             <td class="admin-transaction-table__empty" colspan="8">조건에 맞는 사용자가 없습니다.</td>
           </tr>
         </tbody>
@@ -68,39 +73,128 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import AdminLayout from '../../layout/AdminLayout.vue'
 import AdminStatusBadge from '../shared/AdminStatusBadge.vue'
-import { adminUserStatusFilters, adminUsers } from '../../../data/admin'
+import { fetchAdminUsers, updateAdminUserStatus } from '../../../api/adminUsers'
+
+const adminUserStatusFilters = ['전체', '활성', '정지']
 
 const selectedFilter = ref('전체')
 const searchQuery = ref('')
-const users = ref(adminUsers.map((user) => ({ ...user })))
+const users = ref([])
+const isLoading = ref(false)
+const isProcessing = ref(false)
+const errorMessage = ref('')
+const totalElements = ref(0)
 
-const filteredUsers = computed(() => {
+let searchTimer = null
+let requestSeq = 0
+
+const filterToApiStatus = {
+  전체: undefined,
+  활성: 'ACTIVE',
+  정지: 'INACTIVE',
+}
+
+const displayedUsers = computed(() => {
   const keyword = searchQuery.value.trim().toLowerCase()
 
   return users.value.filter((user) => {
     const matchesStatus = selectedFilter.value === '전체' || user.status === selectedFilter.value
     const matchesKeyword =
       !keyword ||
-      user.nickname.toLowerCase().includes(keyword) ||
-      user.email.toLowerCase().includes(keyword)
+      String(user.nickname || '').toLowerCase().includes(keyword) ||
+      String(user.email || '').toLowerCase().includes(keyword)
 
     return matchesStatus && matchesKeyword
   })
 })
 
-function toggleStatus(userNo) {
-  users.value = users.value.map((user) => {
-    if (user.userNo !== userNo) {
-      return user
-    }
-
-    return {
-      ...user,
-      status: user.status === '활성' ? '정지' : '활성',
-    }
-  })
+function statusToLabel(status) {
+  if (status === 'ACTIVE') return '활성'
+  if (status === 'INACTIVE') return '정지'
+  if (status === 'PENDING') return '대기'
+  if (status === 'DELETED') return '탈퇴'
+  return String(status || '-')
 }
+
+function formatDateTime(value) {
+  if (!value) return '-'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return String(value)
+  const yyyy = date.getFullYear()
+  const mm = String(date.getMonth() + 1).padStart(2, '0')
+  const dd = String(date.getDate()).padStart(2, '0')
+  return `${yyyy}.${mm}.${dd}`
+}
+
+function toUiUser(item) {
+  return {
+    userNo: item.id,
+    nickname: item.nickname || '-',
+    email: item.email || '-',
+    joinedAt: formatDateTime(item.createdAt),
+    tradeCount: '-',
+    reportCount: '-',
+    status: statusToLabel(item.status),
+    statusRaw: item.status,
+  }
+}
+
+function canToggleStatus(statusRaw) {
+  return statusRaw === 'ACTIVE' || statusRaw === 'INACTIVE'
+}
+
+async function toggleStatus(userNo) {
+  const target = users.value.find((u) => u.userNo === userNo)
+  if (!target || !canToggleStatus(target.statusRaw) || isProcessing.value) return
+
+  const nextStatus = target.statusRaw === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE'
+
+  isProcessing.value = true
+  errorMessage.value = ''
+
+  try {
+    await updateAdminUserStatus(userNo, nextStatus)
+    await loadUsers()
+  } catch (error) {
+    errorMessage.value = String(error?.message || '사용자 상태 변경에 실패했습니다.')
+  } finally {
+    isProcessing.value = false
+  }
+}
+
+async function loadUsers() {
+  const seq = ++requestSeq
+  isLoading.value = true
+  errorMessage.value = ''
+
+  try {
+    const page = await fetchAdminUsers({
+      page: 1,
+      size: 100,
+      order: 'DESC',
+      keyword: searchQuery.value.trim() || undefined,
+      status: filterToApiStatus[selectedFilter.value],
+    })
+
+    if (seq !== requestSeq) return
+    users.value = Array.isArray(page?.content) ? page.content.map(toUiUser) : []
+    totalElements.value = Number(page?.totalElements || 0)
+  } catch (error) {
+    if (seq !== requestSeq) return
+    errorMessage.value = String(error?.message || '사용자 목록 조회에 실패했습니다.')
+  } finally {
+    if (seq === requestSeq) isLoading.value = false
+  }
+}
+
+watch([selectedFilter, searchQuery], () => {
+  if (searchTimer) clearTimeout(searchTimer)
+  searchTimer = setTimeout(loadUsers, 300)
+})
+
+onMounted(loadUsers)
+
 </script>

@@ -4,10 +4,6 @@ defineProps({
     type: String,
     required: true,
   },
-  assets: {
-    type: Object,
-    required: true,
-  },
   filterOptions: {
     type: Array,
     required: true,
@@ -37,7 +33,7 @@ defineEmits(['update:activeFilter', 'update:searchQuery'])
     </div>
 
     <div class="inspection-search">
-      <img :src="assets.listSearchIcon" alt="" class="inspection-search-icon" />
+      <v-icon icon="mdi-magnify" class="inspection-search-icon" size="18" />
       <input
         :value="searchQuery"
         type="search"

@@ -1,9 +1,5 @@
 <script setup>
 const props = defineProps({
-  clockIcon: {
-    type: String,
-    default: '',
-  },
   heartIcon: {
     type: String,
     required: true,
@@ -34,7 +30,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['select', 'toggleWishlist'])
+const emit = defineEmits(['select', 'toggleWishlist', 'toggle-wishlist'])
 
 function handleSelect() {
   emit('select', props.item)
@@ -42,6 +38,7 @@ function handleSelect() {
 
 function handleToggleWishlist() {
   emit('toggleWishlist', props.item)
+  emit('toggle-wishlist', props.item)
 }
 </script>
 
@@ -87,7 +84,7 @@ function handleToggleWishlist() {
         <span>{{ showClock ? item.bids : '검수 상태' }}</span>
         <span class="divider"></span>
         <span v-if="showClock" class="time-meta">
-          <img :src="clockIcon" alt="" />
+          <v-icon icon="mdi-alarm" size="14" />
           {{ item.time }}
         </span>
         <span v-else>{{ item.time }}</span>

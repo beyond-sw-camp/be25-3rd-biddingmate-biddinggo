@@ -9,7 +9,6 @@ import AuctionManagementView from '../views/AuctionManagementView.vue'
 import AdminInquiriesView from '../views/AdminInquiriesView.vue'
 import AdminInspectionsView from '../views/AdminInspectionsView.vue'
 import AdminNoticesView from '../views/AdminNoticesView.vue'
-import AdminSettlementsView from '../views/AdminSettlementsView.vue'
 import AdminTransactionsView from '../views/AdminTransactionsView.vue'
 import AdminUsersView from '../views/AdminUsersView.vue'
 import BidHistoryView from '../views/BidHistoryView.vue'
@@ -18,6 +17,7 @@ import DirectInquiryView from '../views/DirectInquiryView.vue'
 import HomeView from '../views/HomeView.vue'
 import InspectionView from '../views/InspectionView.vue'
 import LoginView from '../views/LoginView.vue'
+import MyPageLayout from '../components/layout/MyPageLayout.vue'
 import PointsView from '../views/PointsView.vue'
 import ProfileSetupView from '../views/ProfileSetupView.vue'
 import ProfileView from '../views/ProfileView.vue'
@@ -27,6 +27,7 @@ import SalesHistoryView from '../views/SalesHistoryView.vue'
 import WishlistView from '../views/WishlistView.vue'
 import AuthCallbackView from '../views/AuthCallbackView.vue'
 import { authState } from '../lib/authSession'
+import AdminLoginView from '../views/AdminLoginView.vue'
 
 const routes = [
   {
@@ -109,110 +110,109 @@ const routes = [
   },
   {
     path: '/mypage',
-    name: 'mypage-dashboard',
-    component: DashboardView,
+    component: MyPageLayout,
     meta: {
       navSection: 'mypage',
-      navKey: 'mypage-dashboard',
+      requiresAuth: true,
     },
-  },
-  {
-    path: '/mypage/notifications',
-    redirect: '/mypage',
-  },
-  {
-    path: '/mypage/bids',
-    name: 'bids',
-    component: BidHistoryView,
-    meta: {
-      navSection: 'mypage',
-      navKey: 'bids',
-    },
-  },
-  {
-    path: '/mypage/wishlists',
-    name: 'favorites',
-    component: WishlistView,
-    meta: {
-      navSection: 'mypage',
-      navKey: 'favorites',
-    },
-  },
-  {
-    path: '/mypage/purchases',
-    name: 'purchases',
-    component: PurchaseHistoryView,
-    meta: {
-      navSection: 'mypage',
-      navKey: 'purchases',
-    },
-  },
-  {
-    path: '/mypage/sales',
-    name: 'sales',
-    component: SalesHistoryView,
-    meta: {
-      navSection: 'mypage',
-      navKey: 'sales',
-    },
-  },
-  {
-    path: '/mypage/auctions',
-    name: 'auction-management',
-    component: AuctionManagementView,
-    meta: {
-      navSection: 'mypage',
-      navKey: 'auction-management',
-    },
-  },
-  {
-    path: '/mypage/profile',
-    name: 'profile',
-    component: ProfileView,
-    meta: {
-      navSection: 'mypage',
-      navKey: 'profile',
-    },
-  },
-  {
-    path: '/mypage/addresses',
-    name: 'addresses',
-    component: AddressBookView,
-    meta: {
-      navSection: 'mypage',
-      navKey: 'addresses',
-    },
-  },
-  {
-    path: '/mypage/points',
-    name: 'points',
-    component: PointsView,
-    meta: {
-      navSection: 'mypage',
-      navKey: 'points',
-    },
-  },
-  {
-    path: '/mypage/trade-inquiries',
-    redirect: '/mypage/auction-inquiries',
-  },
-  {
-    path: '/mypage/auction-inquiries',
-    name: 'auction-inquiries',
-    component: AuctionInquiryView,
-    meta: {
-      navSection: 'mypage',
-      navKey: 'auction-inquiries',
-    },
-  },
-  {
-    path: '/mypage/direct-inquiries',
-    name: 'direct-inquiries',
-    component: DirectInquiryView,
-    meta: {
-      navSection: 'mypage',
-      navKey: 'direct-inquiries',
-    },
+    children: [
+      {
+        path: '',
+        name: 'mypage-dashboard',
+        component: DashboardView,
+        meta: {
+          navKey: 'mypage-dashboard',
+        },
+      },
+      {
+        path: 'notifications',
+        redirect: '/mypage',
+      },
+      {
+        path: 'bids',
+        name: 'bids',
+        component: BidHistoryView,
+        meta: {
+          navKey: 'bids',
+        },
+      },
+      {
+        path: 'wishlists',
+        name: 'favorites',
+        component: WishlistView,
+        meta: {
+          navKey: 'favorites',
+        },
+      },
+      {
+        path: 'purchases',
+        name: 'purchases',
+        component: PurchaseHistoryView,
+        meta: {
+          navKey: 'purchases',
+        },
+      },
+      {
+        path: 'sales',
+        name: 'sales',
+        component: SalesHistoryView,
+        meta: {
+          navKey: 'sales',
+        },
+      },
+      {
+        path: 'auctions',
+        name: 'auction-management',
+        component: AuctionManagementView,
+        meta: {
+          navKey: 'auction-management',
+        },
+      },
+      {
+        path: 'profile',
+        name: 'profile',
+        component: ProfileView,
+        meta: {
+          navKey: 'profile',
+        },
+      },
+      {
+        path: 'addresses',
+        name: 'addresses',
+        component: AddressBookView,
+        meta: {
+          navKey: 'addresses',
+        },
+      },
+      {
+        path: 'points',
+        name: 'points',
+        component: PointsView,
+        meta: {
+          navKey: 'points',
+        },
+      },
+      {
+        path: 'trade-inquiries',
+        redirect: '/mypage/auction-inquiries',
+      },
+      {
+        path: 'auction-inquiries',
+        name: 'auction-inquiries',
+        component: AuctionInquiryView,
+        meta: {
+          navKey: 'auction-inquiries',
+        },
+      },
+      {
+        path: 'direct-inquiries',
+        name: 'direct-inquiries',
+        component: DirectInquiryView,
+        meta: {
+          navKey: 'direct-inquiries',
+        },
+      },
+    ],
   },
   {
     path: '/admin',
@@ -264,17 +264,13 @@ const routes = [
     },
   },
   {
-    path: '/admin/settlements',
-    name: 'admin-settlements',
-    component: AdminSettlementsView,
-    meta: {
-      navSection: 'admin',
-      navKey: 'settlements',
-    },
-  },
-  {
     path: '/:pathMatch(.*)*',
     redirect: '/',
+  },
+  {
+    path: '/admin/login',
+    name: 'admin-login',
+    component: AdminLoginView,
   },
 ]
 
@@ -286,13 +282,60 @@ const router = createRouter({
   },
 })
 
+function hasAdminAuthority(authorities = authState.authorities) {
+  if (!Array.isArray(authorities)) {
+    return false
+  }
+
+  return authorities.some((authority) => {
+    const normalized = String(authority || '').toUpperCase()
+    return normalized === 'ROLE_ADMIN' || normalized === 'ADMIN'
+  })
+}
+
 router.beforeEach((to) => {
-  const publicAuthRoutes = new Set(['login', 'auth-callback', 'profile-setup'])
+  const routeName = String(to.name || '')
+  const publicAuthRoutes = new Set(['login', 'admin-login', 'auth-callback', 'profile-setup'])
+  const isAdminRoute = to.path.startsWith('/admin') && routeName !== 'admin-login'
+
+  if (routeName === 'admin-login') {
+    if (authState.isAuthenticated && hasAdminAuthority()) {
+      return { name: 'admin-transactions' }
+    }
+
+    if (authState.isAuthenticated && !hasAdminAuthority()) {
+      return { name: 'home' }
+    }
+  }
+
+  if (isAdminRoute) {
+    if (!authState.isAuthenticated) {
+      return {
+        name: 'admin-login',
+        query: { redirect: to.fullPath },
+      }
+    }
+
+    if (!hasAdminAuthority()) {
+      return { name: 'home' }
+    }
+  }
+
+  if (to.matched.some((route) => route.meta.requiresAuth) && !authState.isAuthenticated) {
+    return {
+      path: '/login',
+      query: {
+        redirect: to.fullPath,
+      },
+    }
+  }
 
   if (
     authState.isAuthenticated
     && authState.status === 'PENDING'
-    && !publicAuthRoutes.has(String(to.name || ''))
+    && !publicAuthRoutes.has(routeName)
+    && !hasAdminAuthority()
+    && !publicAuthRoutes.has(routeName)
   ) {
     return {
       name: 'profile-setup',
@@ -300,7 +343,7 @@ router.beforeEach((to) => {
     }
   }
 
-  if (authState.isAuthenticated && authState.status === 'ACTIVE' && to.name === 'profile-setup') {
+  if (authState.isAuthenticated && authState.status === 'ACTIVE' && routeName === 'profile-setup') {
     return { name: 'home' }
   }
 

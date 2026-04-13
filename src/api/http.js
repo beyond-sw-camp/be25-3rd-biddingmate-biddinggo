@@ -108,6 +108,7 @@ function needsCookie(path) {
   return path === '/api/v1/auth/refresh'
     || path === '/api/v1/auth/logout'
     || path === '/api/v1/auth/check'
+    || path === '/api/v1/admin/auth/login'
 }
 
 async function performRequest(path, options = {}, allowRefresh = true) {

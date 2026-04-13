@@ -27,6 +27,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  cancelProcessing: {
+    type: Boolean,
+    default: false,
+  },
   item: {
     type: Object,
     default: null,
@@ -41,7 +45,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['back', 'edit-auction', 'refresh', 'toggle-wishlist'])
+const emit = defineEmits(['back', 'cancel-auction', 'edit-auction', 'refresh', 'toggle-wishlist'])
 
 const bidAmount = ref('')
 const feedbackMessage = ref('')
@@ -88,6 +92,12 @@ const sellerProfile = computed(() => ({
   rating: props.item?.sellerRating || '0.0',
   reviewCount: props.item?.sellerReviewCount || 0,
   joinedAt: props.item?.sellerJoinedAt || '-',
+  totalSalesCount: props.item?.sellerTotalSalesCount ?? '-',
+  cancelCount: props.item?.sellerCancelCount ?? '-',
+  responseRate:
+    props.item?.sellerResponseRate === null || props.item?.sellerResponseRate === undefined
+      ? '-'
+      : `${props.item.sellerResponseRate}%`,
   stats: [
     { label: '판매자 등급', value: props.item?.sellerGrade || '-' },
     { label: '구매자 리뷰', value: `${props.item?.sellerReviewCount || 0}` },
@@ -118,6 +128,14 @@ const isOwnAuction = computed(() => {
 
   return Number.isFinite(memberId) && Number.isFinite(sellerId) && memberId === sellerId
 })
+
+const isCancelledAuction = computed(() => {
+  const status = String(props.item?.status || '').trim().toUpperCase()
+
+  return status === 'CANCELLED' || status === 'CANCELED'
+})
+
+const canManageAuction = computed(() => isOwnAuction.value && !isCancelledAuction.value)
 
 function openSellerModal() {
   isSellerModalOpen.value = true
@@ -316,26 +334,45 @@ function buyNow() {
 <template>
   <section class="detail-screen">
     <div class="detail-title-row">
-      <button type="button" class="detail-category-trail" @click="emit('back')">
-        <span>홈</span>
-        <em>|</em>
-        <strong>{{ categoryTrailLabel }}</strong>
-      </button>
+      <div class="detail-title-meta">
+        <button type="button" class="detail-category-trail" @click="emit('back')">
+          <span>홈</span>
+          <em>|</em>
+          <strong>{{ categoryTrailLabel }}</strong>
+        </button>
+        <span v-if="item && isCancelledAuction" class="detail-status-badge is-cancelled">삭제된 경매</span>
+      </div>
       <div v-if="feedbackMessage" class="feedback-inline">{{ feedbackMessage }}</div>
+      <div v-if="item && canManageAuction" class="detail-owner-actions">
+        <button
+          type="button"
+          class="detail-action-chip is-delete"
+          :disabled="cancelProcessing"
+          @click="emit('cancel-auction')"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 7h16" />
+            <path d="M9 7V4.5h6V7" />
+            <path d="M7 7l.7 11.1c.1 1 .9 1.9 2 1.9h4.6c1 0 1.9-.8 2-1.9L17 7" />
+            <path d="M10 10.5v5.5" />
+            <path d="M14 10.5v5.5" />
+          </svg>
+          <span>{{ cancelProcessing ? '삭제 중...' : '삭제하기' }}</span>
+        </button>
+        <button
+          type="button"
+          class="detail-action-chip is-edit"
+          @click="emit('edit-auction')"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4.5 19.5h4.1L18.9 9.2a2.9 2.9 0 0 0 0-4.1 2.9 2.9 0 0 0-4.1 0L4.5 15.4v4.1Z" />
+            <path d="m13.8 6.1 4.1 4.1" />
+          </svg>
+          <span>수정하기</span>
+        </button>
+      </div>
       <button
-        v-if="item && isOwnAuction"
-        type="button"
-        class="detail-action-chip is-edit"
-        @click="emit('edit-auction')"
-      >
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M4.5 19.5h4.1L18.9 9.2a2.9 2.9 0 0 0 0-4.1 2.9 2.9 0 0 0-4.1 0L4.5 15.4v4.1Z" />
-          <path d="m13.8 6.1 4.1 4.1" />
-        </svg>
-        <span>수정하기</span>
-      </button>
-      <button
-        v-else
+        v-else-if="item && !isCancelledAuction"
         type="button"
         class="detail-action-chip is-report"
         @click="openReportModal"
@@ -384,6 +421,7 @@ function buyNow() {
         v-if="isSellerModalOpen"
         :assets="assets"
         :item="item"
+        :seller-id="item.sellerId"
         :seller-profile="sellerProfile"
         @close="closeSellerModal"
       />
@@ -446,12 +484,12 @@ function buyNow() {
 
 <style scoped>
 .feedback-strip {
-  margin-bottom: 24px;
-  border-radius: 18px;
+  margin-bottom: 18px;
+  border-radius: 14px;
   background: #fff;
-  padding: 18px 20px;
+  padding: 14px 15px;
   color: #64748b;
-  font-size: 14px;
+  font-size: 11px;
   text-align: center;
 }
 
@@ -463,7 +501,7 @@ function buyNow() {
 .feedback-inline {
   flex: 1;
   color: #23008d;
-  font-size: 14px;
+  font-size: 11px;
   text-align: center;
 }
 </style>

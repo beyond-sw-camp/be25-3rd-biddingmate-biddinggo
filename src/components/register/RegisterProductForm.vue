@@ -217,7 +217,7 @@ function slideThumbnails(direction) {
           </span>
           <template v-else>
             <div class="register-upload-placeholder">
-              <div class="register-upload-icon">+</div>
+              <div class="register-upload-icon"><v-icon icon="mdi-camera-plus-outline" size="28" /></div>
               <span>{{ uploadInProgress ? '업로드 중...' : '이미지 업로드' }}</span>
             </div>
           </template>
@@ -231,7 +231,7 @@ function slideThumbnails(direction) {
             aria-label="이전 사진 보기"
             @click="slideThumbnails(-1)"
           >
-            ‹
+            <v-icon icon="mdi-chevron-left" size="18" />
           </button>
 
           <div ref="thumbnailScroller" class="register-thumb-row">
@@ -251,7 +251,7 @@ function slideThumbnails(direction) {
                 :aria-label="`${image.name} 삭제`"
                 @click="removeImage(index)"
               >
-                ×
+                <v-icon icon="mdi-close" size="16" />
               </button>
             </div>
             <button
@@ -261,7 +261,7 @@ function slideThumbnails(direction) {
               :disabled="uploadInProgress"
               @click="openFilePicker"
             >
-              <span>+</span>
+              <span><v-icon icon="mdi-plus" size="18" /></span>
               <em>사진 추가</em>
             </button>
           </div>
@@ -273,7 +273,7 @@ function slideThumbnails(direction) {
             aria-label="다음 사진 보기"
             @click="slideThumbnails(1)"
           >
-            ›
+            <v-icon icon="mdi-chevron-right" size="18" />
           </button>
         </div>
 
@@ -306,10 +306,12 @@ function slideThumbnails(direction) {
           <div class="register-select-wrap">
             <select v-model="form.condition">
               <option value="" disabled>상품의 상태를 선택해주세요.</option>
-              <option value="최상">최상</option>
-              <option value="상">상</option>
-              <option value="중">중</option>
-              <option value="하">하</option>
+              <option value="새상품">새상품</option>
+              <option value="S">S</option>
+              <option value="A+">A+</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
             </select>
           </div>
         </label>
