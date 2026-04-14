@@ -10,11 +10,25 @@ const toast = reactive({
 let lastToastKey = ''
 let lastToastAt = 0
 
+function shouldSuppressToast(message) {
+  const normalized = String(message || '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/[.。]+$/g, '')
+
+  return normalized.includes('리프레쉬 토큰이 유효하지 않습니다')
+    || normalized.includes('리프리쉬 토큰이 유효하지 않습니다')
+}
+
 export function useToast() {
   function showToast(message, options = {}) {
     const resolvedMessage = String(message || '').trim()
 
     if (!resolvedMessage) {
+      return
+    }
+
+    if (shouldSuppressToast(resolvedMessage)) {
       return
     }
 

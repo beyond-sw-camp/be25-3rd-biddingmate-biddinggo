@@ -300,6 +300,7 @@ export function mergeInspectionItemDetail(item = {}, detail = {}) {
 
 export function normalizeInspectionListItem(result = {}) {
   const status = normalizeEnumValue(result.inspectionStatus ?? result.status)
+  const auctionItemStatus = normalizeEnumValue(result.auctionItemStatus ?? result.itemStatus)
   const item = result.item || {}
   const category = item.category || result.category || {}
   const categoryLabel = category.name ? `${category.name}` : ''
@@ -312,6 +313,7 @@ export function normalizeInspectionListItem(result = {}) {
     title: result.name || item.name || '검수 상품',
     brand: result.brand || item.brand || '브랜드 미정',
     status,
+    auctionItemStatus,
     statusLabel: INSPECTION_STATUS_LABELS[status] || '검수 상태 없음',
     inspectionGrade: result.quality || item.quality || '-',
     inspectionDate: formatShortDate(result.createdAt),

@@ -4285,7 +4285,7 @@ img {
   width: 100%;
   min-height: 100px;
   border-radius: 10px;
-  background: #f9e9ea;
+  background: transparent;
   padding: 16px;
 }
 
@@ -4795,7 +4795,7 @@ img {
 }
 
 .admin-layout__link {
-  border-radius: 12px;
+  border-radius: 0;
 }
 
 .admin-filter-bar {
@@ -5102,6 +5102,19 @@ img {
   box-shadow: none;
 }
 
+.admin-inline-button--status,
+.admin-inline-button--detail,
+.admin-inline-button--notice-edit,
+.admin-inline-button--notice-private {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.admin-inline-button--notice-private {
+  color: #bc1d25 !important;
+}
+
 .admin-inline-button:disabled {
   opacity: 0.42;
   cursor: not-allowed;
@@ -5145,8 +5158,9 @@ img {
   font-style: normal;
 }
 
-.admin-shipping-modal__form select,
-.admin-shipping-modal__form input {
+.admin-shipping-modal__form input,
+.admin-shipping-modal__carrier-select,
+.inspection-shipping-field .winnerdeal-courier-select {
   border: 0;
   border-radius: 8px;
   background: #f2f4f6;
@@ -5155,8 +5169,15 @@ img {
   color: #2c2c35;
 }
 
-.admin-shipping-modal__form select {
+.admin-shipping-modal__carrier-select,
+.inspection-shipping-field .winnerdeal-courier-select {
   width: 150px;
+}
+
+.admin-shipping-modal__carrier-menu,
+.inspection-shipping-courier-menu {
+  width: 150px;
+  min-width: 150px;
 }
 
 .admin-shipping-modal__form input::placeholder {

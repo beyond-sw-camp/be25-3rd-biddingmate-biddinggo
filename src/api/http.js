@@ -22,6 +22,23 @@ export const API_BASE_URL = deriveApiBaseUrl()
 let refreshPromise = null
 const { showToast } = useToast()
 
+function redirectToLogin() {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  const currentPath = `${window.location.pathname}${window.location.search || ''}`
+  const isAdminRoute = window.location.pathname.startsWith('/admin')
+  const loginPath = isAdminRoute ? '/admin/login' : '/login'
+  const redirectQuery = currentPath ? `?redirect=${encodeURIComponent(currentPath)}` : ''
+
+  if (window.location.pathname === loginPath) {
+    return
+  }
+
+  window.location.assign(`${loginPath}${redirectQuery}`)
+}
+
 function notifyRequestError(message, options = {}) {
   if (options?.suppressErrorToast) {
     return
@@ -160,14 +177,23 @@ async function performRequest(path, options = {}, allowRefresh = true) {
   }
 
   if (!response.ok) {
+    if (auth && (response.status === 401 || response.status === 403)) {
+      clearSession()
+      redirectToLogin()
+    }
+
     if (typeof body === 'object' && body?.message) {
       const error = new Error(body.message)
-      notifyRequestError(error.message, options)
+      if (!(auth && (response.status === 401 || response.status === 403))) {
+        notifyRequestError(error.message, options)
+      }
       throw error
     }
 
     const error = new Error('요청 처리 중 오류가 발생했습니다.')
-    notifyRequestError(error.message, options)
+    if (!(auth && (response.status === 401 || response.status === 403))) {
+      notifyRequestError(error.message, options)
+    }
     throw error
   }
 

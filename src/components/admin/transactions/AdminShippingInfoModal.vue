@@ -11,10 +11,30 @@
       <form class="admin-shipping-modal__form" @submit.prevent="submit">
         <label>
           <span>택배사 <em>*</em></span>
-          <select v-model="carrier">
-            <option disabled value="">선택</option>
-            <option v-for="company in shippingCompanies" :key="company" :value="company">{{ company }}</option>
-          </select>
+          <v-menu location="bottom start" offset="8">
+            <template #activator="{ props: menuProps }">
+              <button
+                v-bind="menuProps"
+                class="winnerdeal-courier-select admin-shipping-modal__carrier-select"
+                type="button"
+              >
+                <span>{{ carrier || '선택' }}</span>
+                <v-icon icon="mdi-chevron-down" />
+              </button>
+            </template>
+
+            <div class="winnerdeal-courier-menu admin-shipping-modal__carrier-menu">
+              <button
+                v-for="company in shippingCompanies"
+                :key="company"
+                class="winnerdeal-courier-menu__item"
+                type="button"
+                @click="carrier = company"
+              >
+                {{ company }}
+              </button>
+            </div>
+          </v-menu>
         </label>
 
         <label>

@@ -18,7 +18,8 @@ export function useInspectionState(items, { onShippingSubmit, onAuctionRegister 
     const keyword = searchQuery.value.trim().toLowerCase()
 
     return items.value.filter((item) => {
-      const matchesFilter = activeFilter.value === '전체' || item.statusLabel === activeFilter.value
+      const matchesStatusFilter = activeFilter.value === '전체' || item.statusLabel === activeFilter.value
+      const matchesFilter = matchesStatusFilter
 
       if (!matchesFilter) {
         return false
