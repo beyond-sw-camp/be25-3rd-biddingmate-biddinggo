@@ -54,8 +54,27 @@
           </button>
 
           <button type="button" class="login-provider login-provider--kakao" @click="startLogin('kakao')">
-            <span class="login-provider__kakao-icon" aria-hidden="true"></span>
-            <span>카카오로 시작하기</span>
+            <svg class="login-provider__kakao-svg" viewBox="0 0 240 32" aria-hidden="true">
+              <rect width="240" height="32" rx="0" fill="#FEE500" />
+              <g transform="translate(34 0)">
+                <path
+                  fill="#191919"
+                  d="M20.298 4.95c-6.052 0-10.958 3.868-10.958 8.64 0 3.092 2.06 5.805 5.156 7.33l-1.303 4.792a.391.391 0 0 0 .599.426l5.726-3.793c.258.024.519.037.78.037 6.051 0 10.957-3.868 10.957-8.64 0-4.772-4.906-8.792-10.957-8.792z"
+                />
+                <text
+                  x="50"
+                  y="17"
+                  fill="#191919"
+                  font-family="'Noto Sans KR', sans-serif"
+                  font-size="15"
+                  font-weight="600"
+                  text-anchor="start"
+                  dominant-baseline="middle"
+                >
+                  카카오로 시작하기
+                </text>
+              </g>
+            </svg>
           </button>
         </div>
 

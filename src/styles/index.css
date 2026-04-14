@@ -632,6 +632,7 @@ select {
 .login-provider--kakao {
   background: #fee500;
   color: #191919;
+  padding: 0 20px;
 }
 
 .login-provider__icon,
@@ -666,6 +667,13 @@ select {
   height: 6px;
   background: #191919;
   transform: rotate(45deg);
+}
+
+.login-provider__kakao-svg {
+  display: block;
+  width: 240px;
+  max-width: 100%;
+  height: 32px;
 }
 
 .login-terms {
