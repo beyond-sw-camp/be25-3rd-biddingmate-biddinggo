@@ -9,10 +9,81 @@ import { authState } from '../lib/authSession'
 import { normalizeAuctionCard } from '../utils/marketplace'
 
 const router = useRouter()
+const hasNext = ref(true)
 const homeItems = ref([])
 const loading = ref(false)
 const errorMessage = ref('')
+const page = ref(1)
+const requestVersion = ref(0)
 const wishlistProcessingIds = ref(new Set())
+
+function findFirstBoolean(...values) {
+  return values.find((value) => typeof value === 'boolean')
+}
+
+function findFirstNumber(...values) {
+  for (const value of values) {
+    const number = Number(value)
+
+    if (Number.isFinite(number) && number >= 0) {
+      return number
+    }
+  }
+
+  return null
+}
+
+function resolveHasNext(response, content, requestedPage) {
+  const explicitHasNext = findFirstBoolean(
+    response?.hasNext,
+    response?.pageInfo?.hasNext,
+    response?.pagination?.hasNext,
+  )
+
+  if (explicitHasNext !== undefined) {
+    return explicitHasNext
+  }
+
+  const explicitLast = findFirstBoolean(
+    response?.last,
+    response?.isLast,
+    response?.pageInfo?.last,
+    response?.pagination?.last,
+  )
+
+  if (explicitLast !== undefined) {
+    return !explicitLast
+  }
+
+  const totalPages = findFirstNumber(
+    response?.totalPages,
+    response?.totalPage,
+    response?.pageInfo?.totalPages,
+    response?.pageInfo?.totalPage,
+    response?.pagination?.totalPages,
+    response?.pagination?.totalPage,
+  )
+
+  if (totalPages !== null) {
+    const zeroBasedPage = findFirstNumber(response?.number, response?.pageable?.pageNumber)
+
+    if (zeroBasedPage !== null) {
+      return zeroBasedPage + 1 < totalPages
+    }
+
+    return requestedPage < totalPages
+  }
+
+  return content.length === 4
+}
+
+function resetHomeAuctions() {
+  homeItems.value = []
+  page.value = 1
+  hasNext.value = true
+  loading.value = false
+  requestVersion.value += 1
+}
 
 function updateAuctionWishlistState(auctionId, patch) {
   homeItems.value = homeItems.value.map((item) => (
@@ -47,27 +118,47 @@ async function hydrateWishlistStatuses(auctionItems) {
   })
 }
 
-async function loadHomeAuctions() {
+async function loadMoreHomeAuctions() {
+  if (loading.value || !hasNext.value) {
+    return
+  }
+
+  const requestedPage = page.value
+  const currentRequestVersion = requestVersion.value
   loading.value = true
   errorMessage.value = ''
 
   try {
-    const page = await getAuctionList({
-      page: 1,
+    const response = await getAuctionList({
+      page: requestedPage,
       size: 4,
       sortBy: 'POPULARITY',
       status: 'ON_GOING',
       order: 'DESC',
     })
 
-    const nextItems = (page?.content || []).map(normalizeAuctionCard)
-    homeItems.value = nextItems
-    await hydrateWishlistStatuses(nextItems)
+    if (currentRequestVersion !== requestVersion.value) {
+      return
+    }
+
+    const content = Array.isArray(response?.content) ? response.content : []
+    const nextItems = content.map(normalizeAuctionCard)
+    const existingIds = new Set(homeItems.value.map((item) => item.auctionId))
+    const uniqueItems = nextItems.filter((item) => !existingIds.has(item.auctionId))
+
+    homeItems.value = [...homeItems.value, ...uniqueItems]
+    page.value += 1
+    hasNext.value = resolveHasNext(response, content, requestedPage)
+    await hydrateWishlistStatuses(uniqueItems)
   } catch (error) {
-    homeItems.value = []
-    errorMessage.value = error?.message || '메인 경매를 불러오지 못했습니다.'
+    if (currentRequestVersion === requestVersion.value) {
+      hasNext.value = false
+      errorMessage.value = error?.message || '메인 경매를 불러오지 못했습니다.'
+    }
   } finally {
-    loading.value = false
+    if (currentRequestVersion === requestVersion.value) {
+      loading.value = false
+    }
   }
 }
 
@@ -134,7 +225,8 @@ async function toggleWishlist(item) {
 }
 
 onMounted(() => {
-  loadHomeAuctions()
+  resetHomeAuctions()
+  loadMoreHomeAuctions()
 })
 </script>
 
@@ -142,10 +234,12 @@ onMounted(() => {
   <HomeScreen
     :assets="assets"
     :error-message="errorMessage"
+    :has-next="hasNext"
     :hero-slides="heroSlides"
     :items="homeItems"
     :loading="loading"
     :wishlist-processing-ids="wishlistProcessingIds"
+    @load-more="loadMoreHomeAuctions"
     @open-detail="openDetail"
     @open-list="openList"
     @toggle-wishlist="toggleWishlist"

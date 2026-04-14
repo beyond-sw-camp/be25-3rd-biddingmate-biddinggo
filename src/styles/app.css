@@ -2309,6 +2309,14 @@ img {
   line-height: 1.15;
 }
 
+.detail-product-brand {
+  margin: 14px 0 0;
+  color: #191c1e;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
 .detail-price-block {
   display: flex;
   flex-direction: column;

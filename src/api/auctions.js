@@ -64,6 +64,15 @@ export async function cancelAuction(auctionId) {
   return unwrap(data)
 }
 
+export async function buyNowAuction(auctionId) {
+  const data = await request(`/api/v1/auctions/${auctionId}/buy-now`, {
+    auth: true,
+    method: 'POST',
+  })
+
+  return unwrap(data)
+}
+
 export async function createAuctionFromInspectionItem(payload) {
   const data = await request('/api/v1/auctions/inspection-items', {
     auth: true,

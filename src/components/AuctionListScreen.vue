@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import AuctionCard from './AuctionCard.vue'
 
 const props = defineProps({
@@ -22,6 +22,10 @@ const props = defineProps({
   items: {
     type: Array,
     required: true,
+  },
+  hasNext: {
+    type: Boolean,
+    default: false,
   },
   loading: {
     type: Boolean,
@@ -53,8 +57,10 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['openDetail', 'selectCategory', 'selectSort', 'submitSearch', 'toggleCategory', 'toggleWishlist'])
+const emit = defineEmits(['loadMore', 'openDetail', 'selectCategory', 'selectSort', 'submitSearch', 'toggleCategory', 'toggleWishlist'])
 const searchKeyword = ref(props.toolbarSearchValue)
+const loadMoreTriggerRef = ref(null)
+let observer = null
 
 const effectiveSortOptions = computed(() => (
   props.sortOptions.length
@@ -76,6 +82,59 @@ function selectSort(option) {
 function submitSearch() {
   emit('submitSearch', searchKeyword.value.trim())
 }
+
+function requestLoadMore() {
+  if (props.loading || !props.hasNext) {
+    return
+  }
+
+  emit('loadMore')
+}
+
+function bindObserver() {
+  if (typeof window === 'undefined' || !loadMoreTriggerRef.value) {
+    return
+  }
+
+  observer = new IntersectionObserver(
+    (entries) => {
+      const [entry] = entries
+
+      if (entry?.isIntersecting) {
+        requestLoadMore()
+      }
+    },
+    {
+      root: null,
+      rootMargin: '0px 0px 240px 0px',
+      threshold: 0,
+    },
+  )
+
+  observer.observe(loadMoreTriggerRef.value)
+}
+
+function unbindObserver() {
+  if (observer) {
+    observer.disconnect()
+    observer = null
+  }
+}
+
+onMounted(bindObserver)
+onBeforeUnmount(unbindObserver)
+
+watch(loadMoreTriggerRef, () => {
+  unbindObserver()
+  bindObserver()
+})
+
+watch(
+  () => [props.hasNext, props.loading, props.items.length],
+  () => {
+    requestLoadMore()
+  },
+)
 </script>
 
 <template>
@@ -159,6 +218,9 @@ function submitSearch() {
         />
       </div>
       <p v-else class="feedback-strip">조건에 맞는 경매가 없습니다.</p>
+
+      <div ref="loadMoreTriggerRef" class="list-load-more-trigger" aria-hidden="true"></div>
+      <p v-if="loading && items.length" class="feedback-strip">경매를 더 불러오는 중입니다.</p>
     </div>
   </section>
 </template>
@@ -182,5 +244,11 @@ function submitSearch() {
 .feedback-strip.is-error {
   background: #fef2f2;
   color: #b91c1c;
+}
+
+.list-load-more-trigger {
+  width: 100%;
+  height: 1px;
+  margin-top: 24px;
 }
 </style>

@@ -8,6 +8,7 @@ import { getCategoryList } from '../api/categories'
 import { getUserSellerProfile } from '../api/users'
 import { createWishlist, deleteWishlist, getWishlistStatus } from '../api/wishlists'
 import AuctionDetailScreen from '../components/AuctionDetailScreen.vue'
+import { useToast } from '../composables/useToast'
 import { assets } from '../data/marketplaceData'
 import { authState } from '../lib/authSession'
 import { buildCategoryPathLabelById, getFallbackCategories, normalizeCategoryRows } from '../utils/category'
@@ -15,6 +16,7 @@ import { normalizeAuctionDetail } from '../utils/marketplace'
 
 const route = useRoute()
 const router = useRouter()
+const { showToast } = useToast()
 const errorMessage = ref('')
 const item = ref(null)
 const loading = ref(false)
@@ -50,7 +52,8 @@ function resolveSellerUserId(detail = {}) {
 async function loadAuctionDetail(auctionId) {
   if (!auctionId) {
     item.value = null
-    errorMessage.value = '경매 정보를 찾을 수 없습니다.'
+    errorMessage.value = ''
+    showToast('경매 정보를 찾을 수 없습니다.', { color: 'error' })
     return
   }
 
@@ -85,7 +88,8 @@ async function loadAuctionDetail(auctionId) {
     })
   } catch (error) {
     item.value = null
-    errorMessage.value = error?.message || '경매 상세 정보를 불러오지 못했습니다.'
+    errorMessage.value = ''
+    showToast(error?.message || '경매 상세 정보를 불러오지 못했습니다.', { color: 'error' })
   } finally {
     loading.value = false
   }
@@ -121,7 +125,7 @@ async function toggleWishlist() {
       wishCount: Number(item.value.wishCount || 0) + 1,
     }
   } catch (error) {
-    errorMessage.value = error?.message || '찜 처리에 실패했습니다.'
+    showToast(error?.message || '찜 처리에 실패했습니다.', { color: 'error' })
   } finally {
     wishlistProcessing.value = false
   }
@@ -190,7 +194,7 @@ async function handleCancelAuction() {
     await cancelAuction(auctionId)
     backToList()
   } catch (error) {
-    errorMessage.value = error?.message || '경매 삭제에 실패했습니다.'
+    showToast(error?.message || '경매 삭제에 실패했습니다.', { color: 'error' })
   } finally {
     cancelProcessing.value = false
   }
