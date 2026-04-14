@@ -17,20 +17,24 @@
 
   <RouterView v-else />
   <NotificationToastStack />
+  <AppToast />
 </template>
 
 <script setup>
-import { computed, onMounted, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import AppShell from './components/AppShell.vue'
 import NotificationToastStack from './components/NotificationToastStack.vue'
+import AppToast from './components/shared/AppToast.vue'
 import { useAuth } from './composables/useAuth'
 import { useNotificationCenter } from './composables/useNotificationCenter'
+import { useToast } from './composables/useToast'
 import { navigationItems } from './data/marketplaceData'
 
 const route = useRoute()
 const router = useRouter()
 const { auth, initializeAuth, logout } = useAuth()
+const { showToast } = useToast()
 
 const currentNavKey = computed(() => String(route.meta.navKey ?? ''))
 const currentScreen = computed(() => String(route.name ?? ''))
@@ -46,7 +50,27 @@ function hasAdminAuthority(authorities = auth.authorities) {
 
 const { initializeNotificationCenter, shutdownNotificationCenter } = useNotificationCenter()
 
+function resolveGlobalErrorMessage(errorLike) {
+  const message = errorLike?.message || errorLike?.reason?.message
+
+  if (typeof message === 'string' && message.trim()) {
+    return message
+  }
+
+  return '예상치 못한 오류가 발생했습니다.'
+}
+
+function handleWindowError(event) {
+  showToast(resolveGlobalErrorMessage(event?.error || event), { color: 'error' })
+}
+
+function handleUnhandledRejection(event) {
+  showToast(resolveGlobalErrorMessage(event?.reason || event), { color: 'error' })
+}
+
 onMounted(async () => {
+  window.addEventListener('error', handleWindowError)
+  window.addEventListener('unhandledrejection', handleUnhandledRejection)
   await initializeAuth()
 
   if (auth.isAuthenticated) {
@@ -64,6 +88,11 @@ onMounted(async () => {
       query: { redirect: route.fullPath },
     })
   }
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('error', handleWindowError)
+  window.removeEventListener('unhandledrejection', handleUnhandledRejection)
 })
 
 watch(
