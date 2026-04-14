@@ -22,7 +22,10 @@ const TYPE_LABEL = Object.freeze({
     NEW_BID: '새 입찰',
     TOP_BID: '최고 입찰',
     AUCTION_UNSOLD: '경매 종료',
-    ADMIN_NOTICE: '공지사항 등록'
+    ADMIN_NOTICE: '공지사항 등록',
+    INSPECTION: '검수 알림',
+    AUCTION_INQUIRY: '문의 알림',
+    DIRECT_INQUIRY: '1:1 문의 알림'
     
 })
 
@@ -55,11 +58,34 @@ function formatRelativeTime(value) {
     return `${Math.floor(diffSec/ 604800)}주 전`
 }
 
+function resolveNotificationUrl(rawUrl = '', type = '') {
+    const value = String(rawUrl || '').trim()
+    if (!value) return ''
+
+    // 백엔드 구 경로(/admins/*)와 프론트 라우터(/admin/*) 차이를 보정
+    let url = value.replace(/^\/admins\//, '/admin/')
+
+    // 문의 탭은 상세 라우트가 없어 경매 상세로 이동
+    url = url.replace(/^\/auctions\/(\d+)\/inquiries$/, '/auctions/$1')
+
+    // 현재 프론트 라우터에 없는 경로를 실제 화면 경로로 매핑
+    if (/^\/winner-deals\/\d+$/.test(url)) return '/mypage/purchases'
+    if (/^\/inspections\/\d+$/.test(url)) return '/inspection'
+    if (/^\/notices\/\d+$/.test(url)) return '/'
+
+    // 관리자 문의 알림은 실제 관리자 문의 목록으로 이동
+    if (type === 'DIRECT_INQUIRY' && url === '/admin/direct-inquiries') return '/admin/inquiries'
+
+    return url
+}
+
 function normalizeNotification(raw = {}) {
-    const type = String(raw.type || '')
-    const content = String(raw.content || '')
-    const createdAt = raw.createdAt || null
-    const unread = !raw.readAt
+    const type = String(raw.type || '').trim().toUpperCase()
+    const content = String(raw.content ?? raw.body ?? raw.message ?? '')
+    const createdAt = raw.createdAt ?? raw.created_at ?? null
+    const readAt = raw.readAt ?? raw.read_at ?? null
+    const url = raw.url ?? raw.path ?? raw.link ?? ''
+    const unread = !readAt
     
 
     return {
@@ -67,8 +93,8 @@ function normalizeNotification(raw = {}) {
         type,
         title: TYPE_LABEL[type] || '알림',
         body: content,
-        url: raw.url ? String(raw.url) : '',
-        readAt: raw.readAt || null,
+        url: resolveNotificationUrl(url, type),
+        readAt,
         createdAt,
         unread,
         time: formatRelativeTime(createdAt),
