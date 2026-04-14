@@ -1,5 +1,6 @@
 <script setup>
 import BaseModal from '../shared/BaseModal.vue'
+import { courierOptions } from '../../data/salesHistory'
 
 defineProps({
   form: {
@@ -27,14 +28,30 @@ defineEmits(['close', 'submit'])
       <div class="inspection-shipping-form">
         <label class="inspection-shipping-field is-small">
           <span>택배사 <em>*</em></span>
-          <div class="register-select-wrap">
-            <select v-model="form.company">
-              <option value="" disabled>선택</option>
-              <option value="우체국 택배">우체국 택배</option>
-              <option value="CJ대한통운">CJ대한통운</option>
-              <option value="한진택배">한진택배</option>
-            </select>
-          </div>
+          <v-menu location="bottom start" offset="8">
+            <template #activator="{ props: menuProps }">
+              <button
+                v-bind="menuProps"
+                class="winnerdeal-courier-select"
+                type="button"
+              >
+                <span>{{ form.company || '선택' }}</span>
+                <v-icon icon="mdi-chevron-down" />
+              </button>
+            </template>
+
+            <div class="winnerdeal-courier-menu inspection-shipping-courier-menu">
+              <button
+                v-for="option in courierOptions"
+                :key="option"
+                class="winnerdeal-courier-menu__item"
+                type="button"
+                @click="form.company = option"
+              >
+                {{ option }}
+              </button>
+            </div>
+          </v-menu>
         </label>
 
         <label class="inspection-shipping-field">

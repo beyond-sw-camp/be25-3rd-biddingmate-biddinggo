@@ -38,6 +38,9 @@ const imageUrls = computed(() => {
 
 const currentImage = computed(() => imageUrls.value[currentImageIndex.value] || props.assets.listWatchImage)
 const canSlideImages = computed(() => imageUrls.value.length > 1)
+const hasShippingInfo = computed(() => Boolean(props.item?.carrier && props.item?.trackingNumber))
+const isPassedStatus = computed(() => props.item?.status === 'PASSED')
+const isOnAuctionPassedItem = computed(() => isPassedStatus.value && props.item?.auctionItemStatus === 'ON_AUCTION')
 
 function showPreviousImage() {
   if (!canSlideImages.value) {
@@ -96,7 +99,6 @@ watch(
         </div>
 
         <div class="inspection-status-summary">
-          <p class="inspection-status-category">{{ item.categoryLabel || '카테고리 정보 없음' }}</p>
           <span class="inspection-status-badge" :class="badgeClass(item.status)">
             {{ item.statusLabel || item.status }}
           </span>
@@ -139,11 +141,16 @@ watch(
       </div>
 
       <div class="inspection-status-actions">
-        <button type="button" class="register-secondary-button" @click="$emit('close')">
-          {{ item.status === 'PENDING' ? '신청 취소' : '닫기' }}
+        <button type="button" class="register-secondary-button" :disabled="isOnAuctionPassedItem" @click="$emit('close')">
+          취소
         </button>
-        <button type="button" class="register-primary-button" @click="$emit('handle-action')">
-          {{ detailActionLabel(item.status) }}
+        <button
+          type="button"
+          class="register-primary-button"
+          :disabled="isOnAuctionPassedItem"
+          @click="hasShippingInfo && !isPassedStatus ? $emit('close') : $emit('handle-action')"
+        >
+          {{ hasShippingInfo && !isPassedStatus ? '확인' : detailActionLabel(item.status) }}
         </button>
       </div>
   </BaseModal>
