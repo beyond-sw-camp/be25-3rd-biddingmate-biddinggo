@@ -29,18 +29,12 @@ const auctionStatusLabels = {
   CANCELLED: '경매 취소',
 }
 
-function formatPrice(price) {
-  if (price === null || price === undefined || price === '') {
+function formatBidAmount(value) {
+  if (value === null || value === undefined || value === '') {
     return '-'
   }
 
-  const priceValue = Number(price)
-
-  if (Number.isNaN(priceValue)) {
-    return String(price)
-  }
-
-  return `${priceValue.toLocaleString()}원`
+  return String(value)
 }
 
 function formatDate(date) {
@@ -96,8 +90,8 @@ function normalizeBidItem(item = {}) {
     name: item.name || '-',
     image: item.representativeImageUrl || item.imageUrl || noImage,
     time: getCountdownLabel(item.endDate),
-    currentPrice: formatPrice(item.vickreyPrice ?? item.startPrice),
-    myBid: formatPrice(item.amount),
+    currentPrice: formatBidAmount(item.vickreyPrice ?? item.startPrice),
+    myBid: formatBidAmount(item.amount),
     date: formatDate(item.createdAt),
   }
 }

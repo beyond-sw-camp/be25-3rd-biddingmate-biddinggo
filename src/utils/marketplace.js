@@ -81,7 +81,7 @@ export function normalizeBidHistory(rows = []) {
   return rows.map((row) => ({
     id: row.id,
     bidder: `${row.bidderId ?? '-'}번 회원`,
-    amount: `${formatPrice(row.amount)}원`,
+    amount: row.amount === null || row.amount === undefined || row.amount === '' ? '-' : String(row.amount),
     date: formatDateTime(row.createdAt),
   }))
 }

@@ -38,14 +38,14 @@ defineEmits(['buy-now', 'close', 'step-bid', 'submit-bid', 'update:bidAmount'])
         <div class="detail-inquiry-summary-copy">
           <strong>{{ item.title }}</strong>
           <span>현재 입찰가</span>
-          <em>{{ item.price }}원</em>
+          <em>{{ item.price }}</em>
         </div>
       </div>
 
       <div class="detail-bid-modal-body">
         <div class="detail-bid-meta-row">
           <span>입찰 단위</span>
-          <strong>{{ item.bidUnit }}원</strong>
+          <strong>{{ item.bidUnit }}</strong>
         </div>
 
         <label class="detail-bid-modal-label">입찰 금액</label>
