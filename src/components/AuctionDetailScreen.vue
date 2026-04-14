@@ -13,6 +13,7 @@ import PricePanel from './auction-detail/PricePanel.vue'
 import ReportModal from './auction-detail/ReportModal.vue'
 import SellerCardSection from './auction-detail/SellerCardSection.vue'
 import SellerProfileModal from './auction-detail/SellerProfileModal.vue'
+import { useToast } from '../composables/useToast'
 import { authState } from '../lib/authSession'
 import { runtimeIdentity } from '../lib/runtimeIdentity'
 import { getGradeBadge } from '../utils/gradeBadge'
@@ -83,6 +84,7 @@ const answerForm = ref({
 })
 
 const selectedInquiry = ref(null)
+const { showToast } = useToast()
 
 const defaultSellerAvatar = 'https://www.figma.com/api/mcp/asset/1a84177d-d7c8-4353-8a50-20c14d87fbe5'
 
@@ -228,17 +230,17 @@ async function submitBid() {
     }
 
     if (!payload.amount) {
-      feedbackMessage.value = '입찰 금액을 확인해주세요.'
+      showToast('입찰 금액을 확인해주세요.', { color: 'error' })
       return
     }
 
     await createBid(runtimeIdentity.memberId, payload)
 
-    feedbackMessage.value = '입찰이 완료되었습니다.'
+    showToast('입찰이 완료되었습니다.')
     closeBidModal()
     emit('refresh')
   } catch (error) {
-    feedbackMessage.value = error?.message || '입찰 처리 중 오류가 발생했습니다.'
+    showToast(error?.message || '입찰 처리 중 오류가 발생했습니다.', { color: 'error' })
   }
 }
 
