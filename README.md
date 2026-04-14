@@ -56,19 +56,15 @@
 # 목차
 <br/>
 
-1. [프로젝트 개요](#1--프로젝트-개요)
-2. [요구사항 정의서](#2--요구사항-정의서)
-3. [ERD](#3--ERD)
-4. [테이블 정의서](#4--테이블-정의서)
-5. [시스템 아키텍처](#5--시스템-아키텍처)
-6. [화면 및 기능 설계서](#6--화면-및-기능-설계서)
-7. [테스트 계획 및 결과 보고서](#7--테스트-계획-및-결과-보고서)
-8. [회고](#8--회고)
+1. [화면 및 기능 설계서](#1--화면-및-기능-설계서)
+2. [테스트 결과 보고서](#2--테스트-결과-보고서)
+3. [시연](#3--시연)
+4. [회고](#4--회고)
 
 ---
 
 
-# 1.  프로젝트 개요
+# 1.  화면 및 기능 설계서
 
 <br/> 
 
@@ -77,42 +73,21 @@
 
 
 
-# 2.  요구사항 정의서
-![](img/Srs.png)<br/>
-🔗[ 요구사항 정의서 ](https://docs.google.com/spreadsheets/d/16YGKpTcpo310JjvUu9Q1Nm9atCI-XYx5TB2GD3ocx3E/edit?gid=1771602914#gid=1771602914)
+# 2.  테스트 결과 보고서
 
----
-
-# 3.  ERD
-![](img/erd.png)<br/>
-🔗[ ERD ](https://www.erdcloud.com/d/dWKrWvBcWyqzdomS4)
-
----
-
-# 4.  테이블 정의서
-![](img/table.PNG)<br/>
-🔗[테이블 정의서](https://docs.google.com/spreadsheets/d/1OoOrOKj8uusUITQNaMLExuCe3ReM_St3hvvKVMiX4vM/edit?gid=315508468#gid=315508468)
-
----
-
-# 5.  시스템 아키텍처
-<br/>
-
----
-# 6.  화면 및 기능 설계서
-![](img/table.PNG)<br/>
-🔗[화면 및 기능 설계서](https://www.figma.com/design/0dOGV93f5reRfWgJiv1rBH/Biddinggo?node-id=185-1330&t=DaXBKBPbxL8Q8Hgr-1)
-<br/>
-
----
-
-# 7.  테스트 계획 및 결과 보고서
-<br/>
+<br/> 
 
 
 ---
 
-# 8.  회고
+# 3.  시연
+
+<br/> 
+
+
+---
+
+# 4.  회고
 <br/>
 
 #### 김진혁
@@ -132,3 +107,5 @@
 
 #### 한규진
 > 작성
+
+
