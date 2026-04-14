@@ -65,8 +65,8 @@
             <td>{{ item.grade }}</td>
             <td><AdminStatusBadge :status="item.status" /></td>
             <td>
-              <button class="ghost-button admin-inline-button" type="button" @click="openInspectionDetail(item.inspectionNo)">
-                상세보기
+              <button class="ghost-button admin-inline-button admin-inline-button--detail" type="button" @click="openInspectionDetail(item.inspectionNo)">
+                관리
               </button>
             </td>
           </tr>

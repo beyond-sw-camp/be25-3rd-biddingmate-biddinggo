@@ -1,7 +1,7 @@
 ﻿<template>
   <div class="app-shell admin-layout">
     <aside class="sidebar admin-layout__sidebar">
-      <RouterLink class="brand-block" to="/admin/transactions">
+      <RouterLink class="brand-block" to="/">
         <strong>Biddinggo</strong>
         <span>BIDDINGMATE</span>
       </RouterLink>
@@ -14,7 +14,6 @@
           class="sidebar-link admin-layout__link"
           :class="{ active: isActive(item.route) }"
         >
-          <span class="sidebar-link__dot"></span>
           {{ item.label }}
         </RouterLink>
       </nav>

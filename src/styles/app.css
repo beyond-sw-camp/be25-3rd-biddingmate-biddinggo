@@ -4795,7 +4795,7 @@ img {
 }
 
 .admin-layout__link {
-  border-radius: 12px;
+  border-radius: 0;
 }
 
 .admin-filter-bar {
@@ -5100,6 +5100,19 @@ img {
   padding: 6px 12px;
   font-size: 12px;
   box-shadow: none;
+}
+
+.admin-inline-button--status,
+.admin-inline-button--detail,
+.admin-inline-button--notice-edit,
+.admin-inline-button--notice-private {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.admin-inline-button--notice-private {
+  color: #bc1d25 !important;
 }
 
 .admin-inline-button:disabled {

@@ -137,6 +137,22 @@ const isCancelledAuction = computed(() => {
   return status === 'CANCELLED' || status === 'CANCELED'
 })
 
+const isOngoingAuction = computed(() => {
+  const status = String(props.item?.status || '').trim().toUpperCase()
+
+  return status === 'ON_GOING'
+})
+
+const bidButtonDisabled = computed(() => isOwnAuction.value || !isOngoingAuction.value)
+
+const bidButtonLabel = computed(() => {
+  if (isOwnAuction.value) {
+    return '내 경매'
+  }
+
+  return isOngoingAuction.value ? '지금 입찰하기' : '입찰 불가'
+})
+
 const canManageAuction = computed(() => isOwnAuction.value && !isCancelledAuction.value)
 
 function openSellerModal() {
@@ -428,6 +444,8 @@ function buyNow() {
         <div class="detail-right">
           <PricePanel
             :assets="assets"
+            :bid-button-disabled="bidButtonDisabled"
+            :bid-button-label="bidButtonLabel"
             :is-own-auction="isOwnAuction"
             :item="item"
             :wishlist-processing="wishlistProcessing"

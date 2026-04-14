@@ -54,7 +54,7 @@
             <td><AdminStatusBadge :status="user.status" /></td>
             <td>
               <button
-                class="ghost-button admin-inline-button"
+                class="ghost-button admin-inline-button admin-inline-button--status"
                 type="button"
                 :disabled="isProcessing || !canToggleStatus(user.statusRaw)"
                 @click="toggleStatus(user.userNo)"

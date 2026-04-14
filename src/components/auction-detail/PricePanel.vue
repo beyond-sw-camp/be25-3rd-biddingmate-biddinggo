@@ -4,6 +4,14 @@ defineProps({
     type: Object,
     required: true,
   },
+  bidButtonDisabled: {
+    type: Boolean,
+    default: false,
+  },
+  bidButtonLabel: {
+    type: String,
+    default: '지금 입찰하기',
+  },
   item: {
     type: Object,
     required: true,
@@ -66,10 +74,10 @@ defineEmits(['open-bid', 'toggle-wishlist'])
       <button
         type="button"
         class="detail-bid-button"
-        :disabled="isOwnAuction"
+        :disabled="bidButtonDisabled"
         @click="$emit('open-bid')"
       >
-        {{ isOwnAuction ? '내 경매' : '지금 입찰하기' }}
+        {{ bidButtonLabel }}
       </button>
     </div>
 
