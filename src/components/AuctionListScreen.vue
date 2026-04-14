@@ -19,6 +19,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  currentPage: {
+    type: Number,
+    default: 1,
+  },
   items: {
     type: Array,
     required: true,
@@ -51,9 +55,13 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  totalPages: {
+    type: Number,
+    default: 1,
+  },
 })
 
-const emit = defineEmits(['openDetail', 'selectCategory', 'selectSort', 'submitSearch', 'toggleCategory', 'toggleWishlist'])
+const emit = defineEmits(['changePage', 'openDetail', 'selectCategory', 'selectSort', 'submitSearch', 'toggleCategory', 'toggleWishlist'])
 const searchKeyword = ref(props.toolbarSearchValue)
 
 const effectiveSortOptions = computed(() => (
@@ -75,6 +83,10 @@ function selectSort(option) {
 
 function submitSearch() {
   emit('submitSearch', searchKeyword.value.trim())
+}
+
+function updatePage(page) {
+  emit('changePage', page)
 }
 </script>
 
@@ -159,6 +171,18 @@ function submitSearch() {
         />
       </div>
       <p v-else class="feedback-strip">조건에 맞는 경매가 없습니다.</p>
+
+      <div class="list-pagination">
+        <v-pagination
+          :length="totalPages"
+          :model-value="currentPage"
+          active-color="primary"
+          density="comfortable"
+          rounded="circle"
+          total-visible="7"
+          @update:model-value="updatePage"
+        />
+      </div>
     </div>
   </section>
 </template>
@@ -182,5 +206,43 @@ function submitSearch() {
 .feedback-strip.is-error {
   background: #fef2f2;
   color: #b91c1c;
+}
+
+.list-pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 28px;
+}
+
+.list-pagination :deep(.v-pagination__item),
+.list-pagination :deep(.v-pagination__prev),
+.list-pagination :deep(.v-pagination__next) {
+  color: #23008d;
+  font-weight: 700;
+}
+
+.list-pagination :deep(.v-btn) {
+  border: 1px solid rgba(35, 0, 141, 0.18);
+  background: #f4f0ff;
+  box-shadow: none;
+}
+
+.list-pagination :deep(.v-pagination__item--is-active .v-btn) {
+  border-color: #23008d;
+  background: #23008d;
+  color: #fff;
+}
+
+.list-pagination :deep(.v-pagination__item--is-active .v-btn__overlay) {
+  opacity: 0;
+}
+
+.list-pagination :deep(.v-btn:hover) {
+  border-color: #23008d;
+  background: #e7defd;
+}
+
+.list-pagination :deep(.v-pagination__item--is-active .v-btn:hover) {
+  background: #1b006e;
 }
 </style>

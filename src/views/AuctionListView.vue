@@ -19,8 +19,10 @@ const errorMessage = ref('')
 const expandedCategoryIds = ref(new Set())
 const items = ref([])
 const loading = ref(false)
+const currentPage = ref(readPageFromQuery())
 const selectedCategoryId = ref(readCategoryIdFromQuery())
 const wishlistProcessingIds = ref(new Set())
+const totalPages = ref(1)
 
 const sortOptions = [
   { key: 'wishlist', label: '관심순', sortBy: 'WISH_COUNT', order: 'DESC' },
@@ -38,6 +40,29 @@ const selectedSortOption = computed(() => (
 ))
 const selectedSortLabel = computed(() => selectedSortOption.value.label)
 
+function findFirstNumber(...values) {
+  for (const value of values) {
+    const number = Number(value)
+
+    if (Number.isFinite(number) && number > 0) {
+      return number
+    }
+  }
+
+  return null
+}
+
+function resolveTotalPages(response) {
+  return findFirstNumber(
+    response?.totalPages,
+    response?.totalPage,
+    response?.pageInfo?.totalPages,
+    response?.pageInfo?.totalPage,
+    response?.pagination?.totalPages,
+    response?.pagination?.totalPage,
+  ) ?? 1
+}
+
 function readCategoryIdFromQuery() {
   const categoryId = Number(route.query.categoryId)
 
@@ -48,6 +73,12 @@ function readSortKeyFromQuery() {
   const sortKey = String(route.query.sort || '')
 
   return sortOptions.some((option) => option.key === sortKey) ? sortKey : 'latest'
+}
+
+function readPageFromQuery() {
+  const page = Number(route.query.page)
+
+  return Number.isFinite(page) && page > 0 ? page : 1
 }
 
 function readStoredExpandedCategoryIds() {
@@ -99,7 +130,11 @@ function includeSelectedCategoryPath(baseExpandedCategoryIds = new Set()) {
   return next
 }
 
-function buildListQuery({ categoryId = selectedCategoryId.value, sortKey = selectedSortKey.value } = {}) {
+function buildListQuery({
+  categoryId = selectedCategoryId.value,
+  sortKey = selectedSortKey.value,
+  page = currentPage.value,
+} = {}) {
   const query = {}
 
   if (categoryId) {
@@ -108,6 +143,10 @@ function buildListQuery({ categoryId = selectedCategoryId.value, sortKey = selec
 
   if (sortKey && sortKey !== 'latest') {
     query.sort = sortKey
+  }
+
+  if (page > 1) {
+    query.page = page
   }
 
   return query
@@ -165,7 +204,7 @@ async function loadAuctionList() {
 
   try {
     const page = await getAuctionList({
-      page: 1,
+      page: currentPage.value,
       size: 12,
       sortBy: selectedSortOption.value.sortBy,
       status: 'ON_GOING',
@@ -175,9 +214,11 @@ async function loadAuctionList() {
 
     const nextItems = (page?.content || []).map(normalizeAuctionCard)
     items.value = nextItems
+    totalPages.value = resolveTotalPages(page)
     await hydrateWishlistStatuses(nextItems)
   } catch (error) {
     items.value = []
+    totalPages.value = 1
     errorMessage.value = error?.message || '경매 목록을 불러오지 못했습니다.'
   } finally {
     loading.value = false
@@ -203,6 +244,7 @@ function selectCategory(category) {
   }
 
   selectedCategoryId.value = Number(category?.id || 0) || null
+  currentPage.value = 1
   router.replace({
     name: 'auction-list',
     query: buildListQuery(),
@@ -234,6 +276,22 @@ function selectSort(option) {
   }
 
   selectedSortKey.value = option.key
+  currentPage.value = 1
+  router.replace({
+    name: 'auction-list',
+    query: buildListQuery(),
+  })
+  loadAuctionList()
+}
+
+function changePage(page) {
+  const nextPage = Number(page)
+
+  if (!Number.isFinite(nextPage) || nextPage <= 0 || nextPage === currentPage.value) {
+    return
+  }
+
+  currentPage.value = nextPage
   router.replace({
     name: 'auction-list',
     query: buildListQuery(),
@@ -310,17 +368,23 @@ onMounted(async () => {
 })
 
 watch(
-  () => [route.query.categoryId, route.query.sort],
+  () => [route.query.categoryId, route.query.sort, route.query.page],
   () => {
     const nextCategoryId = readCategoryIdFromQuery()
     const nextSortKey = readSortKeyFromQuery()
+    const nextPage = readPageFromQuery()
 
-    if (selectedCategoryId.value === nextCategoryId && selectedSortKey.value === nextSortKey) {
+    if (
+      selectedCategoryId.value === nextCategoryId
+      && selectedSortKey.value === nextSortKey
+      && currentPage.value === nextPage
+    ) {
       return
     }
 
     selectedCategoryId.value = nextCategoryId
     selectedSortKey.value = nextSortKey
+    currentPage.value = nextPage
     expandedCategoryIds.value = includeSelectedCategoryPath(expandedCategoryIds.value)
     persistExpandedCategoryIds(expandedCategoryIds.value)
     loadAuctionList()
@@ -332,6 +396,7 @@ watch(
   <AuctionListScreen
     :assets="assets"
     :categories="categories"
+    :current-page="currentPage"
     :error-message="errorMessage"
     :items="items"
     :loading="loading"
@@ -339,7 +404,9 @@ watch(
     :selected-sort-label="selectedSortLabel"
     :sort-options="sortOptions"
     :toolbar-search-value="''"
+    :total-pages="totalPages"
     :wishlist-processing-ids="wishlistProcessingIds"
+    @change-page="changePage"
     @open-detail="openDetail"
     @select-category="selectCategory"
     @select-sort="selectSort"
