@@ -1,4 +1,5 @@
 import { clearSession, getAccessToken, setSession, shouldRefreshAccessToken } from '../lib/authSession'
+import { useToast } from '../composables/useToast'
 
 function deriveApiBaseUrl() {
   const explicitApiBaseUrl = String(import.meta.env.VITE_API_BASE_URL || '').trim()
@@ -19,6 +20,15 @@ function deriveApiBaseUrl() {
 export const API_BASE_URL = deriveApiBaseUrl()
 
 let refreshPromise = null
+const { showToast } = useToast()
+
+function notifyRequestError(message, options = {}) {
+  if (options?.suppressErrorToast) {
+    return
+  }
+
+  showToast(message, { color: 'error' })
+}
 
 export function buildQueryString(params = {}) {
   const query = new URLSearchParams()
@@ -127,7 +137,9 @@ async function performRequest(path, options = {}, allowRefresh = true) {
       headers: withAuthorizationHeader(fetchOptions.headers || {}, auth),
     })
   } catch {
-    throw new Error(`요청 실패: ${target} 에 연결하지 못했습니다.`)
+    const error = new Error(`요청 실패: ${target} 에 연결하지 못했습니다.`)
+    notifyRequestError(error.message, options)
+    throw error
   }
 
   if (auth && response.status === 401 && allowRefresh && path !== '/api/v1/auth/refresh') {
@@ -142,15 +154,21 @@ async function performRequest(path, options = {}, allowRefresh = true) {
   const contentType = String(response.headers.get('content-type') || '').toLowerCase()
 
   if (response.ok && contentType.includes('text/html')) {
-    throw new Error('API 대신 HTML이 반환되었습니다. VITE_API_BASE_URL 설정을 확인해주세요.')
+    const error = new Error('API 대신 HTML이 반환되었습니다. VITE_API_BASE_URL 설정을 확인해주세요.')
+    notifyRequestError(error.message, options)
+    throw error
   }
 
   if (!response.ok) {
     if (typeof body === 'object' && body?.message) {
-      throw new Error(body.message)
+      const error = new Error(body.message)
+      notifyRequestError(error.message, options)
+      throw error
     }
 
-    throw new Error('요청 처리 중 오류가 발생했습니다.')
+    const error = new Error('요청 처리 중 오류가 발생했습니다.')
+    notifyRequestError(error.message, options)
+    throw error
   }
 
   return body
