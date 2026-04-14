@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import AuctionCard from './AuctionCard.vue'
 
 const props = defineProps({
@@ -19,13 +19,13 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  currentPage: {
-    type: Number,
-    default: 1,
-  },
   items: {
     type: Array,
     required: true,
+  },
+  hasNext: {
+    type: Boolean,
+    default: false,
   },
   loading: {
     type: Boolean,
@@ -55,14 +55,12 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  totalPages: {
-    type: Number,
-    default: 1,
-  },
 })
 
-const emit = defineEmits(['changePage', 'openDetail', 'selectCategory', 'selectSort', 'submitSearch', 'toggleCategory', 'toggleWishlist'])
+const emit = defineEmits(['loadMore', 'openDetail', 'selectCategory', 'selectSort', 'submitSearch', 'toggleCategory', 'toggleWishlist'])
 const searchKeyword = ref(props.toolbarSearchValue)
+const loadMoreTriggerRef = ref(null)
+let observer = null
 
 const effectiveSortOptions = computed(() => (
   props.sortOptions.length
@@ -85,9 +83,58 @@ function submitSearch() {
   emit('submitSearch', searchKeyword.value.trim())
 }
 
-function updatePage(page) {
-  emit('changePage', page)
+function requestLoadMore() {
+  if (props.loading || !props.hasNext) {
+    return
+  }
+
+  emit('loadMore')
 }
+
+function bindObserver() {
+  if (typeof window === 'undefined' || !loadMoreTriggerRef.value) {
+    return
+  }
+
+  observer = new IntersectionObserver(
+    (entries) => {
+      const [entry] = entries
+
+      if (entry?.isIntersecting) {
+        requestLoadMore()
+      }
+    },
+    {
+      root: null,
+      rootMargin: '0px 0px 240px 0px',
+      threshold: 0,
+    },
+  )
+
+  observer.observe(loadMoreTriggerRef.value)
+}
+
+function unbindObserver() {
+  if (observer) {
+    observer.disconnect()
+    observer = null
+  }
+}
+
+onMounted(bindObserver)
+onBeforeUnmount(unbindObserver)
+
+watch(loadMoreTriggerRef, () => {
+  unbindObserver()
+  bindObserver()
+})
+
+watch(
+  () => [props.hasNext, props.loading, props.items.length],
+  () => {
+    requestLoadMore()
+  },
+)
 </script>
 
 <template>
@@ -172,17 +219,8 @@ function updatePage(page) {
       </div>
       <p v-else class="feedback-strip">조건에 맞는 경매가 없습니다.</p>
 
-      <div class="list-pagination">
-        <v-pagination
-          :length="totalPages"
-          :model-value="currentPage"
-          active-color="primary"
-          density="comfortable"
-          rounded="circle"
-          total-visible="7"
-          @update:model-value="updatePage"
-        />
-      </div>
+      <div ref="loadMoreTriggerRef" class="list-load-more-trigger" aria-hidden="true"></div>
+      <p v-if="loading && items.length" class="feedback-strip">경매를 더 불러오는 중입니다.</p>
     </div>
   </section>
 </template>
@@ -208,41 +246,9 @@ function updatePage(page) {
   color: #b91c1c;
 }
 
-.list-pagination {
-  display: flex;
-  justify-content: center;
-  margin-top: 28px;
-}
-
-.list-pagination :deep(.v-pagination__item),
-.list-pagination :deep(.v-pagination__prev),
-.list-pagination :deep(.v-pagination__next) {
-  color: #23008d;
-  font-weight: 700;
-}
-
-.list-pagination :deep(.v-btn) {
-  border: 1px solid rgba(35, 0, 141, 0.18);
-  background: #f4f0ff;
-  box-shadow: none;
-}
-
-.list-pagination :deep(.v-pagination__item--is-active .v-btn) {
-  border-color: #23008d;
-  background: #23008d;
-  color: #fff;
-}
-
-.list-pagination :deep(.v-pagination__item--is-active .v-btn__overlay) {
-  opacity: 0;
-}
-
-.list-pagination :deep(.v-btn:hover) {
-  border-color: #23008d;
-  background: #e7defd;
-}
-
-.list-pagination :deep(.v-pagination__item--is-active .v-btn:hover) {
-  background: #1b006e;
+.list-load-more-trigger {
+  width: 100%;
+  height: 1px;
+  margin-top: 24px;
 }
 </style>

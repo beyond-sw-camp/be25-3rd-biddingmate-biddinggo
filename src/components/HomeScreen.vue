@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import AuctionCard from './AuctionCard.vue'
 
 const props = defineProps({
@@ -15,6 +15,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  hasNext: {
+    type: Boolean,
+    default: false,
+  },
   items: {
     type: Array,
     required: true,
@@ -29,7 +33,9 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['openDetail', 'openList', 'toggleWishlist'])
+const emit = defineEmits(['loadMore', 'openDetail', 'openList', 'toggleWishlist'])
+const loadMoreTriggerRef = ref(null)
+let observer = null
 
 const currentHeroIndex = ref(0)
 const currentHero = computed(() => props.heroSlides[currentHeroIndex.value] || null)
@@ -51,6 +57,59 @@ function showNextHero() {
 function openCurrentHero() {
   emit('openList')
 }
+
+function requestLoadMore() {
+  if (props.loading || !props.hasNext) {
+    return
+  }
+
+  emit('loadMore')
+}
+
+function bindObserver() {
+  if (typeof window === 'undefined' || !loadMoreTriggerRef.value) {
+    return
+  }
+
+  observer = new IntersectionObserver(
+    (entries) => {
+      const [entry] = entries
+
+      if (entry?.isIntersecting) {
+        requestLoadMore()
+      }
+    },
+    {
+      root: null,
+      rootMargin: '0px 0px 240px 0px',
+      threshold: 0,
+    },
+  )
+
+  observer.observe(loadMoreTriggerRef.value)
+}
+
+function unbindObserver() {
+  if (observer) {
+    observer.disconnect()
+    observer = null
+  }
+}
+
+onMounted(bindObserver)
+onBeforeUnmount(unbindObserver)
+
+watch(loadMoreTriggerRef, () => {
+  unbindObserver()
+  bindObserver()
+})
+
+watch(
+  () => [props.hasNext, props.loading, props.items.length],
+  () => {
+    requestLoadMore()
+  },
+)
 </script>
 
 <template>
@@ -125,6 +184,9 @@ function openCurrentHero() {
         />
       </div>
       <p v-else class="feedback-strip">현재 노출할 경매가 없습니다.</p>
+
+      <div ref="loadMoreTriggerRef" class="best-load-more-trigger" aria-hidden="true"></div>
+      <p v-if="loading && items.length" class="feedback-strip">경매를 더 불러오는 중입니다.</p>
     </section>
   </div>
 </template>
@@ -154,5 +216,11 @@ function openCurrentHero() {
 .feedback-strip.is-error {
   background: #fef2f2;
   color: #b91c1c;
+}
+
+.best-load-more-trigger {
+  width: 100%;
+  height: 1px;
+  margin-top: 24px;
 }
 </style>

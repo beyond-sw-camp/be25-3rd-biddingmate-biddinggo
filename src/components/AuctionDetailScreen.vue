@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { answerAuctionInquiry, createAuctionInquiry } from '../api/auctionInquiries'
 import { createBid } from '../api/bids'
+import { buyNowAuction } from '../api/auctions'
 import BidHistoryDrawer from './auction-detail/BidHistoryDrawer.vue'
 import BidModal from './auction-detail/BidModal.vue'
 import DetailMediaSection from './auction-detail/DetailMediaSection.vue'
@@ -49,7 +50,6 @@ const props = defineProps({
 const emit = defineEmits(['back', 'cancel-auction', 'edit-auction', 'refresh', 'toggle-wishlist'])
 
 const bidAmount = ref('')
-const feedbackMessage = ref('')
 const isBidHistoryDrawerOpen = ref(false)
 const isAnswerModalOpen = ref(false)
 const isAnswerSubmitting = ref(false)
@@ -153,7 +153,7 @@ function syncBidAmount(value = minimumBidAmount.value) {
 
 function openBidModal() {
   if (isOwnAuction.value) {
-    feedbackMessage.value = '본인이 등록한 경매에는 입찰할 수 없습니다.'
+    showToast('본인이 등록한 경매에는 입찰할 수 없습니다.', { color: 'error' })
     return
   }
 
@@ -184,7 +184,7 @@ function closeReportModal() {
 
 function openInquiryModal() {
   if (isOwnAuction.value) {
-    feedbackMessage.value = '본인이 등록한 경매에는 문의할 수 없습니다.'
+    showToast('본인이 등록한 경매에는 문의할 수 없습니다.', { color: 'error' })
     return
   }
 
@@ -253,12 +253,12 @@ async function submitInquiry() {
   const content = inquiryForm.value.content.trim()
 
   if (!title || !content) {
-    feedbackMessage.value = '문의 제목과 내용을 입력해주세요.'
+    showToast('문의 제목과 내용을 입력해주세요.', { color: 'error' })
     return
   }
 
   if (title.length > 50) {
-    feedbackMessage.value = '문의 제목은 50자 이내로 입력해주세요.'
+    showToast('문의 제목은 50자 이내로 입력해주세요.', { color: 'error' })
     return
   }
 
@@ -275,7 +275,7 @@ async function submitInquiry() {
       content,
       secretYn: inquiryForm.value.isPrivate,
     })
-    feedbackMessage.value = '문의가 등록되었습니다.'
+    showToast('문의가 등록되었습니다.')
     inquiryForm.value = {
       isPrivate: true,
       title: '',
@@ -284,7 +284,7 @@ async function submitInquiry() {
     closeInquiryModal()
     emit('refresh')
   } catch (error) {
-    feedbackMessage.value = error?.message || '문의 등록에 실패했습니다.'
+    showToast(error?.message || '문의 등록에 실패했습니다.', { color: 'error' })
   } finally {
     isInquirySubmitting.value = false
   }
@@ -295,12 +295,12 @@ async function submitAnswer() {
   const answer = answerForm.value.answer.trim()
 
   if (!inquiryId) {
-    feedbackMessage.value = '답변할 문의를 찾을 수 없습니다.'
+    showToast('답변할 문의를 찾을 수 없습니다.', { color: 'error' })
     return
   }
 
   if (!answer) {
-    feedbackMessage.value = '답변 내용을 입력해주세요.'
+    showToast('답변 내용을 입력해주세요.', { color: 'error' })
     return
   }
 
@@ -312,24 +312,45 @@ async function submitAnswer() {
 
   try {
     await answerAuctionInquiry(inquiryId, { answer })
-    feedbackMessage.value = '답변이 등록되었습니다.'
+    showToast('답변이 등록되었습니다.')
     closeAnswerModal()
     emit('refresh')
   } catch (error) {
-    feedbackMessage.value = error?.message || '답변 등록에 실패했습니다.'
+    showToast(error?.message || '답변 등록에 실패했습니다.', { color: 'error' })
   } finally {
     isAnswerSubmitting.value = false
   }
 }
 
 function submitReport() {
-  feedbackMessage.value = '신고 기능은 아직 준비 중입니다.'
+  showToast('신고 기능은 아직 준비 중입니다.', { color: 'info' })
   closeReportModal()
 }
 
 function buyNow() {
-  feedbackMessage.value = '즉시 구매 기능은 아직 준비 중입니다.'
-  closeBidModal()
+  if (!props.item?.auctionId) {
+    return
+  }
+
+  if (isOwnAuction.value) {
+    showToast('본인이 등록한 경매는 즉시 구매할 수 없습니다.', { color: 'error' })
+    return
+  }
+
+  if (!buyNowAmount.value) {
+    showToast('즉시 구매가가 설정되지 않은 경매입니다.', { color: 'error' })
+    return
+  }
+
+  buyNowAuction(props.item.auctionId)
+    .then(() => {
+      showToast('즉시 구매가 완료되었습니다.')
+      closeBidModal()
+      emit('refresh')
+    })
+    .catch((error) => {
+      showToast(error?.message || '즉시 구매 처리 중 오류가 발생했습니다.', { color: 'error' })
+    })
 }
 </script>
 
@@ -344,7 +365,6 @@ function buyNow() {
         </button>
         <span v-if="item && isCancelledAuction" class="detail-status-badge is-cancelled">삭제된 경매</span>
       </div>
-      <div v-if="feedbackMessage" class="feedback-inline">{{ feedbackMessage }}</div>
       <div v-if="item && canManageAuction" class="detail-owner-actions">
         <button
           type="button"
@@ -387,8 +407,7 @@ function buyNow() {
       </button>
     </div>
 
-    <div v-if="errorMessage" class="feedback-strip is-error">{{ errorMessage }}</div>
-    <div v-else-if="loading" class="feedback-strip">경매 상세 정보를 불러오는 중입니다.</div>
+    <div v-if="loading" class="feedback-strip">경매 상세 정보를 불러오는 중입니다.</div>
 
     <template v-else-if="item">
       <div class="detail-grid">
@@ -481,6 +500,8 @@ function buyNow() {
         @submit="submitAnswer"
       />
     </template>
+
+    <p v-else class="feedback-strip">경매 정보를 확인할 수 없습니다.</p>
   </section>
 </template>
 

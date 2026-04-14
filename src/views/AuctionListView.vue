@@ -17,12 +17,13 @@ const route = useRoute()
 const categoryRows = ref([])
 const errorMessage = ref('')
 const expandedCategoryIds = ref(new Set())
+const hasNext = ref(true)
 const items = ref([])
 const loading = ref(false)
-const currentPage = ref(readPageFromQuery())
+const page = ref(1)
+const requestVersion = ref(0)
 const selectedCategoryId = ref(readCategoryIdFromQuery())
 const wishlistProcessingIds = ref(new Set())
-const totalPages = ref(1)
 
 const sortOptions = [
   { key: 'wishlist', label: '관심순', sortBy: 'WISH_COUNT', order: 'DESC' },
@@ -40,29 +41,6 @@ const selectedSortOption = computed(() => (
 ))
 const selectedSortLabel = computed(() => selectedSortOption.value.label)
 
-function findFirstNumber(...values) {
-  for (const value of values) {
-    const number = Number(value)
-
-    if (Number.isFinite(number) && number > 0) {
-      return number
-    }
-  }
-
-  return null
-}
-
-function resolveTotalPages(response) {
-  return findFirstNumber(
-    response?.totalPages,
-    response?.totalPage,
-    response?.pageInfo?.totalPages,
-    response?.pageInfo?.totalPage,
-    response?.pagination?.totalPages,
-    response?.pagination?.totalPage,
-  ) ?? 1
-}
-
 function readCategoryIdFromQuery() {
   const categoryId = Number(route.query.categoryId)
 
@@ -73,12 +51,6 @@ function readSortKeyFromQuery() {
   const sortKey = String(route.query.sort || '')
 
   return sortOptions.some((option) => option.key === sortKey) ? sortKey : 'latest'
-}
-
-function readPageFromQuery() {
-  const page = Number(route.query.page)
-
-  return Number.isFinite(page) && page > 0 ? page : 1
 }
 
 function readStoredExpandedCategoryIds() {
@@ -133,7 +105,6 @@ function includeSelectedCategoryPath(baseExpandedCategoryIds = new Set()) {
 function buildListQuery({
   categoryId = selectedCategoryId.value,
   sortKey = selectedSortKey.value,
-  page = currentPage.value,
 } = {}) {
   const query = {}
 
@@ -145,11 +116,75 @@ function buildListQuery({
     query.sort = sortKey
   }
 
-  if (page > 1) {
-    query.page = page
+  return query
+}
+
+function findFirstBoolean(...values) {
+  return values.find((value) => typeof value === 'boolean')
+}
+
+function findFirstNumber(...values) {
+  for (const value of values) {
+    const number = Number(value)
+
+    if (Number.isFinite(number) && number >= 0) {
+      return number
+    }
   }
 
-  return query
+  return null
+}
+
+function resetAuctionList() {
+  items.value = []
+  page.value = 1
+  hasNext.value = true
+  loading.value = false
+  requestVersion.value += 1
+}
+
+function resolveHasNext(response, content, requestedPage) {
+  const explicitHasNext = findFirstBoolean(
+    response?.hasNext,
+    response?.pageInfo?.hasNext,
+    response?.pagination?.hasNext,
+  )
+
+  if (explicitHasNext !== undefined) {
+    return explicitHasNext
+  }
+
+  const explicitLast = findFirstBoolean(
+    response?.last,
+    response?.isLast,
+    response?.pageInfo?.last,
+    response?.pagination?.last,
+  )
+
+  if (explicitLast !== undefined) {
+    return !explicitLast
+  }
+
+  const totalPages = findFirstNumber(
+    response?.totalPages,
+    response?.totalPage,
+    response?.pageInfo?.totalPages,
+    response?.pageInfo?.totalPage,
+    response?.pagination?.totalPages,
+    response?.pagination?.totalPage,
+  )
+
+  if (totalPages !== null) {
+    const zeroBasedPage = findFirstNumber(response?.number, response?.pageable?.pageNumber)
+
+    if (zeroBasedPage !== null) {
+      return zeroBasedPage + 1 < totalPages
+    }
+
+    return requestedPage < totalPages
+  }
+
+  return content.length === 12
 }
 
 function updateAuctionWishlistState(auctionId, patch) {
@@ -198,13 +233,19 @@ async function loadCategories() {
   persistExpandedCategoryIds(expandedCategoryIds.value)
 }
 
-async function loadAuctionList() {
+async function loadMoreAuctionList() {
+  if (loading.value || !hasNext.value) {
+    return
+  }
+
+  const requestedPage = page.value
+  const currentRequestVersion = requestVersion.value
   loading.value = true
   errorMessage.value = ''
 
   try {
-    const page = await getAuctionList({
-      page: currentPage.value,
+    const response = await getAuctionList({
+      page: requestedPage,
       size: 12,
       sortBy: selectedSortOption.value.sortBy,
       status: 'ON_GOING',
@@ -212,16 +253,28 @@ async function loadAuctionList() {
       categoryId: selectedCategoryId.value,
     })
 
-    const nextItems = (page?.content || []).map(normalizeAuctionCard)
-    items.value = nextItems
-    totalPages.value = resolveTotalPages(page)
-    await hydrateWishlistStatuses(nextItems)
+    if (currentRequestVersion !== requestVersion.value) {
+      return
+    }
+
+    const content = Array.isArray(response?.content) ? response.content : []
+    const nextItems = content.map(normalizeAuctionCard)
+    const existingIds = new Set(items.value.map((item) => item.auctionId))
+    const uniqueItems = nextItems.filter((item) => !existingIds.has(item.auctionId))
+
+    items.value = [...items.value, ...uniqueItems]
+    page.value += 1
+    hasNext.value = resolveHasNext(response, content, requestedPage)
+    await hydrateWishlistStatuses(uniqueItems)
   } catch (error) {
-    items.value = []
-    totalPages.value = 1
-    errorMessage.value = error?.message || '경매 목록을 불러오지 못했습니다.'
+    if (currentRequestVersion === requestVersion.value) {
+      hasNext.value = false
+      errorMessage.value = error?.message || '경매 목록을 불러오지 못했습니다.'
+    }
   } finally {
-    loading.value = false
+    if (currentRequestVersion === requestVersion.value) {
+      loading.value = false
+    }
   }
 }
 
@@ -244,12 +297,12 @@ function selectCategory(category) {
   }
 
   selectedCategoryId.value = Number(category?.id || 0) || null
-  currentPage.value = 1
+  resetAuctionList()
   router.replace({
     name: 'auction-list',
     query: buildListQuery(),
   })
-  loadAuctionList()
+  loadMoreAuctionList()
 }
 
 function toggleCategory(category) {
@@ -276,27 +329,12 @@ function selectSort(option) {
   }
 
   selectedSortKey.value = option.key
-  currentPage.value = 1
+  resetAuctionList()
   router.replace({
     name: 'auction-list',
     query: buildListQuery(),
   })
-  loadAuctionList()
-}
-
-function changePage(page) {
-  const nextPage = Number(page)
-
-  if (!Number.isFinite(nextPage) || nextPage <= 0 || nextPage === currentPage.value) {
-    return
-  }
-
-  currentPage.value = nextPage
-  router.replace({
-    name: 'auction-list',
-    query: buildListQuery(),
-  })
-  loadAuctionList()
+  loadMoreAuctionList()
 }
 
 function submitSearch(keyword) {
@@ -364,30 +402,25 @@ async function toggleWishlist(item) {
 
 onMounted(async () => {
   await loadCategories()
-  await loadAuctionList()
+  await loadMoreAuctionList()
 })
 
 watch(
-  () => [route.query.categoryId, route.query.sort, route.query.page],
+  () => [route.query.categoryId, route.query.sort],
   () => {
     const nextCategoryId = readCategoryIdFromQuery()
     const nextSortKey = readSortKeyFromQuery()
-    const nextPage = readPageFromQuery()
 
-    if (
-      selectedCategoryId.value === nextCategoryId
-      && selectedSortKey.value === nextSortKey
-      && currentPage.value === nextPage
-    ) {
+    if (selectedCategoryId.value === nextCategoryId && selectedSortKey.value === nextSortKey) {
       return
     }
 
     selectedCategoryId.value = nextCategoryId
     selectedSortKey.value = nextSortKey
-    currentPage.value = nextPage
     expandedCategoryIds.value = includeSelectedCategoryPath(expandedCategoryIds.value)
     persistExpandedCategoryIds(expandedCategoryIds.value)
-    loadAuctionList()
+    resetAuctionList()
+    loadMoreAuctionList()
   },
 )
 </script>
@@ -396,17 +429,16 @@ watch(
   <AuctionListScreen
     :assets="assets"
     :categories="categories"
-    :current-page="currentPage"
     :error-message="errorMessage"
+    :has-next="hasNext"
     :items="items"
     :loading="loading"
     :selected-sort-key="selectedSortKey"
     :selected-sort-label="selectedSortLabel"
     :sort-options="sortOptions"
     :toolbar-search-value="''"
-    :total-pages="totalPages"
     :wishlist-processing-ids="wishlistProcessingIds"
-    @change-page="changePage"
+    @load-more="loadMoreAuctionList"
     @open-detail="openDetail"
     @select-category="selectCategory"
     @select-sort="selectSort"
