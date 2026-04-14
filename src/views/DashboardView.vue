@@ -64,6 +64,14 @@ function formatPrice(price) {
   return `${priceValue.toLocaleString('ko-KR')}원`
 }
 
+function formatBidAmount(value) {
+  if (value === null || value === undefined || value === '') {
+    return '-'
+  }
+
+  return String(value)
+}
+
 function formatDate(date) {
   if (!date) {
     return '-'
@@ -136,7 +144,7 @@ function normalizeBiddingItem(item = {}) {
     image: item.itemImageUrl || item.representativeImageUrl || item.imageUrl || noImage,
     time: getCountdownLabel(item.endDate),
     currentPrice: formatPrice(item.currentPrice),
-    myBid: formatPrice(item.myBidPrice),
+    myBid: formatBidAmount(item.myBidPrice),
     date: formatDate(item.endDate),
   }
 }

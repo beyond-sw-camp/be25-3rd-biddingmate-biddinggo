@@ -1445,7 +1445,7 @@ img {
 .detail-history-table-head,
 .detail-history-table-row {
   display: grid;
-  grid-template-columns: 117px 112px 1fr;
+  grid-template-columns: 117px 72px minmax(180px, 1fr);
   align-items: center;
 }
 
@@ -1482,7 +1482,7 @@ img {
 
 .detail-history-table-row span,
 .detail-history-table-row strong {
-  padding: 10px 16px;
+  padding: 10px 12px;
 }
 
 .detail-history-table-row span:first-child {
@@ -1493,10 +1493,13 @@ img {
   color: #000;
   font-weight: 400;
   text-align: right;
+  white-space: nowrap;
 }
 
 .detail-history-table-row span:last-child {
   text-align: left;
+  font-size: 15px;
+  white-space: nowrap;
 }
 
 .detail-history-action {
@@ -1576,6 +1579,7 @@ img {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
+  margin-bottom: 8px;
 }
 
 .detail-bid-quick-chip {
@@ -1596,6 +1600,7 @@ img {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
   width: 100%;
+  margin-top: 8px;
 }
 
 .detail-buy-now-button,
@@ -2322,7 +2327,7 @@ img {
 
 .history-row {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: minmax(0, 1fr) 56px minmax(172px, auto);
   gap: 14px;
   align-items: center;
   border-radius: 12px;
@@ -2334,6 +2339,15 @@ img {
 
 .history-row strong {
   color: #191c1e;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.history-row span:last-child {
+  font-size: 14px;
+  font-weight: 500;
+  text-align: right;
+  white-space: nowrap;
 }
 
 .history-empty {
