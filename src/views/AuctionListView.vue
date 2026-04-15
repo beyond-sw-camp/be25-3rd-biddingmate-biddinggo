@@ -35,7 +35,7 @@ function isExtendedAuction(item = {}) {
     item.extension_yn,
     item.extendedYn,
     item.extended_yn,
-  ].some((value) => value === true || ['Y', 'YES', 'TRUE', '1'].includes(String(value || '').trim().toUpperCase()))
+  ].some((value) => ['N', 'NO', 'FALSE', '0'].includes(String(value || '').trim().toUpperCase()))
 }
 
 const sortOptions = [

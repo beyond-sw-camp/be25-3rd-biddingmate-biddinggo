@@ -173,7 +173,7 @@ export function normalizeAuctionDetail(
     detail.extended_auction,
     detail.extendedYn,
     detail.extended_yn,
-  ].some((value) => ['Y', 'YES', 'TRUE', '1'].includes(normalizeEnumValue(value)))
+  ].some((value) => ['N', 'NO', 'FALSE', '0'].includes(normalizeEnumValue(value)))
   const category = detail.item?.category || {}
   const history = normalizeBidHistory(bidHistory)
   const sellerTotalSalesCount = sellerProfileData?.totalSales

@@ -36,7 +36,6 @@
       v-for="item in items"
       :key="item.id"
       class="wishlist-auction-card"
-      :class="{ 'wishlist-auction-card--inspection': item.isInspected }"
       :heart-icon="heartIcon"
       :image-src="noImage"
       :item="item"

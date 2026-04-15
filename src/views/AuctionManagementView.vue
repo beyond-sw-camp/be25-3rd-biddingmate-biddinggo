@@ -106,9 +106,15 @@ function normalizeAuctionItem(item = {}) {
   const price = item.currentPrice ?? item.startPrice ?? 0
   const bidCount = Number(item.bidCount || 0)
   const auctionType = String(item.auctionType || '').trim().toUpperCase()
-  const inspectionYn = String(item.inspectionYn ?? item.inspection_yn ?? '').trim().toUpperCase()
+  const inspectionYn = String(
+    item.inspectionYn
+    ?? item.inspection_yn
+    ?? item.item?.inspectionYn
+    ?? item.item?.inspection_yn
+    ?? '',
+  ).trim().toUpperCase()
   const isExtendedAuction = [item.extendAuction, item.extend_auction, item.extendedAuction, item.extended_auction, item.extensionYn, item.extension_yn, item.extendedYn, item.extended_yn]
-    .some((value) => value === true || ['Y', 'YES', 'TRUE', '1'].includes(String(value || '').trim().toUpperCase()))
+    .some((value) => ['N', 'NO', 'FALSE', '0'].includes(String(value || '').trim().toUpperCase()))
 
   return {
     id: item.auctionId,

@@ -43,15 +43,11 @@ function handleToggleWishlist() {
 </script>
 
 <template>
-  <article
-    class="item-card"
-    :class="{ 'is-inspection-highlight': item.isInspected }"
-    @click="handleSelect"
-  >
+  <article class="item-card" @click="handleSelect">
     <div class="item-image-wrap">
-      <div v-if="showLiveTag && (item.isTimeDeal || item.isExtendedAuction)" class="item-tag-stack">
+      <div v-if="showLiveTag && (item.isTimeDeal || item.isInspected)" class="item-tag-stack">
         <span v-if="item.isTimeDeal" class="live-tag">TIME DEAL</span>
-        <span v-if="item.isExtendedAuction" class="live-tag is-extend">연장 경매</span>
+        <span v-if="item.isInspected" class="live-tag is-inspected">검수 완료</span>
       </div>
       <img :src="item.image || imageSrc" :alt="item.title" class="item-image" />
 
