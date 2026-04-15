@@ -129,29 +129,6 @@ export function getAccessToken() {
   return state.accessToken
 }
 
-export function hasCookie(name) {
-  if (typeof document === 'undefined') {
-    return false
-  }
-
-  const normalizedName = String(name || '').trim()
-
-  if (!normalizedName) {
-    return false
-  }
-
-  const cookiePrefix = `${encodeURIComponent(normalizedName)}=`
-
-  return document.cookie
-    .split(';')
-    .map((cookie) => cookie.trim())
-    .some((cookie) => cookie.startsWith(cookiePrefix))
-}
-
-export function hasRefreshTokenCookie() {
-  return hasCookie('refresh_token')
-}
-
 export function shouldRefreshAccessToken() {
   if (!state.accessToken) {
     return true
