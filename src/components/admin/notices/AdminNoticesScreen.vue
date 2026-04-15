@@ -46,7 +46,7 @@
             <td>
               <div class="admin-inline-actions">
                 <button
-                  class="ghost-button admin-inline-button"
+                  class="ghost-button admin-inline-button admin-inline-button--notice-edit"
                   type="button"
                   :disabled="notice.rawStatus === 'DELETED'"
                   @click="openEditModal(notice)"
@@ -54,7 +54,7 @@
                   수정
                 </button>
                 <button
-                  class="ghost-button admin-inline-button"
+                  class="ghost-button admin-inline-button admin-inline-button--notice-private"
                   type="button"
                   :disabled="notice.rawStatus === 'DELETED'"
                   @click="toggleNoticeStatus(notice)"

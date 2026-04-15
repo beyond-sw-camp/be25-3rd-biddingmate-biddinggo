@@ -1,9 +1,5 @@
 <script setup>
 const props = defineProps({
-  heartIcon: {
-    type: String,
-    required: true,
-  },
   imageSrc: {
     type: String,
     required: true,
@@ -32,6 +28,11 @@ const props = defineProps({
 
 const emit = defineEmits(['select', 'toggleWishlist', 'toggle-wishlist'])
 
+function truncateTitle(value) {
+  const title = String(value || '')
+  return title.length > 12 ? `${title.slice(0, 12)}...` : title
+}
+
 function handleSelect() {
   emit('select', props.item)
 }
@@ -43,11 +44,7 @@ function handleToggleWishlist() {
 </script>
 
 <template>
-  <article
-    class="item-card"
-    :class="{ 'is-highlight': item.highlight }"
-    @click="handleSelect"
-  >
+  <article class="item-card" @click="handleSelect">
     <div class="item-image-wrap">
       <div v-if="showLiveTag && (item.isTimeDeal || item.isInspected)" class="item-tag-stack">
         <span v-if="item.isTimeDeal" class="live-tag">TIME DEAL</span>
@@ -64,16 +61,12 @@ function handleToggleWishlist() {
         :aria-label="item.isWished ? '찜 취소' : '찜하기'"
         @click.stop="handleToggleWishlist"
       >
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path
-            d="M12 20.25S4.5 15.98 4.5 9.8A4.25 4.25 0 0 1 12 7.05 4.25 4.25 0 0 1 19.5 9.8c0 6.18-7.5 10.45-7.5 10.45Z"
-          />
-        </svg>
+        <v-icon :icon="item.isWished ? 'mdi-heart' : 'mdi-heart-outline'" size="22" aria-hidden="true" />
       </button>
     </div>
 
     <div class="item-body">
-      <p class="item-title">{{ item.title }}</p>
+      <p class="item-title">{{ truncateTitle(item.title) }}</p>
 
       <div class="price-block">
         <span>{{ priceLabel }}</span>

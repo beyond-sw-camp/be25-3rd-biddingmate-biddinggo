@@ -36,14 +36,9 @@
         </v-menu>
       </div>
 
-      <label class="point-detail-field">
-        <span>입금자명</span>
-        <input v-model.trim="customerName" type="text" placeholder="입금자명을 입력해 주세요" required />
-      </label>
+      <p class="point-detail-note">선택한 은행으로 가상계좌를 발급합니다.</p>
 
-      <p class="point-detail-note">입력한 은행과 입금자명으로 가상계좌를 발급합니다.</p>
-
-      <button class="primary-button point-action-modal__submit" type="submit" :disabled="!selectedBank || !customerName">
+      <button class="primary-button point-action-modal__submit" type="submit" :disabled="!selectedBank">
         가상계좌 발급하기
       </button>
     </form>
@@ -141,7 +136,6 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'confirm', 'preset', 'submit', 'submit-charge-details'])
 
-const customerName = ref('')
 const selectedBank = ref('020')
 const selectableBanks = computed(() => bankOptions.filter((bank) => bank.code))
 const selectedBankLabel = computed(() => selectableBanks.value.find((bank) => bank.code === selectedBank.value)?.label || '은행 선택')
@@ -151,7 +145,6 @@ watch(
   (mode) => {
     if (mode === 'charge-details') {
       selectedBank.value = selectedBank.value || '020'
-      customerName.value = ''
     }
   },
 )
@@ -172,7 +165,6 @@ function selectBank(bankCode) {
 function submitChargeDetails() {
   emit('submit-charge-details', {
     bank: selectedBank.value,
-    customerName: customerName.value,
   })
 }
 </script>

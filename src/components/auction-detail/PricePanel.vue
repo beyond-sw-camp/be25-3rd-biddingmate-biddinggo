@@ -4,6 +4,14 @@ defineProps({
     type: Object,
     required: true,
   },
+  bidButtonDisabled: {
+    type: Boolean,
+    default: false,
+  },
+  bidButtonLabel: {
+    type: String,
+    default: '지금 입찰하기',
+  },
   item: {
     type: Object,
     required: true,
@@ -24,9 +32,9 @@ defineEmits(['open-bid', 'toggle-wishlist'])
 <template>
   <div class="price-panel">
     <div class="price-top-line">
-      <div v-if="item.isTimeDeal || item.isInspected" class="price-tags">
+      <div v-if="item.isTimeDeal || item.isExtendedAuction" class="price-tags">
         <span v-if="item.isTimeDeal" class="price-tag is-danger">TIME DEAL</span>
-        <span v-if="item.isInspected" class="price-tag is-light">검수 완료</span>
+        <span v-if="item.isExtendedAuction" class="price-tag is-extend">연장 경매</span>
       </div>
       <div v-else class="price-tags" aria-hidden="true"></div>
       <button
@@ -38,14 +46,11 @@ defineEmits(['open-bid', 'toggle-wishlist'])
         :aria-label="item.isWished ? '찜 취소' : '찜하기'"
         @click="$emit('toggle-wishlist')"
       >
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path
-            d="M12 20.25S4.5 15.98 4.5 9.8A4.25 4.25 0 0 1 12 7.05 4.25 4.25 0 0 1 19.5 9.8c0 6.18-7.5 10.45-7.5 10.45Z"
-          />
-        </svg>
+        <v-icon :icon="item.isWished ? 'mdi-heart' : 'mdi-heart-outline'" size="22" aria-hidden="true" />
       </button>
     </div>
 
+    <h4 v-if="item.brand" class="detail-product-brand">{{ item.brand }}</h4>
     <h2 class="detail-product-title">{{ item.title }}</h2>
 
     <div class="detail-price-block">
@@ -65,10 +70,10 @@ defineEmits(['open-bid', 'toggle-wishlist'])
       <button
         type="button"
         class="detail-bid-button"
-        :disabled="isOwnAuction"
+        :disabled="bidButtonDisabled"
         @click="$emit('open-bid')"
       >
-        {{ isOwnAuction ? '내 경매' : '지금 입찰하기' }}
+        {{ bidButtonLabel }}
       </button>
     </div>
 

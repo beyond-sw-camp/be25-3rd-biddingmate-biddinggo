@@ -17,10 +17,26 @@ const route = useRoute()
 const categoryRows = ref([])
 const errorMessage = ref('')
 const expandedCategoryIds = ref(new Set())
+const hasNext = ref(true)
 const items = ref([])
 const loading = ref(false)
+const page = ref(1)
+const requestVersion = ref(0)
 const selectedCategoryId = ref(readCategoryIdFromQuery())
 const wishlistProcessingIds = ref(new Set())
+
+function isExtendedAuction(item = {}) {
+  return [
+    item.extendAuction,
+    item.extend_auction,
+    item.extendedAuction,
+    item.extended_auction,
+    item.extensionYn,
+    item.extension_yn,
+    item.extendedYn,
+    item.extended_yn,
+  ].some((value) => ['N', 'NO', 'FALSE', '0'].includes(String(value || '').trim().toUpperCase()))
+}
 
 const sortOptions = [
   { key: 'wishlist', label: '관심순', sortBy: 'WISH_COUNT', order: 'DESC' },
@@ -99,7 +115,10 @@ function includeSelectedCategoryPath(baseExpandedCategoryIds = new Set()) {
   return next
 }
 
-function buildListQuery({ categoryId = selectedCategoryId.value, sortKey = selectedSortKey.value } = {}) {
+function buildListQuery({
+  categoryId = selectedCategoryId.value,
+  sortKey = selectedSortKey.value,
+} = {}) {
   const query = {}
 
   if (categoryId) {
@@ -111,6 +130,74 @@ function buildListQuery({ categoryId = selectedCategoryId.value, sortKey = selec
   }
 
   return query
+}
+
+function findFirstBoolean(...values) {
+  return values.find((value) => typeof value === 'boolean')
+}
+
+function findFirstNumber(...values) {
+  for (const value of values) {
+    const number = Number(value)
+
+    if (Number.isFinite(number) && number >= 0) {
+      return number
+    }
+  }
+
+  return null
+}
+
+function resetAuctionList() {
+  items.value = []
+  page.value = 1
+  hasNext.value = true
+  loading.value = false
+  requestVersion.value += 1
+}
+
+function resolveHasNext(response, content, requestedPage) {
+  const explicitHasNext = findFirstBoolean(
+    response?.hasNext,
+    response?.pageInfo?.hasNext,
+    response?.pagination?.hasNext,
+  )
+
+  if (explicitHasNext !== undefined) {
+    return explicitHasNext
+  }
+
+  const explicitLast = findFirstBoolean(
+    response?.last,
+    response?.isLast,
+    response?.pageInfo?.last,
+    response?.pagination?.last,
+  )
+
+  if (explicitLast !== undefined) {
+    return !explicitLast
+  }
+
+  const totalPages = findFirstNumber(
+    response?.totalPages,
+    response?.totalPage,
+    response?.pageInfo?.totalPages,
+    response?.pageInfo?.totalPage,
+    response?.pagination?.totalPages,
+    response?.pagination?.totalPage,
+  )
+
+  if (totalPages !== null) {
+    const zeroBasedPage = findFirstNumber(response?.number, response?.pageable?.pageNumber)
+
+    if (zeroBasedPage !== null) {
+      return zeroBasedPage + 1 < totalPages
+    }
+
+    return requestedPage < totalPages
+  }
+
+  return content.length === 12
 }
 
 function updateAuctionWishlistState(auctionId, patch) {
@@ -159,13 +246,19 @@ async function loadCategories() {
   persistExpandedCategoryIds(expandedCategoryIds.value)
 }
 
-async function loadAuctionList() {
+async function loadMoreAuctionList() {
+  if (loading.value || !hasNext.value) {
+    return
+  }
+
+  const requestedPage = page.value
+  const currentRequestVersion = requestVersion.value
   loading.value = true
   errorMessage.value = ''
 
   try {
-    const page = await getAuctionList({
-      page: 1,
+    const response = await getAuctionList({
+      page: requestedPage,
       size: 12,
       sortBy: selectedSortOption.value.sortBy,
       status: 'ON_GOING',
@@ -173,14 +266,31 @@ async function loadAuctionList() {
       categoryId: selectedCategoryId.value,
     })
 
-    const nextItems = (page?.content || []).map(normalizeAuctionCard)
-    items.value = nextItems
-    await hydrateWishlistStatuses(nextItems)
+    if (currentRequestVersion !== requestVersion.value) {
+      return
+    }
+
+    const content = Array.isArray(response?.content) ? response.content : []
+    const nextItems = content.map((auction) => ({
+      ...normalizeAuctionCard(auction),
+      isExtendedAuction: isExtendedAuction(auction),
+    }))
+    const existingIds = new Set(items.value.map((item) => item.auctionId))
+    const uniqueItems = nextItems.filter((item) => !existingIds.has(item.auctionId))
+
+    items.value = [...items.value, ...uniqueItems]
+    page.value += 1
+    hasNext.value = resolveHasNext(response, content, requestedPage)
+    await hydrateWishlistStatuses(uniqueItems)
   } catch (error) {
-    items.value = []
-    errorMessage.value = error?.message || '경매 목록을 불러오지 못했습니다.'
+    if (currentRequestVersion === requestVersion.value) {
+      hasNext.value = false
+      errorMessage.value = error?.message || '경매 목록을 불러오지 못했습니다.'
+    }
   } finally {
-    loading.value = false
+    if (currentRequestVersion === requestVersion.value) {
+      loading.value = false
+    }
   }
 }
 
@@ -203,11 +313,12 @@ function selectCategory(category) {
   }
 
   selectedCategoryId.value = Number(category?.id || 0) || null
+  resetAuctionList()
   router.replace({
     name: 'auction-list',
     query: buildListQuery(),
   })
-  loadAuctionList()
+  loadMoreAuctionList()
 }
 
 function toggleCategory(category) {
@@ -234,11 +345,12 @@ function selectSort(option) {
   }
 
   selectedSortKey.value = option.key
+  resetAuctionList()
   router.replace({
     name: 'auction-list',
     query: buildListQuery(),
   })
-  loadAuctionList()
+  loadMoreAuctionList()
 }
 
 function submitSearch(keyword) {
@@ -306,7 +418,7 @@ async function toggleWishlist(item) {
 
 onMounted(async () => {
   await loadCategories()
-  await loadAuctionList()
+  await loadMoreAuctionList()
 })
 
 watch(
@@ -323,7 +435,8 @@ watch(
     selectedSortKey.value = nextSortKey
     expandedCategoryIds.value = includeSelectedCategoryPath(expandedCategoryIds.value)
     persistExpandedCategoryIds(expandedCategoryIds.value)
-    loadAuctionList()
+    resetAuctionList()
+    loadMoreAuctionList()
   },
 )
 </script>
@@ -333,6 +446,7 @@ watch(
     :assets="assets"
     :categories="categories"
     :error-message="errorMessage"
+    :has-next="hasNext"
     :items="items"
     :loading="loading"
     :selected-sort-key="selectedSortKey"
@@ -340,6 +454,7 @@ watch(
     :sort-options="sortOptions"
     :toolbar-search-value="''"
     :wishlist-processing-ids="wishlistProcessingIds"
+    @load-more="loadMoreAuctionList"
     @open-detail="openDetail"
     @select-category="selectCategory"
     @select-sort="selectSort"

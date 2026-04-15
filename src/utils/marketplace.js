@@ -164,6 +164,16 @@ export function normalizeAuctionDetail(
   const auctionType = normalizeEnumValue(detail.type ?? detail.auctionType)
   const inspectionYn = normalizeEnumValue(detail.inspectionYn ?? detail.inspection_yn)
   const isInspected = inspectionYn === 'YES'
+  const isExtendedAuction = [
+    detail.extensionYn,
+    detail.extension_yn,
+    detail.extendAuction,
+    detail.extend_auction,
+    detail.extendedAuction,
+    detail.extended_auction,
+    detail.extendedYn,
+    detail.extended_yn,
+  ].some((value) => ['N', 'NO', 'FALSE', '0'].includes(normalizeEnumValue(value)))
   const category = detail.item?.category || {}
   const history = normalizeBidHistory(bidHistory)
   const sellerTotalSalesCount = sellerProfileData?.totalSales
@@ -213,6 +223,7 @@ export function normalizeAuctionDetail(
     time: getCountdownLabel(detail.endDate),
     highlight: status === 'ON_GOING',
     isTimeDeal: auctionType === 'TIME_DEAL',
+    isExtendedAuction,
     isInspected,
     seller: sellerProfileData?.nickname || sellerName,
     sellerGrade: sellerProfileData?.grade || detail.sellerGrade || (isInspected ? 'CERTIFIED' : 'STANDARD'),
@@ -300,6 +311,7 @@ export function mergeInspectionItemDetail(item = {}, detail = {}) {
 
 export function normalizeInspectionListItem(result = {}) {
   const status = normalizeEnumValue(result.inspectionStatus ?? result.status)
+  const auctionItemStatus = normalizeEnumValue(result.auctionItemStatus ?? result.itemStatus)
   const item = result.item || {}
   const category = item.category || result.category || {}
   const categoryLabel = category.name ? `${category.name}` : ''
@@ -312,6 +324,7 @@ export function normalizeInspectionListItem(result = {}) {
     title: result.name || item.name || '검수 상품',
     brand: result.brand || item.brand || '브랜드 미정',
     status,
+    auctionItemStatus,
     statusLabel: INSPECTION_STATUS_LABELS[status] || '검수 상태 없음',
     inspectionGrade: result.quality || item.quality || '-',
     inspectionDate: formatShortDate(result.createdAt),

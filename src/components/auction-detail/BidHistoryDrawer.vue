@@ -1,5 +1,7 @@
 <script setup>
-defineProps({
+import { computed } from 'vue'
+
+const props = defineProps({
   assets: {
     type: Object,
     required: true,
@@ -15,6 +17,14 @@ defineProps({
 })
 
 defineEmits(['close', 'open-bid'])
+
+const thumbnailUrl = computed(() => {
+  const imageUrls = Array.isArray(props.item?.images)
+    ? props.item.images.map((image) => image?.url || image?.publicUrl || image?.imageUrl).filter(Boolean)
+    : []
+
+  return props.item?.image || imageUrls[0] || props.assets.listWatchImage
+})
 </script>
 
 <template>
@@ -27,7 +37,7 @@ defineEmits(['close', 'open-bid'])
       </div>
 
       <div class="detail-history-drawer-summary">
-        <img :src="assets.listWatchImage" :alt="item.title" class="detail-inquiry-thumb" />
+        <img :src="thumbnailUrl" :alt="item.title" class="detail-inquiry-thumb" />
         <div class="detail-inquiry-summary-copy">
           <strong>{{ item.title }}</strong>
           <span>현재 입찰가</span>

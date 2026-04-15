@@ -56,16 +56,24 @@
 
       <footer class="admin-transaction-modal__actions">
         <button class="secondary-button" type="button" @click="$emit('close')">취소</button>
-        <button class="primary-button" type="button" @click="$emit('open-shipping')">배송 정보 등록</button>
+        <button
+          v-if="showShippingRegisterButton"
+          class="primary-button"
+          type="button"
+          @click="$emit('open-shipping')"
+        >
+          배송 정보 등록
+        </button>
       </footer>
     </section>
   </div>
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import AdminStatusBadge from '../shared/AdminStatusBadge.vue'
 
-defineProps({
+const props = defineProps({
   item: {
     type: Object,
     required: true,
@@ -73,4 +81,18 @@ defineProps({
 })
 
 defineEmits(['close', 'open-shipping'])
+
+function isBlank(value) {
+  return value === null || value === undefined || String(value).trim() === ''
+}
+
+const showShippingRegisterButton = computed(() => {
+  const isInspection =
+    Boolean(props.item?.inspectionItem) ||
+    String(props.item?.inspectionYn || '').trim().toUpperCase() === 'YES'
+  const missingCarrier = isBlank(props.item?.carrier)
+  const missingTrackingNumber = isBlank(props.item?.trackingNumber)
+
+  return isInspection && missingCarrier && missingTrackingNumber
+})
 </script>
