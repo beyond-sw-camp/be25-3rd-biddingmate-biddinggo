@@ -20,11 +20,25 @@ const router = useRouter()
 const { auth, completeLoginFromCallback } = useAuth()
 const errorMessage = ref('')
 
+function isInvalidRefreshTokenError(error) {
+  const message = String(error instanceof Error ? error.message : error || '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/[.。]+$/g, '')
+
+  return message.includes('리프레쉬 토큰이 유효하지 않습니다.')
+}
+
 onMounted(async () => {
   try {
     await completeLoginFromCallback()
     await router.replace(auth.status === 'PENDING' ? '/profile/setup' : '/')
   } catch (error) {
+    if (isInvalidRefreshTokenError(error)) {
+      await router.replace('/login')
+      return
+    }
+
     errorMessage.value = error instanceof Error ? error.message : '로그인 처리에 실패했습니다.'
   }
 })
