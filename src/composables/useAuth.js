@@ -4,7 +4,6 @@ import {
   authState,
   clearSession,
   getAccessToken,
-  hasRefreshTokenCookie,
   markInitialized,
   setSession,
   setUserInfo,
@@ -46,19 +45,9 @@ export function useAuth() {
             await syncCurrentUser()
             return true
           } catch {
-            if (!hasRefreshTokenCookie()) {
-              clearSession()
-              return false
-            }
-
             await restoreSessionFromRefresh()
             return true
           }
-        }
-
-        if (!hasRefreshTokenCookie()) {
-          clearSession()
-          return false
         }
 
         await restoreSessionFromRefresh()
