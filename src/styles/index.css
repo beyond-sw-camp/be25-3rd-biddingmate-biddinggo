@@ -127,6 +127,10 @@ select {
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: none;
+  transition:
+    width 0.24s ease,
+    padding 0.24s ease,
+    border-color 0.24s ease;
 }
 
 .sidebar::-webkit-scrollbar {
@@ -228,6 +232,19 @@ select {
   opacity: 1;
 }
 
+.app-shell--sidebar-collapsed .sidebar {
+  width: 0;
+  padding-right: 0;
+  padding-left: 0;
+  border-right-color: transparent;
+  overflow: hidden;
+}
+
+.app-shell--sidebar-collapsed .sidebar > * {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .content-shell {
   flex: 1;
   min-width: 0;
@@ -240,6 +257,28 @@ select {
   justify-content: space-between;
   gap: 24px;
   padding: 20px 110px;
+}
+
+.sidebar-toggle-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border: 0;
+  border-radius: 14px;
+  background: var(--surface-blue);
+  color: var(--primary);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.sidebar-toggle-button:hover,
+.sidebar-toggle-button:focus-visible {
+  background: var(--primary);
+  color: #fff;
+  transform: translateY(-1px);
 }
 
 .search-box {
@@ -265,7 +304,7 @@ select {
 }
 
 .topbar-search-field {
-  flex: 1 1 auto;
+  flex: 0 1 520px;
   min-width: 0;
 }
 
@@ -273,7 +312,7 @@ select {
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 660px;
+  width: 520px;
   max-width: 100%;
   min-height: 39px;
   border-radius: 16px;
@@ -370,6 +409,8 @@ select {
   display: flex;
   align-items: center;
   gap: 24px;
+  flex-shrink: 0;
+  min-width: max-content;
   font-size: 14px;
   font-weight: 400;
 }
