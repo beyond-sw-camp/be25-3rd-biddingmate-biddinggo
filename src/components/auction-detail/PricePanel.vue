@@ -32,9 +32,9 @@ defineEmits(['open-bid', 'toggle-wishlist'])
 <template>
   <div class="price-panel">
     <div class="price-top-line">
-      <div v-if="item.isTimeDeal || item.isInspected" class="price-tags">
+      <div v-if="item.isTimeDeal || item.isExtendedAuction" class="price-tags">
         <span v-if="item.isTimeDeal" class="price-tag is-danger">TIME DEAL</span>
-        <span v-if="item.isInspected" class="price-tag is-light">검수 완료</span>
+        <span v-if="item.isExtendedAuction" class="price-tag is-extend">연장 경매</span>
       </div>
       <div v-else class="price-tags" aria-hidden="true"></div>
       <button
@@ -54,7 +54,7 @@ defineEmits(['open-bid', 'toggle-wishlist'])
       </button>
     </div>
 
-    <h4 class="detail-product-brand">{{ item.brand ? '' : '브랜드: ' + item.brand }}</h4>
+    <h4 v-if="item.brand" class="detail-product-brand">{{ item.brand }}</h4>
     <h2 class="detail-product-title">{{ item.title }}</h2>
 
     <div class="detail-price-block">

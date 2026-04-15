@@ -164,6 +164,16 @@ export function normalizeAuctionDetail(
   const auctionType = normalizeEnumValue(detail.type ?? detail.auctionType)
   const inspectionYn = normalizeEnumValue(detail.inspectionYn ?? detail.inspection_yn)
   const isInspected = inspectionYn === 'YES'
+  const isExtendedAuction = [
+    detail.extensionYn,
+    detail.extension_yn,
+    detail.extendAuction,
+    detail.extend_auction,
+    detail.extendedAuction,
+    detail.extended_auction,
+    detail.extendedYn,
+    detail.extended_yn,
+  ].some((value) => ['N', 'NO', 'FALSE', '0'].includes(normalizeEnumValue(value)))
   const category = detail.item?.category || {}
   const history = normalizeBidHistory(bidHistory)
   const sellerTotalSalesCount = sellerProfileData?.totalSales
@@ -213,6 +223,7 @@ export function normalizeAuctionDetail(
     time: getCountdownLabel(detail.endDate),
     highlight: status === 'ON_GOING',
     isTimeDeal: auctionType === 'TIME_DEAL',
+    isExtendedAuction,
     isInspected,
     seller: sellerProfileData?.nickname || sellerName,
     sellerGrade: sellerProfileData?.grade || detail.sellerGrade || (isInspected ? 'CERTIFIED' : 'STANDARD'),

@@ -43,11 +43,7 @@ function handleToggleWishlist() {
 </script>
 
 <template>
-  <article
-    class="item-card"
-    :class="{ 'is-highlight': item.highlight }"
-    @click="handleSelect"
-  >
+  <article class="item-card" @click="handleSelect">
     <div class="item-image-wrap">
       <div v-if="showLiveTag && (item.isTimeDeal || item.isInspected)" class="item-tag-stack">
         <span v-if="item.isTimeDeal" class="live-tag">TIME DEAL</span>

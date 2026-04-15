@@ -72,7 +72,7 @@ watch(
       </div>
     </div>
 
-    <div class="inspection-banner">
+    <div v-if="item.isInspected" class="inspection-banner">
       <div class="inspection-icon">✓</div>
       <div>
         <strong>{{ item.inspectionLabel }}</strong>
