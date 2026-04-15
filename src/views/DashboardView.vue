@@ -3,6 +3,7 @@
     :bid-items="bidItems"
     :confirm-purchase-action="confirmPurchaseAction"
     :create-address="createAddress"
+    :delete-account-action="deleteAccount"
     :delete-address="deleteAddress"
     :load-address-book="loadAddressBook"
     :load-purchase-detail="loadPurchaseDetail"
@@ -24,6 +25,7 @@ import { useRouter } from 'vue-router'
 import { createAuctionReview } from '../api/reviews'
 import {
   createUserAddress,
+  deleteMemberAccount,
   deleteUserAddress,
   confirmWinnerDeal,
   getUserAddresses,
@@ -36,15 +38,18 @@ import {
 import defaultAvatar from '../assets/default-avatar.svg'
 import noImage from '../assets/no-image.svg'
 import DashboardScreen from '../components/mypage/dashboard/DashboardScreen.vue'
+import { useToast } from '../composables/useToast'
 import {
   bidItems as fallbackBidItems,
   overviewUser as fallbackOverviewUser,
   purchaseStatusItems as fallbackPurchaseStatusItems,
 } from '../data/mypage'
 import { salesHistoryItems as fallbackSalesHistoryItems } from '../data/salesHistory'
+import { clearSession, markInitialized } from '../lib/authSession'
 import { getCountdownLabel } from '../utils/marketplace'
 
 const router = useRouter()
+const { showToast } = useToast()
 const overviewUser = ref(fallbackOverviewUser)
 const bidItems = ref(fallbackBidItems)
 const purchaseStatusItems = ref(fallbackPurchaseStatusItems)
@@ -330,6 +335,14 @@ async function setDefaultAddress(addressId) {
 
 async function deleteAddress(addressId) {
   await deleteUserAddress(addressId)
+}
+
+async function deleteAccount() {
+  await deleteMemberAccount()
+  clearSession()
+  markInitialized()
+  showToast('회원 탈퇴가 완료되었습니다.')
+  await router.replace('/')
 }
 
 async function savePurchaseShippingAddress(item, address) {
