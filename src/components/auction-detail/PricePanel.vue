@@ -1,5 +1,7 @@
 <script setup>
-defineProps({
+import { computed } from 'vue'
+
+const props = defineProps({
   assets: {
     type: Object,
     required: true,
@@ -24,6 +26,11 @@ defineProps({
     type: Boolean,
     default: false,
   },
+})
+
+const showBuyNowPrice = computed(() => {
+  const buyNowAmount = Number(String(props.item?.buyNowPrice || '0').replace(/[^\d]/g, '')) || 0
+  return buyNowAmount > 0
 })
 
 defineEmits(['open-bid', 'toggle-wishlist'])
@@ -79,7 +86,7 @@ defineEmits(['open-bid', 'toggle-wishlist'])
 
     <div class="detail-stats">
       <div><span>입찰 단위</span><strong>{{ item.bidUnit }}</strong></div>
-      <div><span>즉시 구매가</span><strong>{{ item.buyNowPrice }}</strong></div>
+      <div v-if="showBuyNowPrice"><span>즉시 구매가</span><strong>{{ item.buyNowPrice }}</strong></div>
       <div><span>시작일</span><strong>{{ item.startDate }}</strong></div>
       <div><span>종료일</span><strong>{{ item.endDate }}</strong></div>
     </div>
