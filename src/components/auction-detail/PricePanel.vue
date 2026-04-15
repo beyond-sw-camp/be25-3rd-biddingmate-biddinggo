@@ -33,6 +33,22 @@ const showBuyNowPrice = computed(() => {
   return buyNowAmount > 0
 })
 
+const showBrand = computed(() => {
+  const brand = String(props.item?.brand || '').trim()
+
+  return Boolean(brand) && brand !== '브랜드 미정'
+})
+
+const detailTimeLabel = computed(() => {
+  const time = String(props.item?.time || '').trim()
+
+  if (!time || time === '-' || time === '마감' || time.endsWith('남음')) {
+    return time
+  }
+
+  return `${time} 남음`
+})
+
 defineEmits(['open-bid', 'toggle-wishlist'])
 </script>
 
@@ -57,7 +73,7 @@ defineEmits(['open-bid', 'toggle-wishlist'])
       </button>
     </div>
 
-    <h4 v-if="item.brand" class="detail-product-brand">{{ item.brand }}</h4>
+    <h4 v-if="showBrand" class="detail-product-brand">{{ item.brand }}</h4>
     <h2 class="detail-product-title">{{ item.title }}</h2>
 
     <div class="detail-price-block">
@@ -67,7 +83,7 @@ defineEmits(['open-bid', 'toggle-wishlist'])
 
     <p class="detail-price-meta">{{ item.bids }} | 시작가 {{ item.startPrice || item.price }}</p>
     <p v-if="item.pricePredictionLabel" class="detail-price-prediction">{{ item.pricePredictionLabel }}</p>
-    <p class="detail-time-left">{{ item.time }}</p>
+    <p class="detail-time-left">{{ detailTimeLabel }}</p>
 
     <div class="detail-bid-box">
       <label class="detail-bid-field">
