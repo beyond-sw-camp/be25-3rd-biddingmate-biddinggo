@@ -56,6 +56,10 @@ img {
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: none;
+  transition:
+    width 0.24s ease,
+    padding 0.24s ease,
+    border-color 0.24s ease;
 }
 
 .sidebar::-webkit-scrollbar {
@@ -140,11 +144,82 @@ img {
   min-width: 0;
 }
 
+.app-shell--sidebar-collapsed .content-shell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.app-shell--sidebar-collapsed .topbar,
+.app-shell--sidebar-collapsed .page-area {
+  width: 100%;
+  max-width: 1720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 20px 110px;
+}
+
+.app-shell--sidebar-collapsed .sidebar {
+  width: 0;
+  min-width: 0;
+  padding-right: 0;
+  padding-left: 0;
+  border-right-color: transparent;
+  overflow: hidden;
+  align-items: center;
+}
+
+.app-shell--sidebar-collapsed .sidebar > * {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.app-shell--sidebar-collapsed .brand-block {
+  align-items: center;
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+  text-align: center;
+}
+
+.app-shell--sidebar-collapsed .sidebar-nav {
+  width: 100%;
+  align-items: center;
+}
+
+.app-shell--sidebar-collapsed .sidebar-link {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+  text-align: center;
+}
+
+.sidebar-toggle-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border: 0;
+  border-radius: 14px;
+  background: rgba(35, 0, 141, 0.08);
+  color: #23008d;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.sidebar-toggle-button:hover,
+.sidebar-toggle-button:focus-visible {
+  background: #23008d;
+  color: #fff;
+  transform: translateY(-1px);
 }
 
 .search-box {
@@ -4766,7 +4841,7 @@ img {
 
 /* Admin */
 .admin-layout .topbar {
-  justify-content: flex-end;
+  justify-content: space-between;
   padding: 20px 110px;
 }
 

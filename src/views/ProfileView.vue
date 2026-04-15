@@ -25,7 +25,7 @@ import SellerProfileModal from '../components/auction-detail/SellerProfileModal.
 import ProfileScreen from '../components/mypage/profile/ProfileScreen.vue'
 import { useToast } from '../composables/useToast'
 import { overviewUser } from '../data/mypage'
-import { authState } from '../lib/authSession'
+import { authState, setUserInfo } from '../lib/authSession'
 import { getGradeBadge } from '../utils/gradeBadge'
 import { formatShortDate } from '../utils/marketplace'
 
@@ -143,7 +143,6 @@ async function selectAvatar(payload) {
   }
 
   const previousAvatar = profile.value.avatar
-  const previousImageUrl = profile.value.imageUrl
 
   profile.value = {
     ...profile.value,
@@ -164,15 +163,13 @@ async function selectAvatar(payload) {
     uploadedAvatarUrl.value = presigned.publicUrl || payload.previewUrl
     profile.value = {
       ...profile.value,
-      avatar: uploadedAvatarUrl.value,
-      imageUrl: uploadedAvatarUrl.value,
+      avatar: payload.previewUrl,
     }
     showToast('프로필 이미지가 업로드되었습니다.')
   } catch (error) {
     profile.value = {
       ...profile.value,
       avatar: previousAvatar,
-      imageUrl: previousImageUrl,
     }
     uploadedAvatarFileKey.value = ''
     uploadedAvatarUrl.value = ''
@@ -182,6 +179,8 @@ async function selectAvatar(payload) {
 
 async function updateProfile(payload) {
   try {
+    const nextNickname = String(payload?.nickname || '').trim()
+    const shouldSyncHeaderNickname = Boolean(nextNickname) && nextNickname !== String(authState.nickname || '').trim()
     const nextPayload = {
       ...payload,
       ...(uploadedAvatarUrl.value ? { url: uploadedAvatarUrl.value, imageUrl: uploadedAvatarUrl.value } : {}),
@@ -192,6 +191,9 @@ async function updateProfile(payload) {
       ...nextPayload,
       ...updatedProfile,
     })
+    if (shouldSyncHeaderNickname) {
+      setUserInfo({ nickname: nextNickname })
+    }
     uploadedAvatarUrl.value = ''
     showToast('프로필 정보가 수정되었습니다.')
   } catch (error) {
