@@ -828,31 +828,19 @@ img {
   opacity: 0.7;
 }
 
-.wish-button svg {
+.wish-button .v-icon {
   width: 22px;
   height: 22px;
   color: #94a3b8;
 }
 
-.wish-button path {
-  fill: transparent;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.wish-button:hover:not(:disabled) svg,
-.wish-button.is-wished svg {
+.wish-button:hover:not(:disabled) .v-icon,
+.wish-button.is-wished .v-icon {
   color: #ef4444;
 }
 
 .wish-button.is-wished {
   background: #fff1f2;
-}
-
-.wish-button.is-wished path {
-  fill: currentColor;
 }
 
 .item-body {
@@ -2292,21 +2280,9 @@ img {
   color: #ef4444;
 }
 
-.detail-heart-button svg {
+.detail-heart-button .v-icon {
   width: 22px;
   height: 22px;
-}
-
-.detail-heart-button path {
-  fill: transparent;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.detail-heart-button.is-wished path {
-  fill: currentColor;
 }
 
 .detail-product-title {

@@ -5,7 +5,6 @@ export const assets = {
   categoryIcon: 'https://www.figma.com/api/mcp/asset/74cf0ac8-a459-4052-b743-87dee931bff0',
   registerIcon: 'https://www.figma.com/api/mcp/asset/cfd6b14c-3cb6-4eb7-99a8-5f03989fc719',
   inspectionIcon: 'https://www.figma.com/api/mcp/asset/d48c2f9f-af52-43c5-a115-5c3eb00869bf',
-  heartIcon: 'https://www.figma.com/api/mcp/asset/4df025dc-4a10-4be3-aabb-72d7cd09fbbc',
   listWatchImage: 'https://www.figma.com/api/mcp/asset/e8c9af76-2653-419a-8da5-b7a65a36822d',
 }
 

@@ -1548,6 +1548,15 @@ select {
   color: var(--text);
 }
 
+.wish-button.is-wished {
+  background: #fff1f2;
+}
+
+.wish-button.is-wished .v-icon,
+.wish-button:hover:not(:disabled) .v-icon {
+  color: #ef4444;
+}
+
 
 .stats-grid {
   display: grid;
