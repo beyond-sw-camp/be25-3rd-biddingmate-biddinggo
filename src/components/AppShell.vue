@@ -20,11 +20,6 @@
           :class="{ active: currentNavKey === item.key || (!currentNavKey && currentScreen === item.key) }"
           @click="emit('navigate', item.route ?? item.key)"
         >
-          <span
-            class="app-shell__nav-icon"
-            :style="{ '--nav-icon-url': `url(${item.icon})` }"
-            aria-hidden="true"
-          ></span>
           <span>{{ item.label }}</span>
         </button>
       </nav>
