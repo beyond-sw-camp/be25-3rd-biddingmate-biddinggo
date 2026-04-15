@@ -1154,6 +1154,35 @@ select {
   display: grid;
   place-items: center;
   padding: 32px 40px;
+  position: relative;
+}
+
+.user-summary-card__actions {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+}
+
+.user-summary-card__delete {
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  min-height: 40px;
+  padding: 8px 14px;
+  background: #fef2f2;
+  color: #b42318;
+  box-shadow: 0 4px 20px rgba(180, 35, 24, 0.12);
+}
+
+.user-summary-card__delete:hover,
+.user-summary-card__delete:focus-visible {
+  background: #fee4e2;
+}
+
+.user-summary-card__delete:disabled {
+  cursor: default;
+  opacity: 0.7;
 }
 
 .hero-card--left p,
@@ -3149,4 +3178,3 @@ select {
   line-height: 1;
   cursor: pointer;
 }
-
