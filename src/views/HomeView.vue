@@ -17,6 +17,19 @@ const page = ref(1)
 const requestVersion = ref(0)
 const wishlistProcessingIds = ref(new Set())
 
+function isExtendedAuction(item = {}) {
+  return [
+    item.extendAuction,
+    item.extend_auction,
+    item.extendedAuction,
+    item.extended_auction,
+    item.extensionYn,
+    item.extension_yn,
+    item.extendedYn,
+    item.extended_yn,
+  ].some((value) => value === true || ['Y', 'YES', 'TRUE', '1'].includes(String(value || '').trim().toUpperCase()))
+}
+
 function findFirstBoolean(...values) {
   return values.find((value) => typeof value === 'boolean')
 }
@@ -142,7 +155,10 @@ async function loadMoreHomeAuctions() {
     }
 
     const content = Array.isArray(response?.content) ? response.content : []
-    const nextItems = content.map(normalizeAuctionCard)
+    const nextItems = content.map((auction) => ({
+      ...normalizeAuctionCard(auction),
+      isExtendedAuction: isExtendedAuction(auction),
+    }))
     const existingIds = new Set(homeItems.value.map((item) => item.auctionId))
     const uniqueItems = nextItems.filter((item) => !existingIds.has(item.auctionId))
 

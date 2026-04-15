@@ -107,6 +107,8 @@ function normalizeAuctionItem(item = {}) {
   const bidCount = Number(item.bidCount || 0)
   const auctionType = String(item.auctionType || '').trim().toUpperCase()
   const inspectionYn = String(item.inspectionYn ?? item.inspection_yn ?? '').trim().toUpperCase()
+  const isExtendedAuction = [item.extendAuction, item.extend_auction, item.extendedAuction, item.extended_auction, item.extensionYn, item.extension_yn, item.extendedYn, item.extended_yn]
+    .some((value) => value === true || ['Y', 'YES', 'TRUE', '1'].includes(String(value || '').trim().toUpperCase()))
 
   return {
     id: item.auctionId,
@@ -118,6 +120,7 @@ function normalizeAuctionItem(item = {}) {
     bids: `입찰 ${bidCount}건`,
     bidCount,
     time: getCountdownLabel(item.endDate),
+    isExtendedAuction,
     isTimeDeal: auctionType === 'TIME_DEAL',
     isInspected: inspectionYn === 'YES',
     highlight: item.saleStatus === 'ONGOING',

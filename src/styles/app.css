@@ -743,6 +743,7 @@ img {
   position: relative;
   width: 216px;
   height: 358px;
+  border: 0;
   border-radius: 15px;
   background: #fff;
   box-shadow:
@@ -751,21 +752,27 @@ img {
   cursor: pointer;
 }
 
-.item-card.is-highlight {
-  border: 2px solid #f1ff88;
+.item-card.is-inspection-highlight {
+  border: 1px solid rgba(74, 222, 128, 0.58);
+  box-shadow:
+    0 0 0 1px rgba(220, 252, 231, 0.72),
+    0 18px 42px -10px rgba(34, 197, 94, 0.16),
+    0 10px 28px -12px rgba(22, 163, 74, 0.18),
+    4px 4px 30px 0 rgba(0, 0, 0, 0.08);
 }
 
 .wishlist-auction-card.item-card,
-.wishlist-auction-card.item-card.is-highlight {
+.wishlist-auction-card.item-card.is-inspection-highlight {
   border: 0;
 }
 
 .wishlist-auction-card--inspection.item-card,
-.wishlist-auction-card--inspection.item-card.is-highlight {
-  border: 1px solid rgba(74, 222, 128, 0.88);
+.wishlist-auction-card--inspection.item-card.is-inspection-highlight {
+  border: 1px solid rgba(74, 222, 128, 0.52);
   box-shadow:
-    0 0 0 1px rgba(187, 247, 208, 0.92),
-    0 0 18px rgba(74, 222, 128, 0.38),
+    0 0 0 1px rgba(220, 252, 231, 0.74),
+    0 18px 42px -10px rgba(34, 197, 94, 0.14),
+    0 10px 30px -14px rgba(74, 222, 128, 0.2),
     0 14px 34px -6px rgba(25, 28, 30, 0.12);
 }
 
@@ -785,7 +792,7 @@ img {
 
 .live-tag {
   border-radius: 9999px;
-  background: #bc1d25;
+  background: #ef4444;
   padding: 4px 12px;
   color: #fff;
   font-family: 'Inter', sans-serif;
@@ -809,6 +816,13 @@ img {
 .live-tag.is-inspected {
   background: rgba(255, 255, 255, 0.94);
   color: #23008d;
+}
+
+.live-tag.is-extend {
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: linear-gradient(135deg, #f8fbff, #dbeafe);
+  color: #315b86;
+  box-shadow: 0 8px 18px rgba(148, 163, 184, 0.14);
 }
 
 .wish-button {
@@ -1729,6 +1743,12 @@ img {
   background: #bc1d25;
 }
 
+.detail-buy-now-button.is-disabled {
+  background: #9ca3af;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
 .detail-buy-now-button span {
   font-size: 12px;
   font-weight: 500;
@@ -2251,6 +2271,13 @@ img {
 .price-tag.is-light {
   background: #dbeafe;
   color: #475569;
+}
+
+.price-tag.is-extend {
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: linear-gradient(135deg, #f8fbff, #dbeafe);
+  color: #315b86;
+  box-shadow: 0 8px 18px rgba(148, 163, 184, 0.12);
 }
 
 .detail-heart-button {
