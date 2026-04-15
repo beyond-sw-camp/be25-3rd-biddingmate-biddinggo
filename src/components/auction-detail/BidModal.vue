@@ -79,14 +79,13 @@ const canBuyNow = computed(() => props.buyNowAmount > 0)
 
     <div class="detail-bid-modal-actions">
       <button
+        v-if="canBuyNow"
         type="button"
         class="detail-buy-now-button"
-        :class="{ 'is-disabled': !canBuyNow }"
-        :disabled="!canBuyNow"
         @click="$emit('buy-now')"
       >
-        <span v-if="canBuyNow">{{ formatAmount(buyNowAmount) }}원으로</span>
-        <strong>{{ canBuyNow ? '즉시 구매' : '즉시구매 불가능' }}</strong>
+        <span>{{ formatAmount(buyNowAmount) }}원으로</span>
+        <strong>즉시 구매</strong>
       </button>
       <button type="button" class="detail-bid-submit-button" @click="$emit('submit-bid')">
         입찰하기
