@@ -46,11 +46,7 @@ defineEmits(['open-bid', 'toggle-wishlist'])
         :aria-label="item.isWished ? '찜 취소' : '찜하기'"
         @click="$emit('toggle-wishlist')"
       >
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path
-            d="M12 20.25S4.5 15.98 4.5 9.8A4.25 4.25 0 0 1 12 7.05 4.25 4.25 0 0 1 19.5 9.8c0 6.18-7.5 10.45-7.5 10.45Z"
-          />
-        </svg>
+        <v-icon :icon="item.isWished ? 'mdi-heart' : 'mdi-heart-outline'" size="22" aria-hidden="true" />
       </button>
     </div>
 
