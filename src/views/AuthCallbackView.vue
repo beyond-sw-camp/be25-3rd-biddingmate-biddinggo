@@ -30,6 +30,13 @@ function isInvalidRefreshTokenError(error) {
 }
 
 onMounted(async () => {
+  const currentRoute = router.currentRoute.value
+
+  if (currentRoute.query?.error === 'login_blocked_member') {
+    await router.replace('/')
+    return
+  }
+
   try {
     await completeLoginFromCallback()
     await router.replace(auth.status === 'PENDING' ? '/profile/setup' : '/')
