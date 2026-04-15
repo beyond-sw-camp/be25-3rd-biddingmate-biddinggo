@@ -4,6 +4,16 @@
   </section>
 
   <SurfaceCard as="section" class="user-summary-card">
+    <div class="user-summary-card__actions">
+      <button
+        class="user-summary-card__delete"
+        type="button"
+        :disabled="deleteAccountLoading"
+        @click="handleDeleteAccount"
+      >
+        {{ deleteAccountLoading ? '탈퇴 처리 중...' : '회원 탈퇴' }}
+      </button>
+    </div>
     <div class="user-summary__identity">
       <img
         :src="overviewUser.avatar"
@@ -135,6 +145,10 @@ const props = defineProps({
     type: Function,
     default: null,
   },
+  deleteAccountAction: {
+    type: Function,
+    default: null,
+  },
   deleteAddress: {
     type: Function,
     default: null,
@@ -196,6 +210,7 @@ const addressBookErrorMessage = ref('')
 const addressDeletingId = ref(null)
 const addressSettingDefaultId = ref(null)
 const addresses = ref([])
+const deleteAccountLoading = ref(false)
 const purchaseDetailLoadingId = ref(null)
 const salesDetailLoadingId = ref(null)
 
@@ -238,6 +253,27 @@ const {
 } = useSalesModal({
   onSaveShipping: props.saveSalesShipping,
 })
+
+async function handleDeleteAccount() {
+  if (!props.deleteAccountAction || deleteAccountLoading.value) {
+    return
+  }
+
+  const confirmed = window.confirm('정말 회원 탈퇴하시겠습니까?\n탈퇴 후 계정 정보를 복구할 수 없습니다.')
+  if (!confirmed) {
+    return
+  }
+
+  deleteAccountLoading.value = true
+
+  try {
+    await props.deleteAccountAction()
+  } catch (error) {
+    showToast(error?.message || '회원 탈퇴에 실패했습니다.', { color: 'error' })
+  } finally {
+    deleteAccountLoading.value = false
+  }
+}
 
 async function openPurchaseDetailModal(item) {
   if (purchaseDetailLoadingId.value) {

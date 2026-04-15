@@ -1,4 +1,4 @@
-import { clearSession, getAccessToken, setSession, shouldRefreshAccessToken } from '../lib/authSession'
+import { clearSession, getAccessToken, hasRefreshTokenCookie, setSession, shouldRefreshAccessToken } from '../lib/authSession'
 import { useToast } from '../composables/useToast'
 
 function deriveApiBaseUrl() {
@@ -96,6 +96,11 @@ function withAuthorizationHeader(headers = {}, auth = false) {
 
 async function attemptRefreshToken() {
   if (!API_BASE_URL) {
+    return false
+  }
+
+  if (!hasRefreshTokenCookie()) {
+    clearSession()
     return false
   }
 

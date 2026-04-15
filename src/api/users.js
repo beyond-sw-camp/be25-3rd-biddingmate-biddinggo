@@ -40,6 +40,13 @@ export async function getUserSellerProfile(userId) {
   return unwrap(data)
 }
 
+export async function deleteMemberAccount() {
+  return request('/api/v1/members/me', {
+    auth: true,
+    method: 'DELETE',
+  })
+}
+
 export async function getUserBids(params = {}) {
   const suffix = buildQueryString(params)
   const data = await request(`/api/v1/members/me/bids${suffix}`, {
