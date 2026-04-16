@@ -227,6 +227,12 @@ export function normalizeAuctionDetail(
     isInspected,
     seller: sellerProfileData?.nickname || sellerName,
     sellerGrade: sellerProfileData?.grade || detail.sellerGrade || (isInspected ? 'CERTIFIED' : 'STANDARD'),
+    inspectionGrade:
+      detail.quality
+      || detail.item?.quality
+      || detail.inspectionQuality
+      || detail.inspection_grade
+      || '-',
     description: detail.item?.description || '상품 설명이 없습니다.',
     inspectionLabel: isInspected ? '검수 완료 상품' : '일반 등록 상품',
     inspectionDescription:
