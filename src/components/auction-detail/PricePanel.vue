@@ -49,6 +49,12 @@ const detailTimeLabel = computed(() => {
   return `${time} 남음`
 })
 
+const qualityLabel = computed(() => {
+  const quality = String(props.item?.inspectionGrade || props.item?.quality || '').trim()
+
+  return quality && quality !== '-' ? quality : ''
+})
+
 defineEmits(['open-bid', 'toggle-wishlist'])
 </script>
 
@@ -60,17 +66,20 @@ defineEmits(['open-bid', 'toggle-wishlist'])
         <span v-if="item.isExtendedAuction" class="price-tag is-extend">연장 경매</span>
       </div>
       <div v-else class="price-tags" aria-hidden="true"></div>
-      <button
-        type="button"
-        class="detail-heart-button"
-        :class="{ 'is-wished': item.isWished }"
-        :disabled="wishlistProcessing"
-        :aria-pressed="item.isWished"
-        :aria-label="item.isWished ? '찜 취소' : '찜하기'"
-        @click="$emit('toggle-wishlist')"
-      >
-        <v-icon :icon="item.isWished ? 'mdi-heart' : 'mdi-heart-outline'" size="22" aria-hidden="true" />
-      </button>
+      <div class="detail-top-actions">
+        <span v-if="qualityLabel" class="detail-quality-badge">{{ qualityLabel }}</span>
+        <button
+          type="button"
+          class="detail-heart-button"
+          :class="{ 'is-wished': item.isWished }"
+          :disabled="wishlistProcessing"
+          :aria-pressed="item.isWished"
+          :aria-label="item.isWished ? '찜 취소' : '찜하기'"
+          @click="$emit('toggle-wishlist')"
+        >
+          <v-icon :icon="item.isWished ? 'mdi-heart' : 'mdi-heart-outline'" size="22" aria-hidden="true" />
+        </button>
+      </div>
     </div>
 
     <h4 v-if="showBrand" class="detail-product-brand">{{ item.brand }}</h4>

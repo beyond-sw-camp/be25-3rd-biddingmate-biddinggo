@@ -15,26 +15,51 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '../composables/useAuth'
+import { useToast } from '../composables/useToast'
 
 const router = useRouter()
 const { auth, completeLoginFromCallback } = useAuth()
+const { showToast } = useToast()
 const errorMessage = ref('')
 
-function isInvalidRefreshTokenError(error) {
-  const message = String(error instanceof Error ? error.message : error || '')
+function normalizeMessage(error) {
+  return String(error instanceof Error ? error.message : error || '')
     .trim()
     .replace(/\s+/g, ' ')
     .replace(/[.。]+$/g, '')
+}
 
-  return message.includes('리프레쉬 토큰이 유효하지 않습니다.')
+function isInvalidRefreshTokenError(error) {
+  const message = normalizeMessage(error)
+
+  return message.includes('리프레쉬 토큰이 유효하지 않습니다')
+    || message.includes('리프리쉬 토큰이 유효하지 않습니다')
+}
+
+function isWithdrawnMemberError(error) {
+  const message = normalizeMessage(error).toLowerCase()
+
+  return message.includes('탈퇴')
+    || message.includes('withdrawn')
+    || message.includes('deleted member')
+    || message.includes('deactivated')
 }
 
 onMounted(async () => {
+  const currentRoute = router.currentRoute.value
+
+  if (currentRoute.query?.error === 'login_blocked_member') {
+    showToast('탈퇴하거나 정지된 회원은 로그인할 수 없습니다.', { color: 'error' })
+    await router.replace('/login')
+    return
+  }
+
   try {
     await completeLoginFromCallback()
     await router.replace(auth.status === 'PENDING' ? '/profile/setup' : '/')
   } catch (error) {
-    if (isInvalidRefreshTokenError(error)) {
+    if (isWithdrawnMemberError(error) || isInvalidRefreshTokenError(error)) {
+      showToast('탈퇴하거나 정지된 회원은 로그인할 수 없습니다.', { color: 'error' })
       await router.replace('/login')
       return
     }
