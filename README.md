@@ -121,6 +121,27 @@
     </p>
   </details>
 
+  <details style="margin-left: 20px;">
+    <summary>로그아웃</summary>
+    <ul>
+      <br>
+      <li>현재 세션을 종료하고 안전하게 로그아웃합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/로그아웃.gif" width="800" alt="로그아웃 시연" />
+    </p>
+  </details>
+
+  <details style="margin-left: 20px;">
+    <summary>프로필 관리</summary>
+    <ul>
+      <li>닉네임, 계좌번호, 이미지 등 개인 정보를 자유롭게 수정하고 관리할 수 있습니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/프로필관리.gif" width="800" alt="프로필 수정 시연" />
+    </p>
+  </details>
+
 </details>
 
 
