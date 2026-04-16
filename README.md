@@ -26,12 +26,12 @@
   </tr>
   
  <tr>
-  <td align="center"><img src="./assets/images/프랑키.png" width="150" height="199"  alt="김진혁" /></td>
-  <td align="center"><img src="./assets/images/징베.png" width="150" height="210"  alt="박선우" /></td>   
-  <td align="center"><img src="./assets/images/니카.png" width="150" height="200"  alt="윤정윤" /></td>   
-  <td align="center"><img src="./assets/images/키드.png" width="150" height="210"  alt="이민경" /></td>  
-  <td align="center"><img src="./assets/images/트라팔가 로우.png" width="150" height="210"  alt="이애은" /></td>   
-  <td align="center"><img src="./assets/images/거프.png" width="150" height="210"  alt="한규진" /></td>  
+  <td align="center"><img src="./assets/images/프랑키.png" width="150px" height="199px"  alt="김진혁" /></td>
+  <td align="center"><img src="./assets/images/징베.png" width="150px" height="210px"  alt="박선우" /></td>   
+  <td align="center"><img src="./assets/images/니카.png" width="150px" height="200px"  alt="윤정윤" /></td>   
+  <td align="center"><img src="./assets/images/키드.png" width="150px" height="210px"  alt="이민경" /></td>  
+  <td align="center"><img src="./assets/images/트라팔가 로우.png" width="150px" height="210px"  alt="이애은" /></td>   
+  <td align="center"><img src="./assets/images/거프.png" width="150px" height="210px"  alt="한규진" /></td>  
 </tr>
 
   <tr>
