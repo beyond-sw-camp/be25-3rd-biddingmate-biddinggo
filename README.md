@@ -253,6 +253,17 @@
     </p>
   </details>
 
+   <details style="margin-left: 20px;">
+    <summary>1대1 문의</summary>
+    <ul>
+      <br>
+      <li>문의 필수값 검증 후 등록을 완료하고 관리자 페이지의 답변 등록을 거쳐 사용자가 최종 답변을 확인하는 전 과정을 시연합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/1대1문의.gif" width="800" alt="1대1 문의" />
+    </p>
+  </details>
+
 
 
   <details style="margin-left: 20px;">
@@ -276,6 +287,40 @@
       <img src="./assets/demo/배송지관리.gif" width="800" alt="배송지 관리 시연" />
     </p>
   </details>
+
+  <details style="margin-left: 20px;">
+    <summary>공지사항 추가 [관리자]</summary>
+    <ul>
+      <br>
+      <li>필수값 입력 검증 후 공지사항을 등록하며 등록과 동시에 모든 사용자에게 실시간 알림이 전송되는 것을 확인합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/어드민공지사항.gif" width="800" alt="공지사항 추" />
+    </p>
+  </details>
+
+  <details style="margin-left: 20px;">
+    <summary>Admin 로그인 [관리자]</summary>
+    <ul>
+      <br>
+      <li>아이디 및 비밀번호 필수값 입력 검증을 거쳐 관리자 전용 대시보드에 안전하게 접속합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/어드민로그인.gif" width="800" alt="Admin 로그인" />
+    </p>
+  </details>
+
+  <details style="margin-left: 20px;">
+    <summary>Admin 로그아웃 [관리자]</summary>
+    <ul>
+      <br>
+      <li>사용 중인 관리자 세션을 안전하게 종료하고 메인 화면으로 돌아갑니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/어드민로그아웃.gif" width="800" alt="Admin 로그아" />
+    </p>
+  </details>
+
 
 </details>
 
