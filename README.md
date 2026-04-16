@@ -474,10 +474,9 @@
       <img src="./assets/demo/어드민로그아웃.gif" width="800" alt="Admin 로그아" />
     </p>
   </details>
-
-
 </details>
 
+<br>
 
 ---
 
