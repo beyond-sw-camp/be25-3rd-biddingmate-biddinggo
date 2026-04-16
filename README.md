@@ -28,7 +28,7 @@
  <tr>
   <td align="center"><img src="./assets/images/프랑키.png" width="150" height="201" style="object-fit: cover;" alt="김진혁" /></td>
   <td align="center"><img src="./assets/images/징베.png" width="150" height="210" style="object-fit: cover;" alt="박선우" /></td>   
-  <td align="center"><img src="./assets/images/니카1 1.png" width="150" height="197" style="object-fit: cover;" alt="윤정윤" /></td>   
+  <td align="center"><img src="./assets/images/니카.png" width="150" height="197" style="object-fit: cover;" alt="윤정윤" /></td>   
   <td align="center"><img src="./assets/images/키드.png" width="150" height="210" style="object-fit: cover;" alt="이민경" /></td>  
   <td align="center"><img src="./assets/images/트라팔가 로우.png" width="150" height="210" style="object-fit: cover;" alt="이애은" /></td>   
   <td align="center"><img src="./assets/images/거프.png" width="150" height="210" style="object-fit: cover;" alt="한규진" /></td>  
