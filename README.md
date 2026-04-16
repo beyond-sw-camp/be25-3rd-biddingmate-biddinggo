@@ -231,6 +231,28 @@
     </p>
   </details>
 
+   <details style="margin-left: 20px;">
+    <summary>입찰 프로세스 (1)</summary>
+    <ul>
+      <br>
+      <li>보유 포인트 초과 입찰 시 에러 메시지를 확인하고 잔액 범위 내 입찰 성공 후 포인트 차감 및 상세·마이페이지 내역 반영을 확인합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/첫번째입찰.gif" width="800" alt="입찰 프로세스 (1)" />
+    </p>
+  </details>
+
+   <details style="margin-left: 20px;">
+    <summary>입찰 프로세스 (2)</summary>
+    <ul>
+      <br>
+      <li>동일한 경매에 재입찰 시 기존 입찰금을 제외한 추가 차액만큼만 포인트가 차감되는 스마트 결제 로직을 확인합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/두번째입찰.gif" width="800" alt="입찰 프로세스 (2)" />
+    </p>
+  </details>
+
   <details style="margin-left: 20px;">
     <summary>포인트 충전</summary>
     <ul>
@@ -288,6 +310,17 @@
     </p>
   </details>
 
+ <details style="margin-left: 20px;">
+    <summary>사용자 관리 [관리자]</summary>
+    <ul>
+      <br>
+      <li>관리자 페이지에서 특정 계정을 비활성화하여 접근을 차단하고 필요 시 다시 복귀시켜 정상적인 서비스 이용을 가능하게 합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/어드민사용자관리.gif" width="800" alt="사용자 관리" />
+    </p>
+  </details>
+  
   <details style="margin-left: 20px;">
     <summary>공지사항 추가 [관리자]</summary>
     <ul>
@@ -295,7 +328,7 @@
       <li>필수값 입력 검증 후 공지사항을 등록하며 등록과 동시에 모든 사용자에게 실시간 알림이 전송되는 것을 확인합니다.</li>
     </ul>
     <p align="center">
-      <img src="./assets/demo/어드민공지사항.gif" width="800" alt="공지사항 추" />
+      <img src="./assets/demo/어드민공지사항.gif" width="800" alt="공지사항 추가" />
     </p>
   </details>
 
