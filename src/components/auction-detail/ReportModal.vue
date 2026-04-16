@@ -18,6 +18,10 @@ defineProps({
     type: Array,
     required: true,
   },
+  submitting: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 defineEmits(['close', 'submit'])
@@ -62,8 +66,13 @@ defineEmits(['close', 'submit'])
         </label>
       </div>
 
-      <button type="button" class="detail-report-submit" @click="$emit('submit')">
-        신고하기
+      <button
+        type="button"
+        class="detail-report-submit"
+        :disabled="submitting"
+        @click="$emit('submit')"
+      >
+        {{ submitting ? '접수 중...' : '신고하기' }}
       </button>
   </BaseModal>
 </template>
