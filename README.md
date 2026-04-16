@@ -1,7 +1,7 @@
 # BiddingGo 
 
 <p align="center">
-<img src="./assets/images/로고.png" />
+<img src="./assets/images/로고2.png"  width="500"/>
 </p>
 
 ---
@@ -62,14 +62,18 @@
 4. [회고](#4--회고)
 
 ---
+<p align="center">
+<img src="./assets/images/로고3.png"  width="1200"/>
+</p>
 
+<br>
 
 # 1.  화면 및 기능 설계서
 
 <details>
   <summary>화면 및 기능 설계서 상세보기</summary>
 <p align="center">
-  <img src="./assets/images/피그마 캡쳐 사진.png" alt="화면 및 기능 설계서 미리보기" width="500" />
+  <img src="./assets/images/피그마 캡처.png" alt="화면 및 기능 설계서 미리보기" width="1000" />
   <br/>
   <br/>
   🔗 <a href="https://www.figma.com/design/0dOGV93f5reRfWgJiv1rBH/Biddinggo?node-id=185-1330&t=DaXBKBPbxL8Q8Hgr-1">화면 및 기능 설계서 [Figma 링크]</a>
@@ -87,7 +91,7 @@
 <details>
   <summary>테스트 결과 보고서 상세보기</summary>
   <p align="center">
-  <img src="./assets/images/프론트엔드 테스트 보고서.png" alt="테스트 결과 보고서" width="800" />
+  <img src="./assets/images/프론트엔드 테스트 보고서.png" alt="테스트 결과 보고서" width="1000" />
   <br/>
   <br/>
     🔗 <a href="https://www.figma.com/design/0dOGV93f5reRfWgJiv1rBH/Biddinggo?node-id=185-1330&t=DaXBKBPbxL8Q8Hgr-1">테스트 결과 보고서 [스프레드 시트]</a>
