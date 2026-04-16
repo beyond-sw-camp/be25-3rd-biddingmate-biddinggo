@@ -376,7 +376,7 @@
     </p>
   </details>
 
-    <details style="margin-left: 20px;">
+  <details style="margin-left: 20px;">
     <summary>탈퇴</summary>
     <ul>
       <br>
@@ -387,7 +387,7 @@
     </p>
   </details>
 
-<details style="margin-left: 20px;">
+  <details style="margin-left: 20px;">
     <summary>낙찰 이후 배송지 정보 등록</summary>
     <ul>
       <br>
