@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { answerAuctionInquiry, createAuctionInquiry } from '../api/auctionInquiries'
 import { createBid } from '../api/bids'
+import { createReport } from '../api/reports'
 import { buyNowAuction } from '../api/auctions'
 import BidHistoryDrawer from './auction-detail/BidHistoryDrawer.vue'
 import BidModal from './auction-detail/BidModal.vue'
@@ -57,6 +58,7 @@ const isBidModalOpen = ref(false)
 const isInquiryModalOpen = ref(false)
 const isInquirySubmitting = ref(false)
 const isReportModalOpen = ref(false)
+const isReportSubmitting = ref(false)
 const isSellerModalOpen = ref(false)
 
 const reportTypes = [
@@ -202,11 +204,24 @@ function closeBidHistoryDrawer() {
 }
 
 function openReportModal() {
+  if (isOwnAuction.value) {
+    showToast('본인이 등록한 경매는 신고할 수 없습니다.', { color: 'error' })
+    return
+  }
+
+  reportForm.value = {
+    type: '기타',
+    detail: '',
+  }
   isReportModalOpen.value = true
 }
 
 function closeReportModal() {
   isReportModalOpen.value = false
+  reportForm.value = {
+    type: '기타',
+    detail: '',
+  }
 }
 
 function openInquiryModal() {
@@ -349,9 +364,45 @@ async function submitAnswer() {
   }
 }
 
-function submitReport() {
-  showToast('신고 기능은 아직 준비 중입니다.', { color: 'info' })
-  closeReportModal()
+async function submitReport() {
+  if (!props.item?.auctionId) {
+    showToast('신고할 경매 정보를 확인할 수 없습니다.', { color: 'error' })
+    return
+  }
+
+  const targetMemberId = Number(props.item?.sellerId)
+  const reportType = reportForm.value.type.trim()
+  const detail = reportForm.value.detail.trim()
+
+  if (!Number.isFinite(targetMemberId)) {
+    showToast('신고 대상 정보를 확인할 수 없습니다.', { color: 'error' })
+    return
+  }
+
+  if (!reportType || !detail) {
+    showToast('신고 유형과 신고 내용을 입력해주세요.', { color: 'error' })
+    return
+  }
+
+  if (isReportSubmitting.value) {
+    return
+  }
+
+  isReportSubmitting.value = true
+
+  try {
+    await createReport({
+      auctionId: props.item.auctionId,
+      targetMemberId,
+      reason: `[${reportType}] ${detail}`,
+    })
+    showToast('신고가 접수되었습니다.')
+    closeReportModal()
+  } catch (error) {
+    showToast(error?.message || '신고 접수에 실패했습니다.', { color: 'error' })
+  } finally {
+    isReportSubmitting.value = false
+  }
 }
 
 function buyNow() {
@@ -506,6 +557,7 @@ function buyNow() {
         :form="reportForm"
         :item="item"
         :report-types="reportTypes"
+        :submitting="isReportSubmitting"
         @close="closeReportModal"
         @submit="submitReport"
       />
