@@ -248,6 +248,17 @@
     </p>
   </details>
 
+   <details style="margin-left: 20px;">
+    <summary>신고 및 자동 정지 시스템</summary>
+    <ul>
+      <br>
+      <li>부적절한 활동으로 누적 신고 10회 초과 시 해당 사용자의 계정이 자동으로 정지되어 서비스 이용이 제한되는 보호 로직을 확인합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/신고.gif" width="800" alt="신고 및 자동 정지 시스템" />
+    </p>
+  </details>
+
   <details style="margin-left: 20px;">
     <summary>즉시 구매</summary>
     <ul>
