@@ -132,6 +132,17 @@
     </p>
   </details>
 
+  <details style="margin-left: 20px;">
+    <summary>홈 화면</summary>
+    <ul>
+      <br>
+      <li>메인 배너를 통해 서비스의 특징을 파악하고 실시간으로 업데이트되는 인기 경매 물품 목록을 확인합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/홈화면.gif" width="800" alt="홈 화면" />
+    </p>
+  </details>
+
    <details style="margin-left: 20px;">
     <summary>검수 신청</summary>
     <ul>
@@ -187,6 +198,17 @@
     </p>
   </details>
 
+  <details style="margin-left: 20px;">
+    <summary>즉시 구매</summary>
+    <ul>
+      <br>
+      <li>즉시 낙찰 가능 경매에서 낙찰을 진행하고 구매 내역에 즉시 등록되는 것을 확인합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/즉시구매.gif" width="800" alt="즉시구매" />
+    </p>
+  </details>
+
    <details style="margin-left: 20px;">
     <summary>경매 문의 답변 등록 - 상세페이지</summary>
     <ul>
@@ -208,6 +230,29 @@
       <img src="./assets/demo/경매문의마이페이지답변.gif" width="800" alt="경매문의-상세페이지답변" />
     </p>
   </details>
+
+  <details style="margin-left: 20px;">
+    <summary>포인트 충전</summary>
+    <ul>
+      <br>
+      <li>충전 금액 입력 및 가상계좌 발급 후 토스 개발자 센터를 통한 입금 처리와 포인트 내역 반영까지의 전 과정을 확인합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/포인트충전.gif" width="800" alt="포인트 충전" />
+    </p>
+  </details>
+
+  <details style="margin-left: 20px;">
+    <summary>포인트 인출</summary>
+    <ul>
+      <br>
+      <li>보유 포인트를 인출 신청하고 포인트 이용 내역에 인출 정보가 즉시 업데이트되는 것을 확인합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/포인트인출.gif" width="800" alt="포인트 인출" />
+    </p>
+  </details>
+
 
 
   <details style="margin-left: 20px;">
