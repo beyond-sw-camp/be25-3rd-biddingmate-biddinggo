@@ -5,8 +5,7 @@
 
     <section class="login-layout" aria-label="사용자 로그인">
       <aside class="login-visual" :style="{ '--login-visual-image': `url('${visualImageUrl}')` }" aria-hidden="true">
-        <p class="login-visual__brand">Biddinggo</p>
-
+        <RouterLink to="/" class="login-visual__brand">Biddinggo</RouterLink>
         <div class="login-visual__message">
           <span class="login-visual__label">THE DIGITAL CURATOR</span>
           <h1>
@@ -94,6 +93,7 @@
 
 <script setup>
 import { useAuth } from '../composables/useAuth'
+import { RouterLink } from 'vue-router';
 
 const visualImageUrl = 'https://www.figma.com/api/mcp/asset/860efbfe-88d2-4135-8255-bdbcb5eeab4b'
 const { startLogin } = useAuth()
