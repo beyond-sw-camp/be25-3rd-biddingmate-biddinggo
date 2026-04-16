@@ -66,14 +66,27 @@
 
 # 1.  화면 및 기능 설계서
 
-<br/> 
+<details>
+  <summary>화면 및 기능 설계서 상세보기</summary>
+<p align="center">
+  <img src="./assets/피그마 캡쳐 사진.png" alt="화면 및 기능 설계서 미리보기" width="500" />
+  <br/>
+  <br/>
+  🔗 <a href="https://www.figma.com/design/0dOGV93f5reRfWgJiv1rBH/Biddinggo?node-id=185-1330&t=DaXBKBPbxL8Q8Hgr-1">화면 및 기능 설계서 (Figma 링크)</a>
+</p>
+</details>
 
+<br>
 
 ---
 
 
 
 # 2.  테스트 결과 보고서
+
+<details>
+  <summary>테스트 결과 보고서 상세보기</summary>
+</details>
 
 <br/> 
 
@@ -82,7 +95,33 @@
 
 # 3.  시연
 
-<br/> 
+<details>
+  <summary>시연 상세보기</summary>
+  <br />
+
+  <details style="margin-left: 20px;">
+    <summary>회원가입</summary>
+    <ul>
+      <br>
+      <li>최초 소셜 로그인 시 회원가입 화면이 표시되며 필수 정보를 입력하면 회원가입이 완료됩니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/소셜회원가입.gif" width="800" alt="회원가입 시연" />
+    </p>
+  </details>
+
+  <details style="margin-left: 20px;">
+    <summary>로그인</summary>
+    <ul>
+      <br>
+      <li>등록된 계정으로 간편하게 로그인합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/로그인.gif" width="800" alt="로그인 시연" />
+    </p>
+  </details>
+
+</details>
 
 
 ---
