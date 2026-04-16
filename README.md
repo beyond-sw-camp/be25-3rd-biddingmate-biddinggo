@@ -166,13 +166,24 @@
   </details>
 
    <details style="margin-left: 20px;">
-    <summary>로그인</summary>
+    <summary>연장 경매 등록</summary>
     <ul>
       <br>
-      <li>등록된 계정으로 간편하게 로그인합니다.</li>
+      <li>경매 등록 시 '연장 경매' 옵션을 선택하여 마감 직전 입찰 시 시간이 자동으로 연장되는 상품을 생성합니다.</li>
     </ul>
     <p align="center">
-      <img src="./assets/demo/로그인.gif" width="800" alt="로그인 시연" />
+      <img src="./assets/demo/연장경매등록.gif" width="800" alt="연장 경매 등록" />
+    </p>
+  </details>
+
+  <details style="margin-left: 20px;">
+    <summary>연장 경매</summary>
+    <ul>
+      <br>
+      <li>경매 종료 1분 전 입찰이 발생하면 마감 시간이 자동으로 3분 연장되어 치열한 입찰 경쟁이 유지되는 로직을 확인합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/연장경매.gif" width="800" alt="연장 경매" />
     </p>
   </details>
 
@@ -286,6 +297,17 @@
     </p>
   </details>
 
+   <details style="margin-left: 20px;">
+    <summary>마이페이지 조회</summary>
+    <ul>
+      <br>
+      <li>대시보드, 입찰·구매·판매 내역, 관심 경매, 경매 관리 및 문의 내역까지 사용자의 모든 활동 데이터를 한눈에 확인하고 관리합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/마이페이지조회.gif" width="800" alt="마이페이지 조회" />
+    </p>
+  </details>
+
   <details style="margin-left: 20px;">
     <summary>포인트 충전</summary>
     <ul>
@@ -319,7 +341,27 @@
     </p>
   </details>
 
+<details style="margin-left: 20px;">
+    <summary>낙찰 이후 배송지 정보 등록</summary>
+    <ul>
+      <br>
+      <li>구매자의 배송지 입력과 판매자의 운송장 정보 등록 후 구매자 화면에서 '구매 확정' 버튼이 활성화되는 단계별 거래 흐름을 확인합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/낙찰이후배송지등록.gif" width="800" alt="낙찰 이후 배송지 정보 등록" />
+    </p>
+  </details>
 
+  <details style="margin-left: 20px;">
+    <summary>낙찰 이후 구매 확정 및 리뷰</summary>
+    <ul>
+      <br>
+      <li>구매 확정 및 리뷰 작성을 진행하며 판매자의 대금 정산 확인과 판매자 프로필에 리뷰가 즉시 반영되는 통합 프로세스를 확인합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/낙찰이후구매확정리뷰.gif" width="800" alt="낙찰 이후 구매 확정 및 리뷰" />
+    </p>
+  </details>
 
   <details style="margin-left: 20px;">
     <summary>프로필 수정</summary>
