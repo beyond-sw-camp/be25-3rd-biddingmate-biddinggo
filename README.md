@@ -1,10 +1,16 @@
 # BiddingGo 
 
+<br>
+
 <p align="center">
 <img src="./assets/images/로고2.png"  width="300"/>
 </p>
 
----
+<br>
+
+<p align="center">
+<img src="./assets/images/로고3.png"  width="1200"/>
+</p>
 
 # Bidding mate
 
@@ -20,12 +26,14 @@
   </tr>
   
  <tr>
-  <td align="center"><img src="./assets/images/프랑키.png" width="150" height="201" style="object-fit: cover;" alt="김진혁" /></td>
+
+  <td align="center"><img src="./assets/images/프랑키.png" width="150" height="210" style="object-fit: cover;" alt="김진혁" /></td>
   <td align="center"><img src="./assets/images/징베.png" width="150" height="210" style="object-fit: cover;" alt="박선우" /></td>   
-  <td align="center"><img src="./assets/images/니카1 1.png" width="150" height="201" style="object-fit: cover;" alt="윤정윤" /></td>   
+  <td align="center"><img src="./assets/images/니카.png" width="150" height="210" style="object-fit: cover;" alt="윤정윤" /></td>   
   <td align="center"><img src="./assets/images/키드.png" width="150" height="210" style="object-fit: cover;" alt="이민경" /></td>  
   <td align="center"><img src="./assets/images/트라팔가 로우.png" width="150" height="210" style="object-fit: cover;" alt="이애은" /></td>   
   <td align="center"><img src="./assets/images/거프.png" width="150" height="210" style="object-fit: cover;" alt="한규진" /></td>  
+
 </tr>
 
   <tr>
@@ -62,11 +70,6 @@
 4. [회고](#4--회고)
 
 ---
-<p align="center">
-<img src="./assets/images/로고3.png"  width="1200"/>
-</p>
-
-<br>
 
 # 1.  화면 및 기능 설계서
 
@@ -94,7 +97,7 @@
   <img src="./assets/images/프론트엔드 테스트 보고서.png" alt="테스트 결과 보고서" width="1000" />
   <br/>
   <br/>
-    🔗 <a href="https://www.figma.com/design/0dOGV93f5reRfWgJiv1rBH/Biddinggo?node-id=185-1330&t=DaXBKBPbxL8Q8Hgr-1">테스트 결과 보고서 [스프레드 시트]</a>
+    🔗 <a href="https://docs.google.com/spreadsheets/d/16YGKpTcpo310JjvUu9Q1Nm9atCI-XYx5TB2GD3ocx3E/edit?gid=967734658#gid=967734658">테스트 결과 보고서 [스프레드 시트]</a>
 </p>
 </details>
 
@@ -373,7 +376,18 @@
     </p>
   </details>
 
-<details style="margin-left: 20px;">
+  <details style="margin-left: 20px;">
+    <summary>탈퇴</summary>
+    <ul>
+      <br>
+      <li>마이페이지에서 회원 탈퇴를 진행하고 이후 기존 계정으로 로그인이 불가능한 상태가 되는 것을 확인합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/탈퇴.gif" width="800" alt="탈퇴" />
+    </p>
+  </details>
+
+  <details style="margin-left: 20px;">
     <summary>낙찰 이후 배송지 정보 등록</summary>
     <ul>
       <br>
