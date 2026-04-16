@@ -376,6 +376,17 @@
     </p>
   </details>
 
+    <details style="margin-left: 20px;">
+    <summary>탈퇴</summary>
+    <ul>
+      <br>
+      <li>마이페이지에서 회원 탈퇴를 진행하고 이후 기존 계정으로 로그인이 불가능한 상태가 되는 것을 확인합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/탈퇴.gif" width="800" alt="탈퇴" />
+    </p>
+  </details>
+
 <details style="margin-left: 20px;">
     <summary>낙찰 이후 배송지 정보 등록</summary>
     <ul>
