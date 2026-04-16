@@ -112,9 +112,20 @@ const sellerProfile = computed(() => ({
 const categoryTrailLabel = computed(() => props.item?.categoryPathLabel || '전체 경매')
 
 const minimumBidAmount = computed(() => {
-  const currentPrice = Number(String(props.item?.price || '0').replace(/[^\d]/g, '')) || 0
-  const bidUnit = Number(String(props.item?.bidUnit || '0').replace(/[^\d]/g, '')) || 0
-  return currentPrice + bidUnit
+  const startPrice = Number(props.item?.rawStartPrice || 0) || 0
+  const vickreyPrice = Number(props.item?.rawVickreyPrice || 0) || 0
+  const bidUnit = Number(props.item?.rawBidUnit || String(props.item?.bidUnit || '0').replace(/[^\d]/g, '')) || 0
+  const bidCount = Number(props.item?.rawBidCount || 0) || 0
+
+  if (bidCount <= 0) {
+    return startPrice
+  }
+
+  if (bidCount === 1) {
+    return startPrice + bidUnit
+  }
+
+  return vickreyPrice + bidUnit
 })
 
 const buyNowAmount = computed(() =>

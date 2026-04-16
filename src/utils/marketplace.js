@@ -157,7 +157,11 @@ export function normalizeAuctionDetail(
   } = {},
 ) {
   const status = normalizeEnumValue(detail.status)
-  const currentPrice = detail.vickreyPrice ?? detail.vickrey_price ?? detail.startPrice
+  const rawStartPrice = Number(detail.startPrice ?? 0) || 0
+  const rawVickreyPrice = Number(detail.vickreyPrice ?? detail.vickrey_price ?? 0) || 0
+  const rawBidUnit = Number(detail.bidUnit ?? 0) || 0
+  const rawBidCount = Number(detail.bidCount ?? 0) || 0
+  const currentPrice = rawVickreyPrice || rawStartPrice
   const sellerName = detail.sellerNickname || (detail.sellerId ? `판매자 ${detail.sellerId}` : '판매자')
   const sellerRating = Number(sellerProfileData?.rating ?? detail.sellerRating ?? 0)
   const sellerReviewCount = Number(sellerProfileData?.reviewCount ?? detail.sellerReviewCount ?? 0)
@@ -216,8 +220,12 @@ export function normalizeAuctionDetail(
     brand: detail.item?.brand || '브랜드 미정',
     price: formatPrice(currentPrice),
     startPrice: formatPrice(detail.startPrice),
+    rawStartPrice,
+    rawVickreyPrice,
+    rawBidUnit,
+    rawBidCount,
     pricePredictionLabel: normalizePricePrediction(detail.pricePrediction ?? detail.price_prediction),
-    bids: `입찰 ${detail.bidCount ?? 0}회`,
+    bids: `입찰 ${rawBidCount}회`,
     wishCount: Number(detail.wishCount || 0),
     isWished: Boolean(wishlistStatus?.wished),
     time: getCountdownLabel(detail.endDate),
