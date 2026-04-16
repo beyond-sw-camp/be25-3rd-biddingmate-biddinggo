@@ -72,7 +72,7 @@
   <img src="./assets/images/피그마 캡쳐 사진.png" alt="화면 및 기능 설계서 미리보기" width="500" />
   <br/>
   <br/>
-  🔗 <a href="https://www.figma.com/design/0dOGV93f5reRfWgJiv1rBH/Biddinggo?node-id=185-1330&t=DaXBKBPbxL8Q8Hgr-1">화면 및 기능 설계서 (Figma 링크)</a>
+  🔗 <a href="https://www.figma.com/design/0dOGV93f5reRfWgJiv1rBH/Biddinggo?node-id=185-1330&t=DaXBKBPbxL8Q8Hgr-1">화면 및 기능 설계서 [Figma 링크]</a>
 </p>
 </details>
 
@@ -86,6 +86,7 @@
 
 <details>
   <summary>테스트 결과 보고서 상세보기</summary>
+    🔗 <a href="https://www.figma.com/design/0dOGV93f5reRfWgJiv1rBH/Biddinggo?node-id=185-1330&t=DaXBKBPbxL8Q8Hgr-1">테스트 결과 보고서 [스프레드 시트]</a>
 </details>
 
 <br/> 
