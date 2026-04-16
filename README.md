@@ -86,7 +86,12 @@
 
 <details>
   <summary>테스트 결과 보고서 상세보기</summary>
+  <p align="center">
+  <img src="./assets/images/프론트엔드 테스트 보고서.png" alt="테스트 결과 보고서" width="800" />
+  <br/>
+  <br/>
     🔗 <a href="https://www.figma.com/design/0dOGV93f5reRfWgJiv1rBH/Biddinggo?node-id=185-1330&t=DaXBKBPbxL8Q8Hgr-1">테스트 결과 보고서 [스프레드 시트]</a>
+</p>
 </details>
 
 <br/> 
