@@ -94,7 +94,7 @@
 <script setup>
 import { useAuth } from '../composables/useAuth'
 import { RouterLink } from 'vue-router';
+import visualImageUrl from '../assets/login-main.png'
 
-const visualImageUrl = 'https://www.figma.com/api/mcp/asset/860efbfe-88d2-4135-8255-bdbcb5eeab4b'
 const { startLogin } = useAuth()
 </script>
