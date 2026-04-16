@@ -503,7 +503,7 @@
       <li>구매 확정 및 리뷰 작성을 진행하며 판매자의 대금 정산 확인과 판매자 프로필에 리뷰가 즉시 반영되는 통합 프로세스를 확인합니다.</li>
     </ul>
     <p align="center">
-      <img src="./assets/demo/낙찰이후배송등록.gif" width="800" alt="낙찰 이후 구매 확정 및 리뷰" />
+      <img src="./assets/demo/낙찰이후구매확정리뷰.gif" width="800" alt="낙찰 이후 구매 확정 및 리뷰" />
     </p>
   </details>
 
