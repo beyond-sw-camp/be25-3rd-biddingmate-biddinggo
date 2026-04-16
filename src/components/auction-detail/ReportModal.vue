@@ -1,7 +1,10 @@
 <script setup>
+import { computed } from 'vue'
 import BaseModal from '../shared/BaseModal.vue'
 
-defineProps({
+defineEmits(['close', 'submit'])
+
+const props = defineProps({
   assets: {
     type: Object,
     required: true,
@@ -24,13 +27,19 @@ defineProps({
   },
 })
 
-defineEmits(['close', 'submit'])
+const thumbnailUrl = computed(() => {
+  const imageUrls = Array.isArray(props.item?.images)
+    ? props.item.images.map((image) => image?.url || image?.publicUrl || image?.imageUrl).filter(Boolean)
+    : []
+
+  return props.item?.image || props.item?.representativeImageUrl || imageUrls[0] || props.assets.listWatchImage
+})
 </script>
 
 <template>
   <BaseModal panel-class="detail-report-modal" title="신고하기" @close="$emit('close')">
       <div class="detail-inquiry-summary">
-        <img :src="assets.listWatchImage" :alt="item.title" class="detail-inquiry-thumb" />
+        <img :src="thumbnailUrl" :alt="item.title" class="detail-inquiry-thumb" />
         <div class="detail-inquiry-summary-copy">
           <strong>{{ item.title }}</strong>
           <span>현재 입찰가</span>
