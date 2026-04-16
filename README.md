@@ -1,7 +1,7 @@
 # BiddingGo 
 
 <p align="center">
-<img src="./assets/로고.png" />
+<img src="./assets/images/로고.png" />
 </p>
 
 ---
@@ -20,12 +20,12 @@
   </tr>
   
  <tr>
-  <td align="center"><img src="./assets/프랑키.png" width="150" height="201" style="object-fit: cover;" alt="김진혁" /></td>
-  <td align="center"><img src="./assets/징베.png" width="150" height="210" style="object-fit: cover;" alt="박선우" /></td>   
-  <td align="center"><img src="./assets/상디.png" width="150" height="201" style="object-fit: cover;" alt="윤정윤" /></td>   
-  <td align="center"><img src="./assets/키드.png" width="150" height="210" style="object-fit: cover;" alt="이민경" /></td>  
-  <td align="center"><img src="./assets/트라팔가 로우.png" width="150" height="210" style="object-fit: cover;" alt="이애은" /></td>   
-  <td align="center"><img src="./assets/거프.png" width="150" height="210" style="object-fit: cover;" alt="한규진" /></td>  
+  <td align="center"><img src="./assets/images/프랑키.png" width="150" height="201" style="object-fit: cover;" alt="김진혁" /></td>
+  <td align="center"><img src="./assets/images/징베.png" width="150" height="210" style="object-fit: cover;" alt="박선우" /></td>   
+  <td align="center"><img src="./assets/images/상디.png" width="150" height="201" style="object-fit: cover;" alt="윤정윤" /></td>   
+  <td align="center"><img src="./assets/images/키드.png" width="150" height="210" style="object-fit: cover;" alt="이민경" /></td>  
+  <td align="center"><img src="./assets/images/트라팔가 로우.png" width="150" height="210" style="object-fit: cover;" alt="이애은" /></td>   
+  <td align="center"><img src="./assets/images/거프.png" width="150" height="210" style="object-fit: cover;" alt="한규진" /></td>  
 </tr>
 
   <tr>
@@ -106,7 +106,7 @@
       <li>최초 소셜 로그인 시 회원가입 화면이 표시되며 필수 정보를 입력하면 회원가입이 완료됩니다.</li>
     </ul>
     <p align="center">
-      <img src="./assets/소셜회원가입.gif" width="800" alt="회원가입 시연" />
+      <img src="./assets/demo/소셜회원가입.gif" width="800" alt="회원가입 시연" />
     </p>
   </details>
 
@@ -117,7 +117,7 @@
       <li>등록된 계정으로 간편하게 로그인합니다.</li>
     </ul>
     <p align="center">
-      <img src="./assets/로그인.gif" width="800" alt="로그인 시연" />
+      <img src="./assets/demo/로그인.gif" width="800" alt="로그인 시연" />
     </p>
   </details>
 
@@ -128,18 +128,74 @@
       <li>현재 세션을 종료하고 안전하게 로그아웃합니다.</li>
     </ul>
     <p align="center">
-      <img src="./assets/로그아웃.gif" width="800" alt="로그아웃 시연" />
+      <img src="./assets/demo/로그아웃.gif" width="800" alt="로그아웃 시연" />
     </p>
   </details>
+
+   <details style="margin-left: 20px;">
+    <summary>검수 신청</summary>
+    <ul>
+      <br>
+      <li>사전 검수 상품 등록을 위해 검수 서비스를 신청합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/검수신청.gif" width="800" alt="검수 신청" />
+    </p>
+  </details>
+
+  <details style="margin-left: 20px;">
+    <summary>검수 배송 정보 등록</summary>
+    <ul>
+      <br>
+      <li>판매자가 검수를 위해 물품을 지정된 주소로 관리자에게 발송합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/검수배송정보등록.gif" width="800" alt="검수 배송 정보 등록" />
+    </p>
+  </details>
+
+  <details style="margin-left: 20px;">
+    <summary>검수 승인 [관리자]</summary>
+    <ul>
+      <br>
+      <li>검수 결과가 적합한 상품에 대해 승인을 처리합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/검수승인.gif" width="800" alt="검수 승인" />
+    </p>
+  </details>
+
+  <details style="margin-left: 20px;">
+    <summary>검수 반려 [관리자]</summary>
+    <ul>
+      <br>
+      <li>상품 정보가 부적합하거나 검수 기준 미달 시 요청을 거절합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/검수반려.gif" width="800" alt="검수 반" />
+    </p>
+  </details>
+
+   <details style="margin-left: 20px;">
+    <summary>검수 반려 확인</summary>
+    <ul>
+      <br>
+      <li>검수 반려 이후 반려된 상품의 현재 상태를 확인합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/검수반려이후.gif" width="800" alt="검수 반려 확인" />
+    </p>
+  </details>
+
 
   <details style="margin-left: 20px;">
     <summary>프로필 수정</summary>
     <ul>
       <br>
-      <li>닉네임, 계좌번호, 이미지 등 개인 정보를 자유롭게 수정하고 관리할 수 있습니다.</li>
+      <li>닉네임, 계좌번호, 이미지 등 개인 정보를 자유롭게 수정하고 관리할 수 있으며 닉네임은 첫 1회 변경 이후 30일 뒤에 재수정이 가능합니다.</li>
     </ul>
     <p align="center">
-      <img src="./assets/프로필수정.gif" width="800" alt="프로필 수정 시연" />
+      <img src="./assets/demo/프로필수정.gif" width="800" alt="프로필 수정 시연" />
     </p>
   </details>
 
@@ -150,7 +206,7 @@
       <li>배송지 추가/삭제 및 기본 배송지 설정을 통해 편리한 주소록 관리가 가능합니다.</li>
     </ul>
     <p align="center">
-      <img src="./assets/배송지관리.gif" width="800" alt="배송지 관 시연" />
+      <img src="./assets/demo/배송지관리.gif" width="800" alt="배송지 관리 시연" />
     </p>
   </details>
 
