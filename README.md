@@ -187,6 +187,17 @@
     </p>
   </details>
 
+   <details style="margin-left: 20px;">
+    <summary>경매 문의 답변 등록 - 상세페이지</summary>
+    <ul>
+      <br>
+      <li>상품 상세페이지에서 직접 문의를 등록하고 동일한 페이지에서 즉시 답변을 작성하여 소통합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/경매문의-상세페이지답변.gif" width="800" alt="경매문의-상세페이지답변" />
+    </p>
+  </details>
+
 
   <details style="margin-left: 20px;">
     <summary>프로필 수정</summary>
