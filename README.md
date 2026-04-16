@@ -133,12 +133,24 @@
   </details>
 
   <details style="margin-left: 20px;">
-    <summary>프로필 관리</summary>
+    <summary>프로필 수정</summary>
     <ul>
+      <br>
       <li>닉네임, 계좌번호, 이미지 등 개인 정보를 자유롭게 수정하고 관리할 수 있습니다.</li>
     </ul>
     <p align="center">
-      <img src="./assets/프로필관리.gif" width="800" alt="프로필 수정 시연" />
+      <img src="./assets/프로필수정.gif" width="800" alt="프로필 수정 시연" />
+    </p>
+  </details>
+
+  <details style="margin-left: 20px;">
+    <summary>배송지 관리</summary>
+    <ul>
+      <br>
+      <li>배송지 추가/삭제 및 기본 배송지 설정을 통해 편리한 주소록 관리가 가능합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/배송지관리.gif" width="800" alt="배송지 관 시연" />
     </p>
   </details>
 
