@@ -1,7 +1,7 @@
 # BiddingGo 
 
 <p align="center">
-<img src="./assets/images/로고2.png"  width="500"/>
+<img src="./assets/images/로고2.png"  width="300"/>
 </p>
 
 ---
