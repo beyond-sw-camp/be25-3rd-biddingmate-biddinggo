@@ -19,14 +19,14 @@
     <th>한규진
   </tr>
   
-  <tr>
-    <td align="center"><img width="120" alt="김진혁" src="" /></td>
-    <td align="center"><img width="120" alt="박선우" src="" /></td>   
-    <td align="center"><img width="120" alt="윤정윤" src="" /></td>   
-    <td align="center"><img width="120" alt="이민경" src="" /></td>  
-    <td align="center"><img width="120" alt="이애은" src="" /></td>   
-    <td align="center"><img width="120" alt="한규진" src="" /></td>  
-  </tr>
+ <tr>
+  <td align="center"><img src="./assets/프랑키.png" width="150" height="201" style="object-fit: cover;" alt="김진혁" /></td>
+  <td align="center"><img src="./assets/징베.png" width="150" height="210" style="object-fit: cover;" alt="박선우" /></td>   
+  <td align="center"><img src="./assets/상디.png" width="150" height="201" style="object-fit: cover;" alt="윤정윤" /></td>   
+  <td align="center"><img src="./assets/키드.png" width="150" height="210" style="object-fit: cover;" alt="이민경" /></td>  
+  <td align="center"><img src="./assets/트라팔가 로우.png" width="150" height="210" style="object-fit: cover;" alt="이애은" /></td>   
+  <td align="center"><img src="./assets/거프.png" width="150" height="210" style="object-fit: cover;" alt="한규진" /></td>  
+</tr>
 
   <tr>
     <td align="center">
