@@ -97,7 +97,7 @@
   <img src="./assets/images/프론트엔드 테스트 보고서.png" alt="테스트 결과 보고서" width="1000" />
   <br/>
   <br/>
-    🔗 <a href="https://www.figma.com/design/0dOGV93f5reRfWgJiv1rBH/Biddinggo?node-id=185-1330&t=DaXBKBPbxL8Q8Hgr-1">테스트 결과 보고서 [스프레드 시트]</a>
+    🔗 <a href="https://docs.google.com/spreadsheets/d/16YGKpTcpo310JjvUu9Q1Nm9atCI-XYx5TB2GD3ocx3E/edit?gid=967734658#gid=967734658">테스트 결과 보고서 [스프레드 시트]</a>
 </p>
 </details>
 
