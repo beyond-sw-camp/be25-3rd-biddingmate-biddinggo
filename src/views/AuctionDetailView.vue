@@ -66,8 +66,8 @@ async function loadAuctionDetail(auctionId) {
     const [categoryResponse, bidResponse, inquiryResponse, sellerProfileResponse, wishlistStatusResponse] = await Promise.allSettled([
       getCategoryList(),
       authState.isAuthenticated ? getAuctionBids(auctionId, { page: 1, size: 20 }) : Promise.resolve({ content: [] }),
-      getAuctionInquiryList(auctionId, { page: 1, size: 20 }),
-      sellerUserId ? getUserSellerProfile(sellerUserId) : Promise.resolve(null),
+      authState.isAuthenticated ? getAuctionInquiryList(auctionId, { page: 1, size: 20 }) : Promise.resolve({ content: [] }),
+      authState.isAuthenticated && sellerUserId ? getUserSellerProfile(sellerUserId) : Promise.resolve(null),
       authState.isAuthenticated ? getWishlistStatus(auctionId) : Promise.resolve({ wished: false }),
     ])
     const categorySource = categoryResponse.status === 'fulfilled'

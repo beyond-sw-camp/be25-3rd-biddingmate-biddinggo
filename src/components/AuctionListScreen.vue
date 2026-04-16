@@ -209,7 +209,6 @@ watch(
         <AuctionCard
           v-for="(item, index) in items"
           :key="`${item.title}-${index}`"
-          :heart-icon="assets.heartIcon"
           :image-src="assets.listWatchImage"
           :item="item"
           :wishlist-processing="wishlistProcessingIds.has(item.auctionId)"

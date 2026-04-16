@@ -1,9 +1,18 @@
 <template>
-  <div class="app-shell">
-    <MyPageSidebar />
+  <div class="app-shell" :class="{ 'app-shell--sidebar-collapsed': isSidebarCollapsed }">
+    <MyPageSidebar :collapsed="isSidebarCollapsed" />
 
     <div class="content-shell">
       <header class="topbar">
+        <button
+          class="sidebar-toggle-button"
+          type="button"
+          :aria-label="isSidebarCollapsed ? '네비게이션 바 펼치기' : '네비게이션 바 접기'"
+          @click="toggleSidebar"
+        >
+          <v-icon :icon="isSidebarCollapsed ? 'mdi-menu-open' : 'mdi-menu'" aria-hidden="true" />
+        </button>
+
         <form class="topbar-search-field topbar-search" role="search" @submit.prevent="submitSearch">
           <button type="submit" class="topbar-search__button" aria-label="경매 검색">
             <v-icon icon="mdi-magnify" class="topbar-search__icon" aria-hidden="true" />
@@ -48,10 +57,13 @@ import NotificationModal from '../NotificationModal.vue'
 import MyPageSidebar from './MyPageSidebar.vue'
 import { useNotificationCenter } from '../../composables/useNotificationCenter'
 
+const SIDEBAR_STORAGE_KEY = 'biddinggo:mypage-sidebar-collapsed'
+
 const route = useRoute()
 const router = useRouter()
 const { auth, logout } = useAuth()
 const isNotificationOpen = ref(false)
+const isSidebarCollapsed = ref(readSidebarCollapsed())
 
 const currentSearchQuery = computed(() => String(route.query.q || ''))
 const searchQuery = ref(currentSearchQuery.value)
@@ -84,6 +96,22 @@ function openLogin() {
 
 function openMyPage() {
   router.push('/mypage')
+}
+
+function readSidebarCollapsed() {
+  if (typeof window === 'undefined') {
+    return false
+  }
+
+  return window.localStorage.getItem(SIDEBAR_STORAGE_KEY) === 'true'
+}
+
+function toggleSidebar() {
+  isSidebarCollapsed.value = !isSidebarCollapsed.value
+
+  if (typeof window !== 'undefined') {
+    window.localStorage.setItem(SIDEBAR_STORAGE_KEY, String(isSidebarCollapsed.value))
+  }
 }
 
 async function handleLogout() {

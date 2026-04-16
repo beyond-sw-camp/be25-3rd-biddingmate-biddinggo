@@ -12,7 +12,7 @@
     <div class="history-card__body">
       <div class="history-card__content">
         <StatusBadge :status="item.status" />
-        <h3>{{ item.name }}</h3>
+        <h3>{{ truncateTitle(item.name) }}</h3>
         <div class="history-card__time">
           <v-icon icon="mdi-alarm" />
           <p class="history-card__meta">{{ item.time }}</p>
@@ -42,6 +42,11 @@ defineProps({
 })
 
 defineEmits(['open-detail'])
+
+function truncateTitle(value) {
+  const title = String(value || '')
+  return title.length > 12 ? `${title.slice(0, 12)}...` : title
+}
 
 function setNoImage(event) {
   event.target.src = noImage

@@ -1,5 +1,5 @@
 <template>
-  <div class="app-shell">
+  <div class="app-shell" :class="{ 'app-shell--sidebar-collapsed': isSidebarCollapsed }">
     <aside
       ref="sidebarRef"
       class="sidebar"
@@ -20,11 +20,6 @@
           :class="{ active: currentNavKey === item.key || (!currentNavKey && currentScreen === item.key) }"
           @click="emit('navigate', item.route ?? item.key)"
         >
-          <span
-            class="app-shell__nav-icon"
-            :style="{ '--nav-icon-url': `url(${item.icon})` }"
-            aria-hidden="true"
-          ></span>
           <span>{{ item.label }}</span>
         </button>
       </nav>
@@ -32,6 +27,15 @@
 
     <div class="content-shell">
       <header class="topbar">
+        <button
+          class="sidebar-toggle-button"
+          type="button"
+          :aria-label="isSidebarCollapsed ? '네비게이션 바 펼치기' : '네비게이션 바 접기'"
+          @click="toggleSidebar"
+        >
+          <v-icon :icon="isSidebarCollapsed ? 'mdi-menu-open' : 'mdi-menu'" aria-hidden="true" />
+        </button>
+
         <form class="topbar-search-field topbar-search" role="search" @submit.prevent="submitSearch">
           <button type="submit" class="topbar-search__button" aria-label="상품 검색">
             <v-icon icon="mdi-magnify" class="topbar-search__icon" aria-hidden="true" />
@@ -73,6 +77,8 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import NotificationModal from './NotificationModal.vue'
 import { useNotificationCenter } from '../composables/useNotificationCenter'
 
+const SIDEBAR_STORAGE_KEY = 'biddinggo:sidebar-collapsed'
+
 const props = defineProps({
   currentScreen: {
     type: String,
@@ -99,6 +105,7 @@ const props = defineProps({
 const emit = defineEmits(['navigate', 'open-login', 'open-mypage', 'logout', 'search'])
 
 const isNotificationOpen = ref(false)
+const isSidebarCollapsed = ref(readSidebarCollapsed())
 const sidebarRef = ref(null)
 const isSidebarScrolling = ref(false)
 const searchQuery = ref(String(props.initialSearchQuery || ''))
@@ -122,6 +129,22 @@ function clearSidebarScrollTimer() {
   if (sidebarScrollTimer) {
     window.clearTimeout(sidebarScrollTimer)
     sidebarScrollTimer = null
+  }
+}
+
+function readSidebarCollapsed() {
+  if (typeof window === 'undefined') {
+    return false
+  }
+
+  return window.localStorage.getItem(SIDEBAR_STORAGE_KEY) === 'true'
+}
+
+function toggleSidebar() {
+  isSidebarCollapsed.value = !isSidebarCollapsed.value
+
+  if (typeof window !== 'undefined') {
+    window.localStorage.setItem(SIDEBAR_STORAGE_KEY, String(isSidebarCollapsed.value))
   }
 }
 

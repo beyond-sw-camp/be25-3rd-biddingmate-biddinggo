@@ -34,6 +34,7 @@
         <thead>
           <tr>
             <th>거래 번호</th>
+            <th>검수 여부</th>
             <th>판매자</th>
             <th>구매자</th>
             <th>상품명</th>
@@ -45,6 +46,7 @@
         <tbody>
           <tr v-for="row in filteredRows" :key="row.tradeNo" @click="openDetail(row)">
             <td class="admin-transaction-table__strong">{{ row.tradeNo }}</td>
+            <td>{{ inspectionLabel(row) }}</td>
             <td>{{ row.seller }}</td>
             <td>{{ row.buyer }}</td>
             <td>{{ row.productName }}</td>
@@ -55,7 +57,7 @@
             </td>
           </tr>
           <tr v-if="filteredRows.length === 0">
-            <td class="admin-transaction-table__empty" colspan="7">조건에 맞는 거래 내역이 없습니다.</td>
+            <td class="admin-transaction-table__empty" colspan="8">조건에 맞는 거래 내역이 없습니다.</td>
           </tr>
         </tbody>
       </table>
@@ -139,6 +141,8 @@ function formatAmount(value) {
 }
 
 function toRow(item) {
+  const inspectionYn = String(item.inspectionYn || '').toUpperCase()
+
   return {
     winnerDealId: item.winnerDealId,
     tradeNo: item.dealNumber || `WD-${item.winnerDealId}`,
@@ -149,10 +153,14 @@ function toRow(item) {
     tradedAt: formatDate(item.createdAt),
     status: statusToLabel(item.status),
     statusRaw: item.status,
+    inspectionYn: inspectionYn || null,
+    inspectionItem: inspectionYn ? inspectionYn === 'YES' : null,
     category: '-',
     productTitle: item.itemName || '-',
     finalBid: formatAmount(item.winnerPrice),
     image: assets.listWatchImage,
+    carrier: null,
+    trackingNumber: null,
     shippingAddress: {
       name: '-',
       phone: '-',
@@ -165,8 +173,19 @@ function toRow(item) {
   }
 }
 
+function inspectionLabel(row) {
+  if (row?.inspectionItem === true) return '검수 상품'
+  if (row?.inspectionItem === false) return '일반 상품'
+  if (String(row?.inspectionYn || '').toUpperCase() === 'YES') return '검수 상품'
+  if (String(row?.inspectionYn || '').toUpperCase() === 'NO') return '일반 상품'
+  return '미확인'
+}
+
 function applyDetail(baseRow, detail) {
   const hasShipping = Boolean(detail?.carrier && detail?.trackingNumber)
+  const inspectionItem = typeof detail?.inspectionItem === 'boolean'
+    ? detail.inspectionItem
+    : baseRow.inspectionItem === true
 
   return {
     ...baseRow,
@@ -179,10 +198,14 @@ function applyDetail(baseRow, detail) {
     tradedAt: formatDate(detail?.createdAt),
     status: statusToLabel(detail?.status),
     statusRaw: detail?.status ?? baseRow.statusRaw,
-    category: detail?.inspectionItem ? '검수 상품' : '일반 상품',
+    inspectionYn: detail?.inspectionYn ?? baseRow.inspectionYn ?? null,
+    inspectionItem,
+    category: inspectionItem ? '검수 상품' : '일반 상품',
     productTitle: detail?.itemName ?? baseRow.productTitle,
     finalBid: formatAmount(detail?.winnerPrice ?? 0),
     image: detail?.itemImageUrl || baseRow.image,
+    carrier: detail?.carrier ?? null,
+    trackingNumber: detail?.trackingNumber ?? null,
     shippingAddress: {
       name: detail?.recipient || detail?.winnerName || '-',
       phone: detail?.tel || '-',
@@ -240,9 +263,17 @@ async function openDetail(row) {
 
   try {
     const detail = await fetchAdminTransactionDetail(row.winnerDealId)
-    selectedTrade.value = applyDetail(row, detail)
-  } catch {
-    // 목록 기본 정보로 모달 유지
+    const nextTrade = applyDetail(row, detail)
+    selectedTrade.value = nextTrade
+    rows.value = rows.value.map((item) => (
+      item.winnerDealId === nextTrade.winnerDealId
+        ? { ...item, inspectionItem: nextTrade.inspectionItem, inspectionYn: nextTrade.inspectionYn }
+        : item
+    ))
+  } catch (error) {
+    errorMessage.value = String(error?.message || '거래 상세 조회에 실패했습니다.')
+    // 상세 조회 실패 시 조건부 버튼 오해를 줄이기 위해 모달을 닫는다.
+    selectedTrade.value = null
   } finally {
     isDetailLoading.value = false
   }
@@ -254,7 +285,7 @@ function closeDetail() {
 }
 
 function openShippingModal() {
-  if (!selectedTrade.value?.canRegisterTrackingNumber || isSubmittingShipping.value) return
+  if (!selectedTrade.value || isSubmittingShipping.value) return
   isShippingModalOpen.value = true
 }
 

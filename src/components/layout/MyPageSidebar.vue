@@ -2,7 +2,7 @@
   <aside
     ref="sidebarRef"
     class="sidebar"
-    :class="{ 'sidebar--scrolling': isSidebarScrolling }"
+    :class="{ 'sidebar--collapsed': collapsed, 'sidebar--scrolling': isSidebarScrolling }"
     @scroll="handleSidebarScroll"
   >
     <RouterLink class="brand-block" to="/">
@@ -30,6 +30,12 @@ import { RouterLink, useRoute } from 'vue-router'
 import { navItems } from '../../data/mypage'
 
 const route = useRoute()
+defineProps({
+  collapsed: {
+    type: Boolean,
+    default: false,
+  },
+})
 const sidebarRef = ref(null)
 const isSidebarScrolling = ref(false)
 let sidebarScrollTimer = null

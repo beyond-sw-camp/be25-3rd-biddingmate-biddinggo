@@ -7,7 +7,7 @@
   >
     <div class="winner-deal-card__main">
       <StatusBadge :status="item.status" />
-      <h3>{{ item.name }}</h3>
+      <h3>{{ truncateTitle(item.name) }}</h3>
     </div>
 
     <div class="winner-deal-card__side">
@@ -33,6 +33,11 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['select'])
+
+function truncateTitle(value) {
+  const title = String(value || '')
+  return title.length > 12 ? `${title.slice(0, 12)}...` : title
+}
 
 function handleClick() {
   if (props.clickable) {

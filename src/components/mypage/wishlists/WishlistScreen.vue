@@ -30,7 +30,6 @@
       :key="item.id"
       class="wishlist-auction-card"
       :class="{ 'wishlist-auction-card--inspection': item.isInspected }"
-      :heart-icon="heartIcon"
       :image-src="noImage"
       :item="item"
       :wishlist-processing="wishlistProcessingIds.has(item.auctionId)"
@@ -77,7 +76,6 @@ const props = defineProps({
 
 const emit = defineEmits(['load-more', 'open-detail', 'sort-change', 'toggle-wishlist'])
 const loadMoreTarget = ref(null)
-const heartIcon = 'https://www.figma.com/api/mcp/asset/64e7d0cd-6ebd-4492-a951-2b0ca40524d2'
 let observer = null
 
 const sortOptions = [
