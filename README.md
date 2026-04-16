@@ -260,6 +260,17 @@
   </details>
 
   <details style="margin-left: 20px;">
+    <summary>낙찰 프로세스</summary>
+    <ul>
+      <br>
+      <li>경매 마감 직후 최고가 입찰자에게 낙찰 알림이 발송되며 구매자와 판매자의 마이페이지 내역에 각각 거래 정보가 즉시 등록되는 것을 확인합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/낙찰.gif" width="800" alt="낙찰 프로세스" />
+    </p>
+  </details>
+
+  <details style="margin-left: 20px;">
     <summary>즉시 구매</summary>
     <ul>
       <br>
