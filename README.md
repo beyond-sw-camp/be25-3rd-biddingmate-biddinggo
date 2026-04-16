@@ -144,6 +144,39 @@
   </details>
 
    <details style="margin-left: 20px;">
+    <summary>일반 경매 등록</summary>
+    <ul>
+      <br>
+      <li>매자가 상품 정보와 시작가 여유 있는 마감 기한을 설정하여 기본적인 경매 물품으로 등록합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/일반경매등록.gif" width="800" alt="일반 경매 등" />
+    </p>
+  </details>
+
+   <details style="margin-left: 20px;">
+    <summary>타임딜 경매 등록</summary>
+    <ul>
+      <br>
+      <li>단시간 내에 종료되는 전략적인 경매를 위해 짧은 마감 시간을 설정한 타임딜 상품을 등록합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/타임딜경매등록.gif" width="800" alt="타임딜 경매 등록" />
+    </p>
+  </details>
+
+   <details style="margin-left: 20px;">
+    <summary>로그인</summary>
+    <ul>
+      <br>
+      <li>등록된 계정으로 간편하게 로그인합니다.</li>
+    </ul>
+    <p align="center">
+      <img src="./assets/demo/로그인.gif" width="800" alt="로그인 시연" />
+    </p>
+  </details>
+
+   <details style="margin-left: 20px;">
     <summary>검수 신청</summary>
     <ul>
       <br>
