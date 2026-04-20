@@ -579,11 +579,18 @@
 
 ---
 
-# 5.  팀 Notion
-<br/>
+# 5.  팀 notion
+<details>
+  <summary>팀 notion 상세보기</summary>
+  <p align="center">
+  <img width="1279" height="712" alt="image" src="https://github.com/user-attachments/assets/91753899-9087-4315-910a-fc2078e7a37a" />
+  <br/>
+  <br/>
+    🔗 <a href="https://www.notion.so/2-2fb1072487c380368604fa96626503a4?source=copy_link">팀 notion [notion 링크]</a>
+</p>
+</details>
 
-🔗[팀 notion](https://www.notion.so/2-2fb1072487c380368604fa96626503a4?source=copy_link)
-<br/>
+<br/> 
 
 ---
 
