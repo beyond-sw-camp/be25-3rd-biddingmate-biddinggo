@@ -597,12 +597,12 @@
 
 # 6.  발표자료
 <details>
-  <summary>팀 notion 상세보기</summary>
+  <summary>발표자료 상세보기</summary>
   <p align="center">
-  <img width="1279" height="712" alt="image" src="https://github.com/user-attachments/assets/91753899-9087-4315-910a-fc2078e7a37a" />
+  <img width="1063" height="799" alt="image" src="https://github.com/user-attachments/assets/e14d6c59-8c35-4b1a-867c-eb6ef544b568" />
   <br/>
   <br/>
-    🔗 <a href="https://www.notion.so/2-2fb1072487c380368604fa96626503a4?source=copy_link">팀 notion [notion 링크]</a>
+    🔗 <a href="docs/biddinggo-presentation.pdf">발표자료 [발표자료 링크]</a>
 </p>
 </details>
 
