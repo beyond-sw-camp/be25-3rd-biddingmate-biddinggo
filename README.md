@@ -69,7 +69,8 @@
 3. [테스트 결과 보고서](#3--테스트-결과-보고서)
 4. [시연](#4--시연)
 5. [팀 notion](#5--팀-notion)
-6. [회고](#6--회고)
+6. [발표자료](#6--발표자료)
+7. [회고](#7--회고)
 
 ---
 # 1.  프로젝트 개요
@@ -594,7 +595,22 @@
 
 ---
 
-# 6.  회고
+# 6.  발표자료
+<details>
+  <summary>팀 notion 상세보기</summary>
+  <p align="center">
+  <img width="1279" height="712" alt="image" src="https://github.com/user-attachments/assets/91753899-9087-4315-910a-fc2078e7a37a" />
+  <br/>
+  <br/>
+    🔗 <a href="https://www.notion.so/2-2fb1072487c380368604fa96626503a4?source=copy_link">팀 notion [notion 링크]</a>
+</p>
+</details>
+
+<br/> 
+
+---
+
+# 7.  회고
 <br/>
 
 #### 김진혁
