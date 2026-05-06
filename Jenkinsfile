@@ -58,10 +58,10 @@ pipeline {
             git config user.name "jenkins-bot"
             git config user.email "jenkins-bot@users.noreply.github.com"
 
-            sed -i "s|image: $GHCR_IMAGE_NAME:.*|image: $GHCR_IMAGE_NAME:$IMAGE_TAG|" $FRONTEND_DEPLOYMENT_MANIFEST
+            sed -i "s|image: .*|image: $GHCR_IMAGE_NAME:$IMAGE_TAG|" $FRONTEND_DEPLOYMENT_MANIFEST
 
             grep "image: $GHCR_IMAGE_NAME:$IMAGE_TAG" $FRONTEND_DEPLOYMENT_MANIFEST
-            
+
             git diff -- $FRONTEND_DEPLOYMENT_MANIFEST
             git add $FRONTEND_DEPLOYMENT_MANIFEST
             git diff --cached --quiet && echo "No frontend image change." || git commit -m "ci: update frontend image to $IMAGE_TAG [skip ci]"
