@@ -24,6 +24,8 @@ pipeline {
 
         sh '''
           docker build --no-cache \
+            --build-arg VITE_API_BASE_URL=$VITE_API_BASE_URL \
+            --build-arg VITE_TOSS_CLIENT_KEY=$VITE_TOSS_CLIENT_KEY \
             -t $GHCR_IMAGE_NAME:$IMAGE_TAG \
             -t $GHCR_IMAGE_NAME:latest \
             .
