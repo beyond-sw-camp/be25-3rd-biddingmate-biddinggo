@@ -25,22 +25,16 @@ pipeline {
           env.IMAGE_TAG = "${env.BUILD_NUMBER}"
         }
 
-        sh 'docker -v'
-        sh 'echo $GHCR_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
         sh '''
-            set -a
-            . infra/env/frontend.env
-            set +a
-
-            docker build --no-cache \
-                --label "org.opencontainers.image.source=$GITHUB_REPOSITORY_URL" \
-                --build-arg VITE_API_BASE_URL="$VITE_API_BASE_URL" \
-                --build-arg VITE_TOSS_CLIENT_KEY="$VITE_TOSS_CLIENT_KEY" \
-                -t $GHCR_IMAGE_NAME:$DOCKER_IMAGE_VERSION \
-                -t $GHCR_IMAGE_NAME:latest \
-                frontend
+          docker build --no-cache \
+            --build-arg VITE_API_BASE_URL=$VITE_API_BASE_URL \
+            --build-arg VITE_TOSS_CLIENT_KEY=$VITE_TOSS_CLIENT_KEY \
+            -t $GHCR_IMAGE_NAME:$IMAGE_TAG \
+            -t $GHCR_IMAGE_NAME:latest \
+            .
         '''
-        sh 'docker image inspect $GHCR_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+
+        sh 'docker image inspect $GHCR_IMAGE_NAME:$IMAGE_TAG'
       }
     }
 
