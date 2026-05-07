@@ -13,6 +13,9 @@ pipeline {
 
     CICD_REPO_URL = 'github.com/beyond-sw-camp/be25-4th-biddingmate-biddinggo.git'
     FRONTEND_DEPLOYMENT_MANIFEST = 'infra/k8s/frontend/deployment.yaml'
+
+    VITE_API_BASE_URL = 'https://api.bidding-go.shop'
+    VITE_TOSS_CLIENT_KEY = 'test_ck_4yKeq5bgrpPoPA0lxOkXrGX0lzW6'
   }
 
   stages {
